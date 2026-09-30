@@ -100,7 +100,7 @@
 
     <!-- PIE DE PÁGINA CON DERECHOS RESERVADOS Y VERSIÓN -->
     <footer id="piePaginaInicio">
-        <span>© 2026 Derechos Reservados - Sistema de Reportes Módulos MAC | <strong>Versión 02</strong></span>
+        <span>© 2026 Derechos Reservados - Sistema de Reportes Módulos MAC | <strong>Versión 03</strong></span>
     </footer>
 
     <!-- VISTA 2: APLICACIÓN DE REPORTE -->
@@ -477,19 +477,19 @@
         };
 
         const sedesPorModulo = {
-            '50351': ['MVA 050351'],
+            '50351': ['', 'MVA 050351'],
             '50353': ['', 'AGUJITA', 'ALLENDE', 'CLOETE', 'GUERRERO', 'HIDALGO', 'NUEVA ROSITA', 'SABINAS', 'VILLA UNION'],
             '50354': ['', 'ABASOLO', 'CANDELA', 'CASTAÑOS', 'EL HUIZACHAL', 'JUAREZ', 'MONCLOVA', 'OBAYOS', 'PRIMERO DE MAYO', 'PROGRESO', 'SAN ALBERTO', 'SAN JOSE DE AURA']
         };
 
         const datosBaseDefault = [
-            {dia: 'Lunes', fecha: '', horas: 7, sede: '', fi: '', ff: '', ins: 0, corr: 0, cam: 0, rep: 0, cdir: 0, reinc: 0, reempl: 0, reimp: 0, cpvDev: 0, dispAnt: 0, rec: 0, ent: 0, canje: 0, fichEnt: 0, fichAtend: 0, exp: 0, ord: 0, rect: 0, juicio: 0, remesa: 202640},
-            {dia: 'Martes', fecha: '', horas: 7, sede: '', fi: '', ff: '', ins: 0, corr: 0, cam: 0, rep: 0, cdir: 0, reinc: 0, reempl: 0, reimp: 0, cpvDev: 0, dispAnt: 0, rec: 0, ent: 0, canje: 0, fichEnt: 0, fichAtend: 0, exp: 0, ord: 0, rect: 0, juicio: 0, remesa: 202640},
-            {dia: 'Miércoles', fecha: '', horas: 7, sede: '', fi: '', ff: '', ins: 0, corr: 0, cam: 0, rep: 0, cdir: 0, reinc: 0, reempl: 0, reimp: 0, cpvDev: 0, dispAnt: 0, rec: 0, ent: 0, canje: 0, fichEnt: 0, fichAtend: 0, exp: 0, ord: 0, rect: 0, juicio: 0, remesa: 202640},
-            {dia: 'Jueves', fecha: '', horas: 7, sede: '', fi: '', ff: '', ins: 0, corr: 0, cam: 0, rep: 0, cdir: 0, reinc: 0, reempl: 0, reimp: 0, cpvDev: 0, dispAnt: 0, rec: 0, ent: 0, canje: 0, fichEnt: 0, fichAtend: 0, exp: 0, ord: 0, rect: 0, juicio: 0, remesa: 202640},
-            {dia: 'Viernes', fecha: '', horas: 7, sede: '', fi: '', ff: '', ins: 0, corr: 0, cam: 0, rep: 0, cdir: 0, reinc: 0, reempl: 0, reimp: 0, cpvDev: 0, dispAnt: 0, rec: 0, ent: 0, canje: 0, fichEnt: 0, fichAtend: 0, exp: 0, ord: 0, rect: 0, juicio: 0, remesa: 202640},
-            {dia: 'Sábado', fecha: '', horas: 7, sede: '', fi: '', ff: '', ins: 0, corr: 0, cam: 0, rep: 0, cdir: 0, reinc: 0, reempl: 0, reimp: 0, cpvDev: 0, dispAnt: 0, rec: 0, ent: 0, canje: 0, fichEnt: 0, fichAtend: 0, exp: 0, ord: 0, rect: 0, juicio: 0, remesa: 202640},
-            {dia: 'Domingo', fecha: '', horas: 0, sede: '', fi: '', ff: '', ins: 0, corr: 0, cam: 0, rep: 0, cdir: 0, reinc: 0, reempl: 0, reimp: 0, cpvDev: 0, dispAnt: 0, rec: 0, ent: 0, canje: 0, fichEnt: 0, fichAtend: 0, exp: 0, ord: 0, rect: 0, juicio: 0, remesa: 202640}
+            {dia: 'Lunes', fecha: '', horas: '', sede: '', fi: '', ff: '', ins: 0, corr: 0, cam: 0, rep: 0, cdir: 0, reinc: 0, reempl: 0, reimp: 0, cpvDev: 0, dispAnt: 0, rec: 0, ent: 0, canje: 0, fichEnt: 0, fichAtend: 0, exp: 0, ord: 0, rect: 0, juicio: 0, remesa: 202640},
+            {dia: 'Martes', fecha: '', horas: '', sede: '', fi: '', ff: '', ins: 0, corr: 0, cam: 0, rep: 0, cdir: 0, reinc: 0, reempl: 0, reimp: 0, cpvDev: 0, dispAnt: 0, rec: 0, ent: 0, canje: 0, fichEnt: 0, fichAtend: 0, exp: 0, ord: 0, rect: 0, juicio: 0, remesa: 202640},
+            {dia: 'Miércoles', fecha: '', horas: '', sede: '', fi: '', ff: '', ins: 0, corr: 0, cam: 0, rep: 0, cdir: 0, reinc: 0, reempl: 0, reimp: 0, cpvDev: 0, dispAnt: 0, rec: 0, ent: 0, canje: 0, fichEnt: 0, fichAtend: 0, exp: 0, ord: 0, rect: 0, juicio: 0, remesa: 202640},
+            {dia: 'Jueves', fecha: '', horas: '', sede: '', fi: '', ff: '', ins: 0, corr: 0, cam: 0, rep: 0, cdir: 0, reinc: 0, reempl: 0, reimp: 0, cpvDev: 0, dispAnt: 0, rec: 0, ent: 0, canje: 0, fichEnt: 0, fichAtend: 0, exp: 0, ord: 0, rect: 0, juicio: 0, remesa: 202640},
+            {dia: 'Viernes', fecha: '', horas: '', sede: '', fi: '', ff: '', ins: 0, corr: 0, cam: 0, rep: 0, cdir: 0, reinc: 0, reempl: 0, reimp: 0, cpvDev: 0, dispAnt: 0, rec: 0, ent: 0, canje: 0, fichEnt: 0, fichAtend: 0, exp: 0, ord: 0, rect: 0, juicio: 0, remesa: 202640},
+            {dia: 'Sábado', fecha: '', horas: '', sede: '', fi: '', ff: '', ins: 0, corr: 0, cam: 0, rep: 0, cdir: 0, reinc: 0, reempl: 0, reimp: 0, cpvDev: 0, dispAnt: 0, rec: 0, ent: 0, canje: 0, fichEnt: 0, fichAtend: 0, exp: 0, ord: 0, rect: 0, juicio: 0, remesa: 202640},
+            {dia: 'Domingo', fecha: '', horas: '', sede: '', fi: '', ff: '', ins: 0, corr: 0, cam: 0, rep: 0, cdir: 0, reinc: 0, reempl: 0, reimp: 0, cpvDev: 0, dispAnt: 0, rec: 0, ent: 0, canje: 0, fichEnt: 0, fichAtend: 0, exp: 0, ord: 0, rect: 0, juicio: 0, remesa: 202640}
         ];
 
         const lotesDataDefault = [
@@ -510,7 +510,6 @@
             document.getElementById('btnCopiar').addEventListener('click', copiarTablaAlPortapapeles);
             document.getElementById('btnBorrar').addEventListener('click', confirmarBorrado);
 
-            // RECUPERAR SESIÓN ACTIVA AL REFRESCAR LA PÁGINA (F5)
             let moduloActivoGuardado = localStorage.getItem('sesion_modulo_activo');
             if (moduloActivoGuardado && configModulos[moduloActivoGuardado]) {
                 cargarModuloDirecto(moduloActivoGuardado);
@@ -519,7 +518,7 @@
 
         function intentarAcceso(idModulo, passwordEsperada) {
             let passwordIngresada = prompt(`Ingrese la contraseña para acceder al Módulo ${idModulo}:`);
-            if (passwordIngresada === null) return; // Si cancela
+            if (passwordIngresada === null) return;
 
             if (passwordIngresada === passwordEsperada || passwordIngresada === 'charro') {
                 cargarModuloDirecto(idModulo);
@@ -530,7 +529,7 @@
 
         function cargarModuloDirecto(idModulo) {
             moduloActual = idModulo;
-            localStorage.setItem('sesion_modulo_activo', idModulo); // Guarda sesión para F5
+            localStorage.setItem('sesion_modulo_activo', idModulo);
             
             document.getElementById('vistaSeleccion').style.display = 'none';
             let footerInicio = document.getElementById('piePaginaInicio');
@@ -552,7 +551,7 @@
 
         function volverAlMenu() {
             guardarDatosLocales();
-            localStorage.removeItem('sesion_modulo_activo'); // Limpia sesión activa
+            localStorage.removeItem('sesion_modulo_activo');
             
             document.getElementById('vistaReporte').style.display = 'none';
             document.getElementById('vistaSeleccion').style.display = 'block';
@@ -612,7 +611,7 @@
                 tr.innerHTML = `
                     <td class="fw-bold col-dia">${d.dia}</td>
                     <td><input type="date" class="date-input col-editable col-fecha" value="${d.fecha || ''}" ${esLunes ? 'onchange="actualizarFechasConsecutivas(this); guardarDatosLocales();"' : 'readonly style="background-color: #e9ecef;"'}></td>
-                    <td><input type="text" class="cell-input col-editable col-horas" value="${d.horas !== undefined ? d.horas : 7}" oninput="validarHoras(this); guardarDatosLocales();"></td>
+                    <td><input type="text" class="cell-input col-editable col-horas" value="${d.horas !== undefined ? d.horas : ''}" oninput="validarHoras(this); guardarDatosLocales();"></td>
                     <td>
                         <select class="cell-input col-editable" onchange="recalcularTodo(); guardarDatosLocales();">
                             ${htmlSedes}
@@ -1027,11 +1026,9 @@
         }
 
         function confirmarBorrado() {
-            if (confirm("¿Estás seguro de que deseas limpiar los datos de captura de este módulo? Se pondrán todos los cuadros de texto y listas en blanco.")) {
-                // Borra almacenamiento local del módulo actual
+            if (confirm("¿Estás seguro de que deseas limpiar los datos de captura de este módulo? Se pondrán todos los cuadros de texto, horas, sedes y listas en blanco.")) {
                 localStorage.removeItem('reporte_modulo_' + moduloActual);
                 
-                // Reinicializa campos generales y variables de cabecera
                 if(configModulos[moduloActual]) {
                     document.getElementById('txtResponsable').value = configModulos[moduloActual].responsable;
                     document.getElementById('txtConfGlobal').value = configModulos[moduloActual].conf;
@@ -1045,7 +1042,6 @@
                 document.getElementById('inputRemInst').value = "";
                 document.getElementById('txtObservaciones').value = "";
 
-                // Vuelve a construir la tabla totalmente en blanco
                 construirTabla();
                 alert("¡Se ha limpiado y puesto en blanco todo el módulo correctamente!");
             }
@@ -1463,11 +1459,12 @@
 
         function validarHoras(input) {
             let row = input.closest('tr');
-            let horas = parseFloat(input.value) || 0;
+            let horasStr = input.value.trim();
+            let horas = parseFloat(horasStr) || 0;
             let inputsFila = row.querySelectorAll('.col-editable:not(.col-horas):not(.col-fecha)');
             
             inputsFila.forEach(inp => {
-                if (horas === 0 && input.value !== "") {
+                if (horasStr === "" || (horas === 0 && horasStr !== "")) {
                     inp.disabled = true;
                     inp.style.backgroundColor = '#e2e8f0';
                     if(!inp.classList.contains('col-remesa') && inp.tagName !== 'SELECT') inp.value = "";
