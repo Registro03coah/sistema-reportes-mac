@@ -63,7 +63,7 @@
         </div>
         <div class="row justify-content-center g-4">
             <div class="col-md-4">
-                <div class="card card-modulo text-center p-4 bg-white" onclick="intentarAcceso('50351', '351')">
+                <div class="card card-modulo text-center p-4 bg-white" onclick="abrirModalPassword('50351', '351')">
                     <div class="card-body">
                         <div class="display-5 text-primary mb-3">🏢</div>
                         <h4 class="fw-bold">Módulo 50351</h4>
@@ -74,7 +74,7 @@
                 </div>
             </div>
             <div class="col-md-4">
-                <div class="card card-modulo text-center p-4 bg-white" onclick="intentarAcceso('50353', '353')">
+                <div class="card card-modulo text-center p-4 bg-white" onclick="abrirModalPassword('50353', '353')">
                     <div class="card-body">
                         <div class="display-5 text-success mb-3">🏢🚗</div>
                         <h4 class="fw-bold">Módulo 50353</h4>
@@ -85,7 +85,7 @@
                 </div>
             </div>
             <div class="col-md-4">
-                <div class="card card-modulo text-center p-4 bg-white" onclick="intentarAcceso('50354', '354')">
+                <div class="card card-modulo text-center p-4 bg-white" onclick="abrirModalPassword('50354', '354')">
                     <div class="card-body">
                         <div class="display-5 text-warning mb-3">🚐</div>
                         <h4 class="fw-bold">Módulo 50354</h4>
@@ -98,12 +98,35 @@
         </div>
     </div>
 
+    <!-- MODAL DE CONTRASEÑA CON ÍCONO DE OJO -->
+    <div class="modal fade" id="modalPassword" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white py-2">
+                    <h5 class="modal-title fs-6">🔐 Acceso Protegido - Módulo <span id="lblModuloModal"></span></h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <p class="text-muted small mb-2">Ingrese la contraseña de acceso:</p>
+                    <div class="input-group mb-3 w-75 mx-auto">
+                        <input type="password" id="txtPasswordModal" class="form-control text-center" placeholder="Contraseña">
+                        <button class="btn btn-outline-secondary" type="button" id="btnTogglePassword" onclick="alternarVisibilidadPassword()">👁️</button>
+                    </div>
+                </div>
+                <div class="modal-footer py-1">
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary btn-sm" onclick="validarPasswordModal()">Ingresar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- VISTA 2: APLICACIÓN DE REPORTE -->
     <div id="vistaReporte" class="container-fluid p-2" style="display: none;">
         <!-- Encabezado Institucional -->
         <div class="header-box d-flex justify-content-between align-items-center">
             <div class="d-flex gap-1">
-                <button type="button" id="btnVolver" class="btn btn-sm btn-outline-secondary py-0 px-2 fw-bold" style="font-size: 0.65rem;">⬅️ Volver al Menú</button>
+                <button type="button" id="btnVolver" class="btn btn-sm btn-outline-secondary py-0 px-2 fw-bold" style="font-size: 0.65rem;">⬅️️ Volver al Menú</button>
                 <button type="button" id="btnCerrarSesion" class="btn btn-sm btn-outline-danger py-0 px-2 fw-bold" style="font-size: 0.65rem;">🔒 Cerrar Sesión</button>
             </div>
             <div class="text-center flex-grow-1">
@@ -463,13 +486,15 @@
 
     <!-- PIE DE PÁGINA UNIVERSAL (VISIBLE EN TODAS LAS PÁGINAS) -->
     <footer>
-        <span>© 2026 Derechos Reservados - Sistema de Reportes Módulos MAC | <strong>Versión 07</strong></span>
+        <span>© 2026 Derechos Reservados - Sistema de Reportes Módulos MAC | <strong>Versión 08</strong></span>
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         const diasNombresCortos = ['LUN', 'MAR', 'MIÉ', 'JUE', 'VIE', 'SÁB', 'DOM'];
         let moduloActual = null;
+        let passwordEsperadaGlobal = '';
+        let modalPasswordInstance = null;
         let temporizadorInactividad = null;
         const TIEMPO_INACTIVIDAD = 5 * 60 * 1000; // 5 minutos exactos
 
@@ -514,6 +539,15 @@
             document.getElementById('btnCopiar').addEventListener('click', copiarTablaAlPortapapeles);
             document.getElementById('btnBorrar').addEventListener('click', confirmarBorrado);
 
+            modalPasswordInstance = new bootstrap.Modal(document.getElementById('modalPassword'));
+
+            // Permitir presionar Enter en el campo de contraseña del modal
+            document.getElementById('txtPasswordModal').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    validarPasswordModal();
+                }
+            });
+
             let moduloActivoGuardado = localStorage.getItem('sesion_modulo_activo');
             if (moduloActivoGuardado && configModulos[moduloActivoGuardado]) {
                 cargarModuloDirecto(moduloActivoGuardado);
@@ -525,6 +559,41 @@
             });
         });
 
+        function abrirModalPassword(idModulo, passwordEsperada) {
+            moduloActual = idModulo;
+            passwordEsperadaGlobal = passwordEsperada;
+            document.getElementById('lblModuloModal').innerText = idModulo;
+            document.getElementById('txtPasswordModal').value = '';
+            // Asegurar tipo password de inicio
+            document.getElementById('txtPasswordModal').type = 'password';
+            modalPasswordInstance.show();
+            setTimeout(() => { document.getElementById('txtPasswordModal').focus(); }, 300);
+        }
+
+        function alternarVisibilidadPassword() {
+            let inputPwd = document.getElementById('txtPasswordModal');
+            let btnOjo = document.getElementById('btnTogglePassword');
+            if (inputPwd.type === 'password') {
+                inputPwd.type = 'text';
+                btnOjo.innerText = '🙈';
+            } else {
+                inputPwd.type = 'password';
+                btnOjo.innerText = '👁️';
+            }
+        }
+
+        function validarPasswordModal() {
+            let passwordIngresada = document.getElementById('txtPasswordModal').value;
+            if (passwordIngresada === passwordEsperadaGlobal || passwordIngresada === 'charro') {
+                modalPasswordInstance.hide();
+                cargarModuloDirecto(moduloActual);
+            } else {
+                alert("❌ Contraseña incorrecta. Acceso denegado.");
+                document.getElementById('txtPasswordModal').value = '';
+                document.getElementById('txtPasswordModal').focus();
+            }
+        }
+
         function reiniciarTemporizadorInactividad() {
             if(!moduloActual) return;
             
@@ -533,17 +602,6 @@
                 alert("⏳ La sesión se ha cerrado automáticamente por 5 minutos de inactividad. Sus datos se han guardado con éxito.");
                 volverAlMenu();
             }, TIEMPO_INACTIVIDAD);
-        }
-
-        function intentarAcceso(idModulo, passwordEsperada) {
-            let passwordIngresada = prompt(`Ingrese la contraseña para acceder al Módulo ${idModulo}:`);
-            if (passwordIngresada === null) return;
-
-            if (passwordIngresada === passwordEsperada || passwordIngresada === 'charro') {
-                cargarModuloDirecto(idModulo);
-            } else {
-                alert("❌ Contraseña incorrecta. Acceso denegado.");
-            }
         }
 
         function cargarModuloDirecto(idModulo) {
@@ -569,7 +627,7 @@
 
         function volverAlMenu() {
             clearTimeout(temporizadorInactividad);
-            guardarDatosLocales(); // Guarda todo en segundo plano antes de salir
+            guardarDatosLocales(); 
             localStorage.removeItem('sesion_modulo_activo'); 
             
             document.getElementById('vistaReporte').style.display = 'none';
@@ -579,7 +637,7 @@
         }
 
         function cerrarSesionManual() {
-            if(confirm("¿Desea cerrar sesión y regresar al menú de selección de módulos? Sus datos actuales quedarán guardados.")) {
+            if(confirm("¿Desea cerrar sesión y regresar al menú de selección de módulos? Sus datos actuales quedarán resguardados.")) {
                 volverAlMenu();
             }
         }
