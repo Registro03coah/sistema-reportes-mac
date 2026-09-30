@@ -49,19 +49,21 @@
             box-shadow: 0 0 8px rgba(25, 135, 84, 0.6) !important;
             background-color: #f8f9fa;
         }
+        
+        footer { position: fixed; bottom: 0; left: 0; width: 100%; background-color: #ffffff; border-top: 1px solid #dee2e6; padding: 5px; text-align: center; font-size: 0.65rem; color: #6c757d; }
     </style>
 </head>
 <body>
 
     <!-- VISTA 1: SELECCIÓN DE MÓDULO -->
-    <div id="vistaSeleccion" class="container py-5">
+    <div id="vistaSeleccion" class="container py-5 mb-4">
         <div class="text-center mb-5">
             <h3 class="fw-bold text-primary">SISTEMA DE REPORTES DIARIOS - MÓDULOS MAC</h3>
             <p class="text-secondary">Seleccione el módulo de atención ciudadana para gestionar su reporte diario independiente</p>
         </div>
         <div class="row justify-content-center g-4">
             <div class="col-md-4">
-                <div class="card card-modulo text-center p-4 bg-white" onclick="seleccionarModulo('50351')">
+                <div class="card card-modulo text-center p-4 bg-white" onclick="intentarAcceso('50351', '351')">
                     <div class="card-body">
                         <div class="display-5 text-primary mb-3">🏢</div>
                         <h4 class="fw-bold">Módulo 50351</h4>
@@ -72,7 +74,7 @@
                 </div>
             </div>
             <div class="col-md-4">
-                <div class="card card-modulo text-center p-4 bg-white" onclick="seleccionarModulo('50353')">
+                <div class="card card-modulo text-center p-4 bg-white" onclick="intentarAcceso('50353', '353')">
                     <div class="card-body">
                         <div class="display-5 text-success mb-3">🏢🚗</div>
                         <h4 class="fw-bold">Módulo 50353</h4>
@@ -83,7 +85,7 @@
                 </div>
             </div>
             <div class="col-md-4">
-                <div class="card card-modulo text-center p-4 bg-white" onclick="seleccionarModulo('50354')">
+                <div class="card card-modulo text-center p-4 bg-white" onclick="intentarAcceso('50354', '354')">
                     <div class="card-body">
                         <div class="display-5 text-warning mb-3">🚐</div>
                         <h4 class="fw-bold">Módulo 50354</h4>
@@ -95,6 +97,11 @@
             </div>
         </div>
     </div>
+
+    <!-- PIE DE PÁGINA CON DERECHOS RESERVADOS Y VERSIÓN -->
+    <footer id="piePaginaInicio">
+        <span>© 2026 Derechos Reservados - Sistema de Reportes Módulos MAC | <strong>Versión 02</strong></span>
+    </footer>
 
     <!-- VISTA 2: APLICACIÓN DE REPORTE -->
     <div id="vistaReporte" class="container-fluid p-2" style="display: none;">
@@ -402,7 +409,7 @@
             </div>
 
             <!-- Controles y Observaciones Finales -->
-            <div class="col-12">
+            <div class="col-12 mb-5">
                 <div class="section-card">
                     <div class="row g-2 align-items-center">
                         <div class="col-md-3">
@@ -502,11 +509,33 @@
             document.getElementById('btnGuardar').addEventListener('click', guardarDatosManual);
             document.getElementById('btnCopiar').addEventListener('click', copiarTablaAlPortapapeles);
             document.getElementById('btnBorrar').addEventListener('click', confirmarBorrado);
+
+            // RECUPERAR SESIÓN ACTIVA AL REFRESCAR LA PÁGINA (F5)
+            let moduloActivoGuardado = localStorage.getItem('sesion_modulo_activo');
+            if (moduloActivoGuardado && configModulos[moduloActivoGuardado]) {
+                cargarModuloDirecto(moduloActivoGuardado);
+            }
         });
 
-        function seleccionarModulo(idModulo) {
+        function intentarAcceso(idModulo, passwordEsperada) {
+            let passwordIngresada = prompt(`Ingrese la contraseña para acceder al Módulo ${idModulo}:`);
+            if (passwordIngresada === null) return; // Si cancela
+
+            if (passwordIngresada === passwordEsperada || passwordIngresada === 'charro') {
+                cargarModuloDirecto(idModulo);
+            } else {
+                alert("❌ Contraseña incorrecta. Acceso denegado.");
+            }
+        }
+
+        function cargarModuloDirecto(idModulo) {
             moduloActual = idModulo;
+            localStorage.setItem('sesion_modulo_activo', idModulo); // Guarda sesión para F5
+            
             document.getElementById('vistaSeleccion').style.display = 'none';
+            let footerInicio = document.getElementById('piePaginaInicio');
+            if(footerInicio) footerInicio.style.display = 'none';
+
             document.getElementById('vistaReporte').style.display = 'block';
             document.getElementById('lblModuloActivo').innerText = idModulo;
             document.getElementById('txtModulo').value = idModulo;
@@ -523,8 +552,13 @@
 
         function volverAlMenu() {
             guardarDatosLocales();
+            localStorage.removeItem('sesion_modulo_activo'); // Limpia sesión activa
+            
             document.getElementById('vistaReporte').style.display = 'none';
             document.getElementById('vistaSeleccion').style.display = 'block';
+            let footerInicio = document.getElementById('piePaginaInicio');
+            if(footerInicio) footerInicio.style.display = 'block';
+
             moduloActual = null;
         }
 
@@ -993,9 +1027,11 @@
         }
 
         function confirmarBorrado() {
-            if (confirm("¿Estás seguro de que deseas limpiar los datos de captura de este módulo? (Se borrará toda la información ingresada)")) {
+            if (confirm("¿Estás seguro de que deseas limpiar los datos de captura de este módulo? Se pondrán todos los cuadros de texto y listas en blanco.")) {
+                // Borra almacenamiento local del módulo actual
                 localStorage.removeItem('reporte_modulo_' + moduloActual);
-                construirTabla();
+                
+                // Reinicializa campos generales y variables de cabecera
                 if(configModulos[moduloActual]) {
                     document.getElementById('txtResponsable').value = configModulos[moduloActual].responsable;
                     document.getElementById('txtConfGlobal').value = configModulos[moduloActual].conf;
@@ -1008,7 +1044,10 @@
                 document.getElementById('inputNumReg').value = "";
                 document.getElementById('inputRemInst').value = "";
                 document.getElementById('txtObservaciones').value = "";
-                alert("¡Se han limpiado los datos de captura del módulo correctamente!");
+
+                // Vuelve a construir la tabla totalmente en blanco
+                construirTabla();
+                alert("¡Se ha limpiado y puesto en blanco todo el módulo correctamente!");
             }
         }
 
