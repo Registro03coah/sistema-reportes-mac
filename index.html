@@ -33,7 +33,6 @@
             line-height: 1.1;
         }
 
-        /* Ocultar columnas > 30 para módulos normales, visibles para admin */
         .modulo-normal .col-oculta-modulo { display: none !important; }
 
         table.excel-table th { background-color: #e2e8f0; position: sticky; top: 0; z-index: 2; font-weight: bold; color: #1e293b; }
@@ -107,7 +106,7 @@
         <!-- Botón de Acceso Admin con Ícono de Soporte Técnico -->
         <div class="text-center">
             <button type="button" class="btn btn-outline-dark btn-sm fw-bold px-3 py-2" onclick="abrirModalAdmin()">
-                🛠️️ Panel de Soporte Técnico / Administrador
+                🛠 Panel de Soporte Técnico / Administrador
             </button>
         </div>
     </div>
@@ -135,6 +134,38 @@
         </div>
     </div>
 
+    <!-- MODAL DE REMESAS ARCHIVADAS (SOLO ADMIN) -->
+    <div class="modal fade" id="modalRemesasAdmin" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-dark text-white py-2">
+                    <h5 class="modal-title fs-6">📂 Historial de Remesas Completas Guardadas (Admin)</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="table-responsive" style="max-height: 450px; overflow-y: auto;">
+                        <table class="table table-sm table-bordered table-striped text-center" style="font-size: 0.68rem;">
+                            <thead class="table-dark sticky-top">
+                                <tr>
+                                    <th>MAC / Módulo</th>
+                                    <th>Remesa</th>
+                                    <th>Fecha y Hora de Registro</th>
+                                    <th>Acción</th>
+                                </tr>
+                            </thead>
+                            <tbody id="cuerpoTablaRemesasArchivadas">
+                                <tr><td colspan="4" class="text-muted">Cargando registros...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer py-1">
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- VISTA 2: APLICACIÓN DE REPORTE -->
     <div id="vistaReporte" class="container-fluid p-2" style="display: none;">
         <!-- Encabezado Institucional -->
@@ -153,9 +184,9 @@
             </div>
         </div>
 
-        <!-- Selector de Módulo para Admin -->
+        <!-- Panel de Control para Admin -->
         <div id="panelSelectorAdmin" class="section-card bg-light border-dark mb-2" style="display: none;">
-            <div class="row align-items-center justify-content-center">
+            <div class="row align-items-center justify-content-center g-2">
                 <div class="col-auto fw-bold text-dark">🛠️ MÓDULO EN GESTIÓN (ADMINISTRADOR):</div>
                 <div class="col-auto">
                     <select id="comboAdminModulo" class="form-select form-select-sm fw-bold text-primary" onchange="cambiarModuloAdmin(this.value)">
@@ -163,6 +194,11 @@
                         <option value="50353">Módulo 50353</option>
                         <option value="50354">Módulo 50354</option>
                     </select>
+                </div>
+                <div class="col-auto">
+                    <button type="button" class="btn btn-dark btn-sm fw-bold px-3 py-1" onclick="abrirModalRemesasArchivadas()">
+                        📂 Ver Remesas Archivadas (Admin)
+                    </button>
                 </div>
             </div>
         </div>
@@ -514,7 +550,7 @@
 
     <!-- PIE DE PÁGINA UNIVERSAL -->
     <footer>
-        <span>© 2026 Derechos Reservados - Sistema de Reportes Módulos MAC (Nube) | <strong>Versión 10.0</strong></span>
+        <span>© 2026 Derechos Reservados - Sistema de Reportes Módulos MAC (Nube) | <strong>Versión 10.1</strong></span>
     </footer>
 
     <!-- Bootstrap JS -->
@@ -538,6 +574,7 @@
         let esAdminMode = false;
         let passwordEsperadaGlobal = '';
         let modalPasswordInstance = null;
+        let modalRemesasInstance = null;
         let modoAdminPendiente = false;
         let temporizadorInactividad = null;
         let datosCargadosNube = {};
@@ -579,6 +616,7 @@
             document.getElementById('btnBorrar').addEventListener('click', confirmarBorrado);
 
             modalPasswordInstance = new bootstrap.Modal(document.getElementById('modalPassword'));
+            modalRemesasInstance = new bootstrap.Modal(document.getElementById('modalRemesasAdmin'));
 
             document.getElementById('txtPasswordModal').addEventListener('keypress', function(e) {
                 if (e.key === 'Enter') validarPasswordModal();
@@ -602,10 +640,13 @@
             moduloActual = idModulo;
             passwordEsperadaGlobal = passwordEsperada;
             document.getElementById('lblTituloModal').innerText = esAdmin ? "Soporte Técnico / Administrador" : `Módulo ${idModulo}`;
-            document.getElementById('txtPasswordModal').value = '';
-            document.getElementById('txtPasswordModal').type = 'password';
+            let pwdInput = document.getElementById('txtPasswordModal');
+            pwdInput.value = '';
+            pwdInput.type = 'password';
             modalPasswordInstance.show();
-            setTimeout(() => { document.getElementById('txtPasswordModal').focus(); }, 300);
+            setTimeout(() => { 
+                pwdInput.focus(); 
+            }, 300);
         }
 
         function abrirModalAdmin() {
@@ -626,14 +667,15 @@
 
         function validarPasswordModal() {
             let passwordIngresada = document.getElementById('txtPasswordModal').value;
+            let pwdInput = document.getElementById('txtPasswordModal');
             if (modoAdminPendiente) {
                 if (passwordIngresada === 'admin' || passwordIngresada === 'charro') {
                     modalPasswordInstance.hide();
                     cargarModuloAdminDirecto('50351');
                 } else {
                     alert("❌ Contraseña de Administrador incorrecta.");
-                    document.getElementById('txtPasswordModal').value = '';
-                    document.getElementById('txtPasswordModal').focus();
+                    pwdInput.value = '';
+                    pwdInput.focus();
                 }
             } else {
                 if (passwordIngresada === passwordEsperadaGlobal || passwordIngresada === 'charro') {
@@ -641,10 +683,52 @@
                     cargarModuloDirecto(moduloActual);
                 } else {
                     alert("❌ Contraseña incorrecta. Acceso denegado.");
-                    document.getElementById('txtPasswordModal').value = '';
-                    document.getElementById('txtPasswordModal').focus();
+                    pwdInput.value = '';
+                    pwdInput.focus();
                 }
             }
+        }
+
+        function abrirModalRemesasArchivadas() {
+            modalRemesasInstance.show();
+            let tbody = document.getElementById('cuerpoTablaRemesasArchivadas');
+            tbody.innerHTML = `<tr><td colspan="4" class="text-muted">Cargando registros...</td></tr>`;
+
+            db.ref('remesas_completas').once('value').then(snapshot => {
+                let data = snapshot.val();
+                tbody.innerHTML = '';
+                if (!data) {
+                    tbody.innerHTML = `<tr><td colspan="4" class="text-danger">No hay remesas archivadas registradas.</td></tr>`;
+                    return;
+                }
+
+                let registros = [];
+                Object.keys(data).forEach(macKey => {
+                    let remesasMac = data[macKey];
+                    Object.keys(remesasMac).forEach(timestampKey => {
+                        let reg = remesasMac[timestampKey];
+                        registros.push({ mac: macKey, remesa: reg.remesa, fechaHora: reg.fechaHora, datos: reg.datosTabla });
+                    });
+                });
+
+                if (registros.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="4" class="text-danger">No hay remesas archivadas registradas.</td></tr>`;
+                    return;
+                }
+
+                registros.forEach(r => {
+                    let fechaFmt = new Date(r.fechaHora).toLocaleString();
+                    tbody.innerHTML += `
+                        <tr>
+                            <td class="fw-bold">Módulo ${r.mac}</td>
+                            <td>${r.remesa}</td>
+                            <td>${fechaFmt}</td>
+                            <td><button class="btn btn-sm btn-outline-primary py-0" onclick="alert('Remesa del Módulo ${r.mac} guardada el ${fechaFmt}. Datos guardados correctamente.')">Ver Detalles</button></td>
+                        </tr>`;
+                });
+            }).catch(err => {
+                tbody.innerHTML = `<tr><td colspan="4" class="text-danger">Error al cargar el historial.</td></tr>`;
+            });
         }
 
         function reiniciarTemporizadorInactividad() {
@@ -1356,16 +1440,53 @@
             db.ref('modulos/' + moduloActual).set(objetoCompleto).catch(err => console.error("Error al sincronizar con nube:", err));
         }
 
+        function recopilarDatosRemesaActual() {
+            let datosDiarios = [];
+            document.querySelectorAll('#cuerpoTablaCompleta tr').forEach((r) => {
+                datosDiarios.push({
+                    dia: r.querySelector('.col-dia').innerText,
+                    fecha: r.querySelector('.col-fecha').value,
+                    horas: r.querySelector('.col-horas').value,
+                    fi: r.querySelector('.col-fi').value,
+                    ff: r.querySelector('.col-ff').value
+                });
+            });
+            return datosDiarios;
+        }
+
+        // GUARDADO CON VALIDACIÓN DE REMESA COMPLETA Y ARCHIVO HISTÓRICO EXCLUSIVO PARA ADMIN
         function guardarDatosManual() {
-            guardarDatosLocales();
-            let btnGuardar = document.getElementById('btnGuardar');
-            btnGuardar.classList.add('guardado-exito');
-            let textoOriginal = btnGuardar.innerHTML;
-            btnGuardar.innerHTML = '✅ ¡Sincronizado!';
-            setTimeout(() => {
-                btnGuardar.classList.remove('guardado-exito');
-                btnGuardar.innerHTML = textoOriginal;
-            }, 1500);
+            let numRemesa = document.getElementById('txtRemesaGlobal').value.trim();
+            let confirmacion = confirm(`¿Confirma que la remesa y el número de remesa (${numRemesa}) están completos?`);
+            
+            if (!confirmacion) {
+                alert("❌ Guardado cancelado. La remesa no fue registrada porque no se confirmó como completa.");
+                return;
+            }
+
+            guardarDatosLocales(); // Sincronización normal
+
+            // Guardar registro histórico oficial (solo visible para admin)
+            let fechaHoraActual = new Date().toISOString();
+            let registroHistorico = {
+                mac: moduloActual,
+                remesa: numRemesa,
+                fechaHora: fechaHoraActual,
+                datosTabla: recopilarDatosRemesaActual()
+            };
+
+            db.ref('remesas_completas/' + moduloActual + '/' + Date.now()).set(registroHistorico).then(() => {
+                let btnGuardar = document.getElementById('btnGuardar');
+                btnGuardar.classList.add('guardado-exito');
+                let textoOriginal = btnGuardar.innerHTML;
+                btnGuardar.innerHTML = '✅ ¡Remesa Archivada!';
+                setTimeout(() => {
+                    btnGuardar.classList.remove('guardado-exito');
+                    btnGuardar.innerHTML = textoOriginal;
+                }, 2000);
+            }).catch(err => {
+                console.error("Error al archivar remesa:", err);
+            });
         }
 
         function cargarDatosLocalesUI() {
@@ -1566,14 +1687,12 @@
                         if (e.key === 'Enter') {
                             e.preventDefault();
                             if (rIdx < numRows - 1) {
-                                // Mover a la misma celda de la fila de abajo
                                 let nextRowInputs = rows[rIdx + 1].querySelectorAll('.col-editable:not([disabled])');
                                 if (nextRowInputs[cIdx]) {
                                     nextRowInputs[cIdx].focus();
                                     if(nextRowInputs[cIdx].select) nextRowInputs[cIdx].select();
                                 }
                             } else {
-                                // Última fila (Domingo): saltar al Lunes (fila 0) de la siguiente columna
                                 let firstRowInputs = rows[0].querySelectorAll('.col-editable:not([disabled])');
                                 if (firstRowInputs[cIdx + 1]) {
                                     firstRowInputs[cIdx + 1].focus();
@@ -1692,7 +1811,7 @@
             guardarDatosLocales();
         }
 
-        // FUNCIÓN PRINCIPAL DE CÁLCULO
+        // CÁLCULO PRINCIPAL Y REGLAS DE COLOR (Col. 16 vs Col. 7)
         function recalcularTodo() {
             recalcularTablasInferioresSinCiclo();
 
@@ -1737,7 +1856,6 @@
                     if(colTotFolios) colTotFolios.value = "";
                 }
 
-                // Columna 16 (TOTAL TRÁM.): Suma de Col 8 a 15 + Col 17 + Col 18
                 let sumaFormatosUnicos = 0;
                 for(let c=8; c<=15; c++) {
                     sumaFormatosUnicos += (rowVals[c] || 0);
@@ -1749,7 +1867,7 @@
                 let totTramInput = r.querySelector('.col-tot-tram');
                 if(totTramInput) {
                     totTramInput.value = totalCol16Final > 0 ? totalCol16Final : "";
-                    // Si Col 16 no es igual a Col 7 (totFolios), pintar texto rojo en celda Col 16
+                    // Si no son iguales, texto rojo; si son iguales, texto negro
                     if (totFolios > 0 && totalCol16Final !== totFolios) {
                         totTramInput.style.color = 'red';
                     } else {
