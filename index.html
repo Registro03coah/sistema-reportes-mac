@@ -491,7 +491,7 @@
 
     <!-- PIE DE PÁGINA UNIVERSAL -->
     <footer>
-        <span>© 2026 Derechos Reservados - Sistema de Reportes Módulos MAC (Nube) | <strong>Versión 09</strong></span>
+        <span>© 2026 Derechos Reservados - Sistema de Reportes Módulos MAC (Nube) | <strong>Versión 09.1</strong></span>
     </footer>
 
     <!-- Bootstrap JS -->
@@ -590,7 +590,7 @@
                 btnOjo.innerText = '🙈';
             } else {
                 inputPwd.type = 'password';
-                btnOjo.innerText = '👁️️';
+                btnOjo.innerText = '👁️';
             }
         }
 
@@ -624,7 +624,6 @@
             document.getElementById('lblModuloActivo').innerText = idModulo;
             document.getElementById('txtModulo').value = idModulo;
             
-            // Descargar de Firebase en tiempo real al entrar
             db.ref('modulos/' + idModulo).once('value').then((snapshot) => {
                 datosCargadosNube = snapshot.val() || {};
                 construirTabla();
@@ -1126,7 +1125,6 @@
             }
         }
 
-        // GUARDADO AUTOMÁTICO EN FIREBASE REALTIME DATABASE
         function guardarDatosLocales() {
             if(!moduloActual) return;
 
@@ -1252,7 +1250,6 @@
 
             let objetoCompleto = { datosDiarios, rechazos, credRecibidas, cancelados, instancias, impExp, retCausa, lotes, configGlobal };
             
-            // Envío a Firebase Realtime Database
             db.ref('modulos/' + moduloActual).set(objetoCompleto).catch(err => console.error("Error al sincronizar con nube:", err));
         }
 
@@ -1571,6 +1568,7 @@
             guardarDatosLocales();
         }
 
+        // FUNCIÓN PRINCIPAL DE CÁLCULO ESTABLE Y OPTIMIZADA (SIN BUCLES DE PARPADEO)
         function recalcularTodo() {
             recalcularTablasInferioresSinCiclo();
 
@@ -1615,25 +1613,15 @@
                     if(colTotFolios) colTotFolios.value = "";
                 }
 
-                let col53 = r.querySelector('.col-adic-53');
-                let col54 = r.querySelector('.col-adic-54');
-                if(col53) col53.value = totFolios > 0 ? totFolios : "";
-                if(col54) col54.value = totFolios > 0 ? totFolios : "";
+                // NUEVA FÓRMULA COLUMNA 16 (TOTAL TRÁM.): Suma de Col 9 a 15 + Col 17 + Col 18
+                let sumaFormatosUnicos = 0;
+                for(let c=9; c<=15; c++) {
+                    sumaFormatosUnicos += (rowVals[c] || 0);
+                }
+                let valCanc = rowVals[17] || 0; // Columna 17 (Cancelados)
+                let valRech = rowVals[18] || 0; // Columna 18 (Total Anexo Rechazo)
 
-                let repInput = r.querySelector('.col-rep');
-                let reimpInput = r.querySelector('.col-reimp');
-                let repVal = repInput ? (parseFloat(repInput.value) || 0) : 0;
-                let reimpVal = reimpInput ? (parseFloat(reimpInput.value) || 0) : 0;
-                let col65 = r.querySelector('.col-adic-65');
-                if(col65) col65.value = (repVal + reimpVal) > 0 ? (repVal + reimpVal) : "";
-
-                let sumaTramites = 0;
-                for(let c=8; c<=15; c++) sumaTramites += (rowVals[c] || 0);
-
-                let sumaRetiradasFila = 0;
-                for(let c=66; c<=75; c++) sumaRetiradasFila += (rowVals[c] || 0);
-
-                let totalCol16Final = sumaTramites + sumaRetiradasFila;
+                let totalCol16Final = sumaFormatosUnicos + valCanc + valRech;
                 let totTramInput = r.querySelector('.col-tot-tram');
                 if(totTramInput) totTramInput.value = totalCol16Final > 0 ? totalCol16Final : "";
 
@@ -1653,6 +1641,7 @@
                 let colDisp = r.querySelector('.col-disp');
                 if(colDisp) colDisp.value = dispActual !== 0 ? dispActual : "";
 
+                // Sumas de columnas individuales de lunes a domingo (Evitando tocar el DOM de entradas durante el cálculo)
                 inputs.forEach((inp, i) => {
                     let colNum = i + 2;
                     if(colNum <= 75 && colNum !== 16) sumas[colNum] += (parseFloat(inp.value) || 0);
@@ -1661,6 +1650,7 @@
 
             sumas[16] = sumaCol16Total;
 
+            // Actualización única de la línea de totales en el DOM para evitar parpadeos
             document.getElementById('tot_col_min_5').innerText = minFolioInicial !== null && minFolioInicial !== "0" ? minFolioInicial : "";
             document.getElementById('tot_col_max_6').innerText = maxFolioFinal !== null && maxFolioFinal !== "0" ? maxFolioFinal : "";
             document.getElementById('tot_col_16').innerText = sumas[16] > 0 ? sumas[16] : "";
