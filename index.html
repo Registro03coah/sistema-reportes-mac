@@ -44,7 +44,6 @@
         .card-modulo { cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; border: 2px solid #cbd5e1; }
         .card-modulo:hover { transform: translateY(-3px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); border-color: #0d6efd; }
 
-        /* Estilo visual para el recuadro de éxito al guardar */
         .guardado-exito {
             border: 2px solid #198754 !important;
             box-shadow: 0 0 8px rgba(25, 135, 84, 0.6) !important;
@@ -512,19 +511,18 @@
             document.getElementById('lblModuloActivo').innerText = idModulo;
             document.getElementById('txtModulo').value = idModulo;
             
-            if(configModulos[idModulo]) {
-                let guardado = localStorage.getItem('reporte_modulo_' + idModulo);
-                if(!guardado) {
-                    document.getElementById('txtResponsable').value = configModulos[idModulo].responsable;
-                    document.getElementById('txtConfGlobal').value = configModulos[idModulo].conf;
-                }
-            }
-
             construirTabla();
             cargarDatosLocales();
+            
+            let guardado = localStorage.getItem('reporte_modulo_' + idModulo);
+            if(!guardado && configModulos[idModulo]) {
+                document.getElementById('txtResponsable').value = configModulos[idModulo].responsable;
+                document.getElementById('txtConfGlobal').value = configModulos[idModulo].conf;
+            }
         }
 
         function volverAlMenu() {
+            guardarDatosLocales();
             document.getElementById('vistaReporte').style.display = 'none';
             document.getElementById('vistaSeleccion').style.display = 'block';
             moduloActual = null;
@@ -579,31 +577,31 @@
 
                 tr.innerHTML = `
                     <td class="fw-bold col-dia">${d.dia}</td>
-                    <td><input type="date" class="date-input col-editable col-fecha" value="${d.fecha}" ${esLunes ? 'onchange="actualizarFechasConsecutivas(this); guardarDatosLocales();"' : 'readonly style="background-color: #e9ecef;"'}></td>
-                    <td><input type="text" class="cell-input col-editable col-horas" value="${d.horas}" oninput="validarHoras(this); guardarDatosLocales();"></td>
+                    <td><input type="date" class="date-input col-editable col-fecha" value="${d.fecha || ''}" ${esLunes ? 'onchange="actualizarFechasConsecutivas(this); guardarDatosLocales();"' : 'readonly style="background-color: #e9ecef;"'}></td>
+                    <td><input type="text" class="cell-input col-editable col-horas" value="${d.horas !== undefined ? d.horas : 7}" oninput="validarHoras(this); guardarDatosLocales();"></td>
                     <td>
                         <select class="cell-input col-editable" onchange="recalcularTodo(); guardarDatosLocales();">
                             ${htmlSedes}
                         </select>
                     </td>
-                    <td><input type="text" class="cell-input col-editable col-fi" value="${d.fi}" oninput="recalcularFila(this); guardarDatosLocales();"></td>
-                    <td><input type="text" class="cell-input col-editable col-ff" value="${d.ff}" oninput="recalcularFila(this); guardarDatosLocales();"></td>
+                    <td><input type="text" class="cell-input col-editable col-fi" value="${d.fi || ''}" oninput="recalcularFila(this); guardarDatosLocales();"></td>
+                    <td><input type="text" class="cell-input col-editable col-ff" value="${d.ff || ''}" oninput="recalcularFila(this); guardarDatosLocales();"></td>
                     <td><input type="text" class="cell-input cell-formula col-tot-folios" value="" readonly></td>
-                    <td><input type="text" class="cell-input col-editable col-ins" value="${d.ins}" oninput="recalcularFila(this); guardarDatosLocales();"></td>
-                    <td><input type="text" class="cell-input col-editable col-corr" value="${d.corr}" oninput="recalcularFila(this); guardarDatosLocales();"></td>
-                    <td><input type="text" class="cell-input col-editable col-cam" value="${d.cam}" oninput="recalcularFila(this); guardarDatosLocales();"></td>
-                    <td><input type="text" class="cell-input col-editable col-rep" value="${d.rep}" oninput="recalcularFila(this); guardarDatosLocales();"></td>
-                    <td><input type="text" class="cell-input col-editable col-cdir" value="${d.cdir}" oninput="recalcularFila(this); guardarDatosLocales();"></td>
-                    <td><input type="text" class="cell-input col-editable col-reinc" value="${d.reinc}" oninput="recalcularFila(this); guardarDatosLocales();"></td>
-                    <td><input type="text" class="cell-input col-editable col-reempl" value="${d.reempl}" oninput="recalcularFila(this); guardarDatosLocales();"></td>
-                    <td><input type="text" class="cell-input col-editable col-reimp" value="${d.reimp}" oninput="recalcularFila(this); guardarDatosLocales();"></td>
+                    <td><input type="text" class="cell-input col-editable col-ins" value="${d.ins !== undefined ? d.ins : ''}" oninput="recalcularFila(this); guardarDatosLocales();"></td>
+                    <td><input type="text" class="cell-input col-editable col-corr" value="${d.corr !== undefined ? d.corr : ''}" oninput="recalcularFila(this); guardarDatosLocales();"></td>
+                    <td><input type="text" class="cell-input col-editable col-cam" value="${d.cam !== undefined ? d.cam : ''}" oninput="recalcularFila(this); guardarDatosLocales();"></td>
+                    <td><input type="text" class="cell-input col-editable col-rep" value="${d.rep !== undefined ? d.rep : ''}" oninput="recalcularFila(this); guardarDatosLocales();"></td>
+                    <td><input type="text" class="cell-input col-editable col-cdir" value="${d.cdir !== undefined ? d.cdir : ''}" oninput="recalcularFila(this); guardarDatosLocales();"></td>
+                    <td><input type="text" class="cell-input col-editable col-reinc" value="${d.reinc !== undefined ? d.reinc : ''}" oninput="recalcularFila(this); guardarDatosLocales();"></td>
+                    <td><input type="text" class="cell-input col-editable col-reempl" value="${d.reempl !== undefined ? d.reempl : ''}" oninput="recalcularFila(this); guardarDatosLocales();"></td>
+                    <td><input type="text" class="cell-input col-editable col-reimp" value="${d.reimp !== undefined ? d.reimp : ''}" oninput="recalcularFila(this); guardarDatosLocales();"></td>
                     <td><input type="text" class="cell-input cell-formula col-tot-tram" value="" readonly></td>
                     <td><input type="text" class="cell-input cell-formula col-canc-link" value="" readonly></td>
                     <td><input type="text" class="cell-input cell-formula col-rech-link" value="" readonly></td>
-                    <td><input type="text" class="cell-input col-editable" value="${d.cpvDev}" oninput="recalcularTodo(); guardarDatosLocales();"></td>
-                    <td><input type="text" class="cell-input col-editable col-disp-ant" value="${d.dispAnt}" oninput="recalcularFila(this); guardarDatosLocales();"></td>
-                    <td><input type="text" class="cell-input col-editable col-rec" value="${d.rec}" oninput="recalcularFila(this); guardarDatosLocales();"></td>
-                    <td><input type="text" class="cell-input col-editable col-ent" value="${d.ent}" oninput="recalcularFila(this); guardarDatosLocales();"></td>
+                    <td><input type="text" class="cell-input col-editable" value="${d.cpvDev !== undefined ? d.cpvDev : ''}" oninput="recalcularTodo(); guardarDatosLocales();"></td>
+                    <td><input type="text" class="cell-input col-editable col-disp-ant" value="${d.dispAnt !== undefined ? d.dispAnt : ''}" oninput="recalcularFila(this); guardarDatosLocales();"></td>
+                    <td><input type="text" class="cell-input col-editable col-rec" value="${d.rec !== undefined ? d.rec : ''}" oninput="recalcularFila(this); guardarDatosLocales();"></td>
+                    <td><input type="text" class="cell-input col-editable col-ent" value="${d.ent !== undefined ? d.ent : ''}" oninput="recalcularFila(this); guardarDatosLocales();"></td>
                     <td><input type="text" class="cell-input cell-formula col-recotr-link" value="" readonly></td>
                     <td><input type="text" class="cell-input col-editable col-num" value="${d.v24 || ''}" oninput="recalcularTodo(); guardarDatosLocales();"></td>
                     <td><input type="text" class="cell-input col-editable col-num" value="${d.v25 || ''}" oninput="recalcularTodo(); guardarDatosLocales();"></td>
@@ -612,15 +610,15 @@
                     <td><input type="text" class="cell-input col-editable col-num" value="${d.v28 || ''}" oninput="recalcularTodo(); guardarDatosLocales();"></td>
                     <td><input type="text" class="cell-input cell-formula col-retiradas-causa-link" value="" readonly></td>
                     <td><input type="text" class="cell-input cell-formula col-disp" value="" readonly></td>
-                    <td><input type="text" class="cell-input col-editable col-num" value="${d.canje}" oninput="recalcularTodo(); guardarDatosLocales();"></td>
-                    <td><input type="text" class="cell-input col-editable col-num" value="${d.fichEnt}" oninput="recalcularTodo(); guardarDatosLocales();"></td>
-                    <td><input type="text" class="cell-input col-editable col-num" value="${d.fichAtend}" oninput="recalcularTodo(); guardarDatosLocales();"></td>
+                    <td><input type="text" class="cell-input col-editable col-num" value="${d.canje !== undefined ? d.canje : ''}" oninput="recalcularTodo(); guardarDatosLocales();"></td>
+                    <td><input type="text" class="cell-input col-editable col-num" value="${d.fichEnt !== undefined ? d.fichEnt : ''}" oninput="recalcularTodo(); guardarDatosLocales();"></td>
+                    <td><input type="text" class="cell-input col-editable col-num" value="${d.fichAtend !== undefined ? d.fichAtend : ''}" oninput="recalcularTodo(); guardarDatosLocales();"></td>
                     <td><input type="text" class="cell-input cell-formula col-dias-trab" value="" readonly></td>
-                    <td><input type="text" class="cell-input col-editable col-num" value="${d.exp}" oninput="recalcularTodo(); guardarDatosLocales();"></td>
-                    <td><input type="text" class="cell-input col-editable col-num" value="${d.ord}" oninput="recalcularTodo(); guardarDatosLocales();"></td>
-                    <td><input type="text" class="cell-input col-editable col-num" value="${d.rect}" oninput="recalcularTodo(); guardarDatosLocales();"></td>
-                    <td><input type="text" class="cell-input col-editable col-num" value="${d.juicio}" oninput="recalcularTodo(); guardarDatosLocales();"></td>
-                    <td><input type="text" class="cell-input col-editable col-remesa" value="${d.remesa}"></td>
+                    <td><input type="text" class="cell-input col-editable col-num" value="${d.exp !== undefined ? d.exp : ''}" oninput="recalcularTodo(); guardarDatosLocales();"></td>
+                    <td><input type="text" class="cell-input col-editable col-num" value="${d.ord !== undefined ? d.ord : ''}" oninput="recalcularTodo(); guardarDatosLocales();"></td>
+                    <td><input type="text" class="cell-input col-editable col-num" value="${d.rect !== undefined ? d.rect : ''}" oninput="recalcularTodo(); guardarDatosLocales();"></td>
+                    <td><input type="text" class="cell-input col-editable col-num" value="${d.juicio !== undefined ? d.juicio : ''}" oninput="recalcularTodo(); guardarDatosLocales();"></td>
+                    <td><input type="text" class="cell-input col-editable col-remesa" value="${d.remesa || 202640}"></td>
                     <td><input type="text" class="cell-input cell-formula col-tot-mov" value="" readonly></td>
                     ${htmlAdicionales}
                 `;
@@ -1146,7 +1144,6 @@
         function guardarDatosManual() {
             guardarDatosLocales();
             
-            // Efecto visual de recuadro verde de éxito en el botón de Guardar
             let btnGuardar = document.getElementById('btnGuardar');
             btnGuardar.classList.add('guardado-exito');
             let textoOriginal = btnGuardar.innerHTML;
