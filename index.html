@@ -491,7 +491,7 @@
 
     <!-- PIE DE PÁGINA UNIVERSAL -->
     <footer>
-        <span>© 2026 Derechos Reservados - Sistema de Reportes Módulos MAC (Nube) | <strong>Versión 09.1</strong></span>
+        <span>© 2026 Derechos Reservados - Sistema de Reportes Módulos MAC (Nube) | <strong>Versión 09.2</strong></span>
     </footer>
 
     <!-- Bootstrap JS -->
@@ -590,7 +590,7 @@
                 btnOjo.innerText = '🙈';
             } else {
                 inputPwd.type = 'password';
-                btnOjo.innerText = '👁️';
+                btnOjo.innerText = '👁️️';
             }
         }
 
@@ -1613,9 +1613,9 @@
                     if(colTotFolios) colTotFolios.value = "";
                 }
 
-                // NUEVA FÓRMULA COLUMNA 16 (TOTAL TRÁM.): Suma de Col 9 a 15 + Col 17 + Col 18
+                // FÓRMULA ACTUALIZADA COLUMNA 16 (TOTAL TRÁM.): Suma de Col 8 a 15 + Col 17 + Col 18
                 let sumaFormatosUnicos = 0;
-                for(let c=9; c<=15; c++) {
+                for(let c=8; c<=15; c++) {
                     sumaFormatosUnicos += (rowVals[c] || 0);
                 }
                 let valCanc = rowVals[17] || 0; // Columna 17 (Cancelados)
@@ -1641,7 +1641,7 @@
                 let colDisp = r.querySelector('.col-disp');
                 if(colDisp) colDisp.value = dispActual !== 0 ? dispActual : "";
 
-                // Sumas de columnas individuales de lunes a domingo (Evitando tocar el DOM de entradas durante el cálculo)
+                // Sumas de columnas individuales de lunes a domingo
                 inputs.forEach((inp, i) => {
                     let colNum = i + 2;
                     if(colNum <= 75 && colNum !== 16) sumas[colNum] += (parseFloat(inp.value) || 0);
