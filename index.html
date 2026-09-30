@@ -3,8 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Reportes - Módulos MAC</title>
+    <title>Sistema de Reportes - Módulos MAC (Nube)</title>
+    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Firebase SDKs (Compat) -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+    
     <style>
         body { background-color: #f4f6f9; font-family: Arial, sans-serif; font-size: 0.7rem; padding-bottom: 30px; }
         .header-box { background: #ffffff; border-bottom: 2px solid #1b396b; padding: 8px; margin-bottom: 8px; }
@@ -58,8 +63,8 @@
     <!-- VISTA 1: SELECCIÓN DE MÓDULO -->
     <div id="vistaSeleccion" class="container py-5 mb-4">
         <div class="text-center mb-5">
-            <h3 class="fw-bold text-primary">SISTEMA DE REPORTES DIARIOS - MÓDULOS MAC</h3>
-            <p class="text-secondary">Seleccione el módulo de atención ciudadana para gestionar su reporte diario independiente</p>
+            <h3 class="fw-bold text-primary">SISTEMA DE REPORTES DIARIOS - MÓDULOS MAC (NUBE)</h3>
+            <p class="text-secondary">Seleccione el módulo para gestionar su reporte sincronizado entre equipos</p>
         </div>
         <div class="row justify-content-center g-4">
             <div class="col-md-4">
@@ -126,7 +131,7 @@
         <!-- Encabezado Institucional -->
         <div class="header-box d-flex justify-content-between align-items-center">
             <div class="d-flex gap-1">
-                <button type="button" id="btnVolver" class="btn btn-sm btn-outline-secondary py-0 px-2 fw-bold" style="font-size: 0.65rem;">⬅️️ Volver al Menú</button>
+                <button type="button" id="btnVolver" class="btn btn-sm btn-outline-secondary py-0 px-2 fw-bold" style="font-size: 0.65rem;">⬅ Volver al Menú</button>
                 <button type="button" id="btnCerrarSesion" class="btn btn-sm btn-outline-danger py-0 px-2 fw-bold" style="font-size: 0.65rem;">🔒 Cerrar Sesión</button>
             </div>
             <div class="text-center flex-grow-1">
@@ -135,7 +140,7 @@
                 <h5 class="fw-bold text-primary mt-1" style="font-size: 0.85rem;">REPORTE DIARIO DE SOLICITUDES Y OPERACIÓN - MÓDULO <span id="lblModuloActivo"></span></h5>
             </div>
             <div>
-                <button type="button" id="btnGuardar" class="btn btn-sm btn-outline-primary py-0 px-2 fw-bold" style="font-size: 0.65rem;">💾 Guardar Cambios</button>
+                <button type="button" id="btnGuardar" class="btn btn-sm btn-outline-primary py-0 px-2 fw-bold" style="font-size: 0.65rem;">💾 Guardar en Nube</button>
             </div>
         </div>
 
@@ -484,18 +489,36 @@
         </div>
     </div>
 
-    <!-- PIE DE PÁGINA UNIVERSAL (VISIBLE EN TODAS LAS PÁGINAS) -->
+    <!-- PIE DE PÁGINA UNIVERSAL -->
     <footer>
-        <span>© 2026 Derechos Reservados - Sistema de Reportes Módulos MAC | <strong>Versión 08</strong></span>
+        <span>© 2026 Derechos Reservados - Sistema de Reportes Módulos MAC (Nube) | <strong>Versión 09</strong></span>
     </footer>
 
+    <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+        // ==========================================================
+        // CONFIGURACIÓN DE FIREBASE CORREGIDA
+        // ==========================================================
+        const firebaseConfig = {
+            apiKey: "AIzaSyA6jvnsXZwF2anOJo3VadfNvn7Fl6Z5efY",
+            authDomain: "sistema-mac-reportes.firebaseapp.com",
+            databaseURL: "https://sistema-mac-reportes-default-rtdb.firebaseio.com",
+            projectId: "sistema-mac-reportes",
+            storageBucket: "sistema-mac-reportes.firebasestorage.app",
+            messagingSenderId: "776250701305",
+            appId: "1:776250701305:web:ac542564b7f7a136cef928"
+        };
+        
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
         const diasNombresCortos = ['LUN', 'MAR', 'MIÉ', 'JUE', 'VIE', 'SÁB', 'DOM'];
         let moduloActual = null;
         let passwordEsperadaGlobal = '';
         let modalPasswordInstance = null;
         let temporizadorInactividad = null;
+        let datosCargadosNube = {};
         const TIEMPO_INACTIVIDAD = 5 * 60 * 1000; // 5 minutos exactos
 
         const configModulos = {
@@ -521,13 +544,7 @@
         ];
 
         const lotesDataDefault = [
-            { lote: '', cant: '' },
-            { lote: '', cant: '' },
-            { lote: '', cant: '' },
-            { lote: '', cant: '' },
-            { lote: '', cant: '' },
-            { lote: '', cant: '' },
-            { lote: '', cant: '' }
+            { lote: '', cant: '' }, { lote: '', cant: '' }, { lote: '', cant: '' }, { lote: '', cant: '' }, { lote: '', cant: '' }, { lote: '', cant: '' }, { lote: '', cant: '' }
         ];
 
         const columnasSinSuma = [1, 2, 3, 4, 5, 6, 16, 17, 18, 20, 23, 29, 30, 31, 39, 44, 45, 46, 47, 48, 51, 52];
@@ -541,11 +558,8 @@
 
             modalPasswordInstance = new bootstrap.Modal(document.getElementById('modalPassword'));
 
-            // Permitir presionar Enter en el campo de contraseña del modal
             document.getElementById('txtPasswordModal').addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    validarPasswordModal();
-                }
+                if (e.key === 'Enter') validarPasswordModal();
             });
 
             let moduloActivoGuardado = localStorage.getItem('sesion_modulo_activo');
@@ -553,7 +567,6 @@
                 cargarModuloDirecto(moduloActivoGuardado);
             }
 
-            // Monitoreo de actividad para inactividad
             ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'].forEach(evento => {
                 window.addEventListener(evento, reiniciarTemporizadorInactividad);
             });
@@ -564,7 +577,6 @@
             passwordEsperadaGlobal = passwordEsperada;
             document.getElementById('lblModuloModal').innerText = idModulo;
             document.getElementById('txtPasswordModal').value = '';
-            // Asegurar tipo password de inicio
             document.getElementById('txtPasswordModal').type = 'password';
             modalPasswordInstance.show();
             setTimeout(() => { document.getElementById('txtPasswordModal').focus(); }, 300);
@@ -596,10 +608,9 @@
 
         function reiniciarTemporizadorInactividad() {
             if(!moduloActual) return;
-            
             clearTimeout(temporizadorInactividad);
             temporizadorInactividad = setTimeout(() => {
-                alert("⏳ La sesión se ha cerrado automáticamente por 5 minutos de inactividad. Sus datos se han guardado con éxito.");
+                alert("⏳ Sesión cerrada por 5 minutos de inactividad. Datos guardados en la nube.");
                 volverAlMenu();
             }, TIEMPO_INACTIVIDAD);
         }
@@ -613,14 +624,22 @@
             document.getElementById('lblModuloActivo').innerText = idModulo;
             document.getElementById('txtModulo').value = idModulo;
             
-            construirTabla();
-            cargarDatosLocales();
-            
-            let guardado = localStorage.getItem('reporte_modulo_' + idModulo);
-            if(!guardado && configModulos[idModulo]) {
-                document.getElementById('txtResponsable').value = configModulos[idModulo].responsable;
-                document.getElementById('txtConfGlobal').value = configModulos[idModulo].conf;
-            }
+            // Descargar de Firebase en tiempo real al entrar
+            db.ref('modulos/' + idModulo).once('value').then((snapshot) => {
+                datosCargadosNube = snapshot.val() || {};
+                construirTabla();
+                cargarDatosLocalesUI();
+                
+                if(!snapshot.exists() && configModulos[idModulo]) {
+                    document.getElementById('txtResponsable').value = configModulos[idModulo].responsable;
+                    document.getElementById('txtConfGlobal').value = configModulos[idModulo].conf;
+                }
+            }).catch((err) => {
+                console.error("Error al conectar con la nube:", err);
+                datosCargadosNube = {};
+                construirTabla();
+                cargarDatosLocalesUI();
+            });
 
             reiniciarTemporizadorInactividad();
         }
@@ -632,12 +651,11 @@
             
             document.getElementById('vistaReporte').style.display = 'none';
             document.getElementById('vistaSeleccion').style.display = 'block';
-
             moduloActual = null;
         }
 
         function cerrarSesionManual() {
-            if(confirm("¿Desea cerrar sesión y regresar al menú de selección de módulos? Sus datos actuales quedarán resguardados.")) {
+            if(confirm("¿Desea cerrar sesión y volver al menú principal?")) {
                 volverAlMenu();
             }
         }
@@ -652,7 +670,7 @@
             let tbody = document.getElementById('cuerpoTablaCompleta');
             tbody.innerHTML = '';
 
-            let savedData = obtenerDatosAlmacenados();
+            let savedData = datosCargadosNube;
             let datosDiarios = savedData.datosDiarios || datosBaseDefault;
             let sedesDisponibles = sedesPorModulo[moduloActual] || [''];
 
@@ -803,7 +821,7 @@
         function construirTablasInferiores() {
             let tbodyRech = document.querySelector('#tablaRechazos tbody');
             tbodyRech.innerHTML = '';
-            diasNombresCortos.forEach((corto, idx) => {
+            diasNombresCortos.forEach((corto) => {
                 let htmlCols = '';
                 for(let rIdx=0; rIdx<10; rIdx++) {
                     htmlCols += `<td><input type="text" class="cell-input col-rech-val" data-col="${rIdx}" value="" oninput="actualizarDatosGlobales()"></td>`;
@@ -823,13 +841,9 @@
             let tbodyImpExp = document.querySelector('#tablaImpExp tbody');
             let tbodyLotes = document.querySelector('#tablaLotes tbody');
 
-            tbodyCred.innerHTML = '';
-            tbodyCanc.innerHTML = '';
-            tbodyInst.innerHTML = '';
-            tbodyImpExp.innerHTML = '';
-            tbodyLotes.innerHTML = '';
+            tbodyCred.innerHTML = ''; tbodyCanc.innerHTML = ''; tbodyInst.innerHTML = ''; tbodyImpExp.innerHTML = ''; tbodyLotes.innerHTML = '';
 
-            diasNombresCortos.forEach((corto, idx) => {
+            diasNombresCortos.forEach((corto) => {
                 tbodyCred.innerHTML += `
                     <tr>
                         <td class="fw-bold">${corto}</td>
@@ -869,7 +883,7 @@
 
             let tbodyRet = document.querySelector('#tablaRetiradasCausa tbody');
             tbodyRet.innerHTML = '';
-            diasNombresCortos.forEach((corto, idx) => {
+            diasNombresCortos.forEach((corto) => {
                 let htmlRet = '';
                 for(let cIdx=0; cIdx<10; cIdx++) {
                     htmlRet += `<td><input type="text" class="cell-input col-ret-val" data-col="${cIdx}" value="" oninput="actualizarDatosGlobales()"></td>`;
@@ -930,9 +944,7 @@
             if(spanTotRechCol18) spanTotRechCol18.innerText = sumRechTotal > 0 ? sumRechTotal : "";
 
             let rowsCred = document.querySelectorAll('#tablaCredRecibidas tbody tr');
-            let sumCredTotal = 0;
-            let sumResguardoTotal = 0;
-            let sumC1 = 0, sumC2 = 0, sumC3 = 0, sumCRes = 0;
+            let sumCredTotal = 0, sumResguardoTotal = 0, sumC1 = 0, sumC2 = 0, sumC3 = 0, sumCRes = 0;
 
             rowsCred.forEach((r, idx) => {
                 if(idx < rowsCred.length - 1) {
@@ -956,7 +968,6 @@
                     if(mainRow) {
                         let linkInput = mainRow.querySelector('.col-recotr-link');
                         if(linkInput) linkInput.value = totalLinea > 0 ? totalLinea : "";
-
                         let resguardoInput = mainRow.querySelector('.col-resguardo-link');
                         if(resguardoInput) resguardoInput.value = resguardoVal > 0 ? resguardoVal : "";
                     }
@@ -1029,9 +1040,7 @@
                         let mainRow = rowsMain[rIdx];
                         if(mainRow) {
                             let mainInput = mainRow.querySelector(`.col-ret-link-${subIdx}`);
-                            if(mainInput) {
-                                mainInput.value = val > 0 ? val : "";
-                            }
+                            if(mainInput) mainInput.value = val > 0 ? val : "";
                         }
                     });
 
@@ -1054,9 +1063,7 @@
 
             sumRetCols.forEach((colSum, subIdx) => {
                 let spanColTot = document.getElementById(`tot_col_ret_${subIdx}`);
-                if(spanColTot) {
-                    spanColTot.innerText = colSum > 0 ? colSum : "";
-                }
+                if(spanColTot) spanColTot.innerText = colSum > 0 ? colSum : "";
             });
 
             let rowsImpExp = document.querySelectorAll('#tablaImpExp tbody tr');
@@ -1067,8 +1074,7 @@
                     let expInp = r.querySelector('.col-exp');
                     let vImp = impInp ? (parseFloat(impInp.value) || 0) : 0;
                     let vExp = expInp ? (parseFloat(expInp.value) || 0) : 0;
-                    sumImpTotal += vImp;
-                    sumExpTotal += vExp;
+                    sumImpTotal += vImp; sumExpTotal += vExp;
 
                     let mainRow = rowsMain[rIdx];
                     if(mainRow) {
@@ -1098,27 +1104,29 @@
         }
 
         function confirmarBorrado() {
-            if (confirm("¿Estás seguro de que deseas limpiar los datos de captura de este módulo? Esta acción borrará todo el contenido de este reporte.")) {
-                localStorage.removeItem('reporte_modulo_' + moduloActual);
-                
-                if(configModulos[moduloActual]) {
-                    document.getElementById('txtResponsable').value = configModulos[moduloActual].responsable;
-                    document.getElementById('txtConfGlobal').value = configModulos[moduloActual].conf;
-                }
-                document.getElementById('inputCanjeGlobal').value = "";
-                document.getElementById('inputScriptGlobal').value = "";
-                document.getElementById('inputFolioNecGlobal').value = "";
-                document.getElementById('inputInstPadron').value = "";
-                document.getElementById('inputInstCarto').value = "";
-                document.getElementById('inputNumReg').value = "";
-                document.getElementById('inputRemInst').value = "";
-                document.getElementById('txtObservaciones').value = "";
+            if (confirm("¿Estás seguro de que deseas limpiar este módulo en la nube?")) {
+                db.ref('modulos/' + moduloActual).remove().then(() => {
+                    datosCargadosNube = {};
+                    if(configModulos[moduloActual]) {
+                        document.getElementById('txtResponsable').value = configModulos[moduloActual].responsable;
+                        document.getElementById('txtConfGlobal').value = configModulos[moduloActual].conf;
+                    }
+                    document.getElementById('inputCanjeGlobal').value = "";
+                    document.getElementById('inputScriptGlobal').value = "";
+                    document.getElementById('inputFolioNecGlobal').value = "";
+                    document.getElementById('inputInstPadron').value = "";
+                    document.getElementById('inputInstCarto').value = "";
+                    document.getElementById('inputNumReg').value = "";
+                    document.getElementById('inputRemInst').value = "";
+                    document.getElementById('txtObservaciones').value = "";
 
-                construirTabla();
-                alert("¡Se ha limpiado y puesto en blanco todo el módulo correctamente!");
+                    construirTabla();
+                    alert("¡Módulo limpiado correctamente en la nube!");
+                });
             }
         }
 
+        // GUARDADO AUTOMÁTICO EN FIREBASE REALTIME DATABASE
         function guardarDatosLocales() {
             if(!moduloActual) return;
 
@@ -1243,34 +1251,25 @@
             };
 
             let objetoCompleto = { datosDiarios, rechazos, credRecibidas, cancelados, instancias, impExp, retCausa, lotes, configGlobal };
-            localStorage.setItem('reporte_modulo_' + moduloActual, JSON.stringify(objetoCompleto));
+            
+            // Envío a Firebase Realtime Database
+            db.ref('modulos/' + moduloActual).set(objetoCompleto).catch(err => console.error("Error al sincronizar con nube:", err));
         }
 
         function guardarDatosManual() {
             guardarDatosLocales();
-            
             let btnGuardar = document.getElementById('btnGuardar');
             btnGuardar.classList.add('guardado-exito');
             let textoOriginal = btnGuardar.innerHTML;
-            btnGuardar.innerHTML = '✅ ¡Guardado!';
-            
+            btnGuardar.innerHTML = '✅ ¡Sincronizado!';
             setTimeout(() => {
                 btnGuardar.classList.remove('guardado-exito');
                 btnGuardar.innerHTML = textoOriginal;
             }, 1500);
         }
 
-        function obtenerDatosAlmacenados() {
-            if(!moduloActual) return {};
-            let guardado = localStorage.getItem('reporte_modulo_' + moduloActual);
-            if(guardado) {
-                try { return JSON.parse(guardado); } catch(e) { return {}; }
-            }
-            return {};
-        }
-
-        function cargarDatosLocales() {
-            let data = obtenerDatosAlmacenados();
+        function cargarDatosLocalesUI() {
+            let data = datosCargadosNube;
             if(data.configGlobal) {
                 document.getElementById('txtEntidadGlobal').value = data.configGlobal.entidad || 'COAHUILA 05';
                 document.getElementById('txtDistritoGlobal').value = data.configGlobal.distrito || '03';
@@ -1444,7 +1443,7 @@
 
             let textoFinal = lineas.join('\n');
             navigator.clipboard.writeText(textoFinal).then(() => {
-                alert("¡Tabla principal copiada con éxito! Ya puedes pegarla en Excel con Ctrl + V.");
+                alert("¡Tabla principal copiada con éxito para Excel!");
             }).catch(err => {
                 alert("Error al copiar al portapapeles.");
             });
@@ -1518,11 +1517,9 @@
             inputsFecha.forEach((inpFecha, idx) => {
                 let nuevaFecha = new Date(fechaBase);
                 nuevaFecha.setDate(fechaBase.getDate() + idx);
-                
                 let yyyy = nuevaFecha.getFullYear();
                 let mm = String(nuevaFecha.getMonth() + 1).padStart(2, '0');
                 let dd = String(nuevaFecha.getDate()).padStart(2, '0');
-                
                 inpFecha.value = `${yyyy}-${mm}-${dd}`;
             });
         }
@@ -1549,9 +1546,7 @@
 
         function actualizarRemesaGlobal(valor) {
             let inputsRemesa = document.querySelectorAll('.col-remesa');
-            inputsRemesa.forEach(input => {
-                input.value = valor;
-            });
+            inputsRemesa.forEach(input => input.value = valor);
             let spanRemesa39 = document.getElementById('tot_col_remesa_39');
             if(spanRemesa39) spanRemesa39.innerText = valor;
         }
@@ -1583,13 +1578,7 @@
             let sumas = {};
             for(let c=1; c<=75; c++) sumas[c] = 0;
 
-            let minFolioInicial = null;
-            let maxFolioFinal = null;
-            let primerDispVal = 0;
-            let primerDispEncontrado = false;
-            let ultimoDisp = 0;
-            let totalDiasTrabajados = 0;
-            let sumaCol16Total = 0;
+            let minFolioInicial = null, maxFolioFinal = null, primerDispVal = 0, primerDispEncontrado = false, totalDiasTrabajados = 0, sumaCol16Total = 0;
 
             rows.forEach((r) => {
                 let inputs = r.querySelectorAll('input, select');
@@ -1610,7 +1599,6 @@
 
                 let fiInput = r.querySelector('.col-fi');
                 let ffInput = r.querySelector('.col-ff');
-                
                 let fiStr = fiInput ? fiInput.value.trim() : "";
                 let ffStr = ffInput ? ffInput.value.trim() : "";
                 let fiVal = (fiStr !== "" && !isNaN(fiStr)) ? BigInt(fiStr) : 0n;
@@ -1640,20 +1628,14 @@
                 if(col65) col65.value = (repVal + reimpVal) > 0 ? (repVal + reimpVal) : "";
 
                 let sumaTramites = 0;
-                for(let c=8; c<=15; c++) {
-                    sumaTramites += (rowVals[c] || 0);
-                }
+                for(let c=8; c<=15; c++) sumaTramites += (rowVals[c] || 0);
 
                 let sumaRetiradasFila = 0;
-                for(let c=66; c<=75; c++) {
-                    sumaRetiradasFila += (rowVals[c] || 0);
-                }
+                for(let c=66; c<=75; c++) sumaRetiradasFila += (rowVals[c] || 0);
 
                 let totalCol16Final = sumaTramites + sumaRetiradasFila;
                 let totTramInput = r.querySelector('.col-tot-tram');
-                if(totTramInput) {
-                    totTramInput.value = totalCol16Final > 0 ? totalCol16Final : "";
-                }
+                if(totTramInput) totTramInput.value = totalCol16Final > 0 ? totalCol16Final : "";
 
                 sumaCol16Total += totalCol16Final;
 
@@ -1663,34 +1645,17 @@
                     primerDispEncontrado = true;
                 }
 
-                let recVal = rowVals[21] || 0; 
-                let entVal = rowVals[22] || 0;
-                let recOtrVal = rowVals[23] || 0;
-                let v24 = rowVals[24] || 0;
-                let v25 = rowVals[25] || 0;
-                let v26 = rowVals[26] || 0;
-                let v27 = rowVals[27] || 0;
-                let v28 = rowVals[28] || 0;
-                let v29 = rowVals[29] || 0;
-
-                let impVal = rowVals[63] || 0;
-                let expVal = rowVals[64] || 0;
+                let recVal = rowVals[21] || 0, entVal = rowVals[22] || 0, recOtrVal = rowVals[23] || 0;
+                let v24 = rowVals[24] || 0, v25 = rowVals[25] || 0, v26 = rowVals[26] || 0, v27 = rowVals[27] || 0, v28 = rowVals[28] || 0, v29 = rowVals[29] || 0;
+                let impVal = rowVals[63] || 0, expVal = rowVals[64] || 0;
 
                 let dispActual = dispAntVal + recVal + recOtrVal - (entVal + v24 + v25 + v26 + v27 + v28 + v29) + impVal - expVal;
-                
                 let colDisp = r.querySelector('.col-disp');
                 if(colDisp) colDisp.value = dispActual !== 0 ? dispActual : "";
-                
-                if(horasVal > 0) {
-                    ultimoDisp = dispActual;
-                }
 
                 inputs.forEach((inp, i) => {
                     let colNum = i + 2;
-                    if(colNum <= 75 && colNum !== 16) {
-                        let val = parseFloat(inp.value) || 0;
-                        sumas[colNum] += val;
-                    }
+                    if(colNum <= 75 && colNum !== 16) sumas[colNum] += (parseFloat(inp.value) || 0);
                 });
 
                 sumas[30] += dispActual;
@@ -1701,72 +1666,30 @@
 
             sumas[16] = sumaCol16Total;
 
-            let spanMin5 = document.getElementById('tot_col_min_5');
-            let spanMax6 = document.getElementById('tot_col_max_6');
-            let spanCol16 = document.getElementById('tot_col_16');
-            let spanPrimerDisp20 = document.getElementById('tot_col_primer_disp_20');
-            let spanCanje31 = document.getElementById('tot_col_canje_31');
-            let spanDiasTrab34 = document.getElementById('tot_col_dias_trab_34');
-            let spanRemesa39 = document.getElementById('tot_col_remesa_39');
-            let spanConf44 = document.getElementById('tot_col_conf_44');
-            let spanEnt45 = document.getElementById('tot_col_ent_45');
-            let spanDtto46 = document.getElementById('tot_col_dtto_46');
-            let spanMod47 = document.getElementById('tot_col_modulo_47');
-            let spanResguardo48 = document.getElementById('tot_col_resguardo_48');
-            let spanScript51 = document.getElementById('tot_col_script_51');
-            let spanFolioNec52 = document.getElementById('tot_col_folionec_52');
-            
-            let remesaInput = document.getElementById('txtRemesaGlobal');
-            let confInput = document.getElementById('txtConfGlobal');
-            let entInput = document.getElementById('txtEntidadGlobal');
-            let dttoInput = document.getElementById('txtDistritoGlobal');
-            let canjeInput = document.getElementById('inputCanjeGlobal');
-            let scriptInput = document.getElementById('inputScriptGlobal');
-            let folionecInput = document.getElementById('inputFolioNecGlobal');
-
-            let remesaVal = remesaInput ? remesaInput.value : "";
-            let confVal = confInput ? confInput.value : "";
-            let entVal = entInput ? entInput.value : "";
-            let dttoVal = dttoInput ? dttoInput.value : "";
-            let canjeVal = canjeInput ? canjeInput.value : "";
-            let scriptVal = scriptInput ? scriptInput.value : "";
-            let folionecVal = folionecInput ? folionecInput.value : "";
-
-            if(spanMin5) spanMin5.innerText = minFolioInicial !== null && minFolioInicial !== "0" ? minFolioInicial : "";
-            if(spanMax6) spanMax6.innerText = maxFolioFinal !== null && maxFolioFinal !== "0" ? maxFolioFinal : "";
-            if(spanCol16) spanCol16.innerText = sumas[16] > 0 ? sumas[16] : "";
-            if(spanPrimerDisp20) spanPrimerDisp20.innerText = primerDispVal > 0 ? primerDispVal : "";
-            if(spanCanje31) spanCanje31.innerText = canjeVal !== "" && canjeVal !== "0" ? canjeVal : "";
-            if(spanDiasTrab34) spanDiasTrab34.innerText = totalDiasTrabajados > 0 ? totalDiasTrabajados : "";
-            if(spanRemesa39) spanRemesa39.innerText = remesaVal;
-            if(spanConf44) spanConf44.innerText = confVal;
-            if(spanEnt45) spanEnt45.innerText = entVal;
-            if(spanDtto46) spanDtto46.innerText = dttoVal;
-            if(spanMod47) spanMod47.innerText = moduloActual;
-            if(spanScript51) spanScript51.innerText = scriptVal;
-            if(spanFolioNec52) spanFolioNec52.innerText = folionecVal;
+            document.getElementById('tot_col_min_5').innerText = minFolioInicial !== null && minFolioInicial !== "0" ? minFolioInicial : "";
+            document.getElementById('tot_col_max_6').innerText = maxFolioFinal !== null && maxFolioFinal !== "0" ? maxFolioFinal : "";
+            document.getElementById('tot_col_16').innerText = sumas[16] > 0 ? sumas[16] : "";
+            document.getElementById('tot_col_primer_disp_20').innerText = primerDispVal > 0 ? primerDispVal : "";
+            document.getElementById('tot_col_canje_31').innerText = document.getElementById('inputCanjeGlobal').value || "";
+            document.getElementById('tot_col_dias_trab_34').innerText = totalDiasTrabajados > 0 ? totalDiasTrabajados : "";
+            document.getElementById('tot_col_remesa_39').innerText = document.getElementById('txtRemesaGlobal').value;
+            document.getElementById('tot_col_conf_44').innerText = document.getElementById('txtConfGlobal').value;
+            document.getElementById('tot_col_ent_45').innerText = document.getElementById('txtEntidadGlobal').value;
+            document.getElementById('tot_col_dtto_46').innerText = document.getElementById('txtDistritoGlobal').value;
+            document.getElementById('tot_col_modulo_47').innerText = moduloActual;
+            document.getElementById('tot_col_script_51').innerText = document.getElementById('inputScriptGlobal').value;
+            document.getElementById('tot_col_folionec_52').innerText = document.getElementById('inputFolioNecGlobal').value;
 
             for(let c=7; c<=75; c++) {
                 if(!columnasSinSuma.includes(c)) {
                     let span = document.getElementById(`tot_col_${c}`);
-                    if(span) {
-                        span.innerText = sumas[c] > 0 ? sumas[c] : "";
-                    }
+                    if(span) span.innerText = sumas[c] > 0 ? sumas[c] : "";
                 }
             }
 
-            let totCol20 = sumas[20] || 0;
-            let totCol21 = sumas[21] || 0;
-            let totCol23 = sumas[23] || 0;
-            let sumaRestaTot = (sumas[22] || 0) + (sumas[24] || 0) + (sumas[25] || 0) + (sumas[26] || 0) + (sumas[27] || 0) + (sumas[28] || 0) + (sumas[29] || 0);
-            let totCol63 = sumas[63] || 0;
-            let totCol64 = sumas[64] || 0;
-            let totCol30Val = totCol20 + totCol21 + totCol23 - sumaRestaTot + totCol63 - totCol64;
-            
+            let totCol30Val = (sumas[20]||0) + (sumas[21]||0) + (sumas[23]||0) - ((sumas[22]||0) + (sumas[24]||0) + (sumas[25]||0) + (sumas[26]||0) + (sumas[27]||0) + (sumas[28]||0) + (sumas[29]||0)) + (sumas[63]||0) - (sumas[64]||0);
             let spanTotCol30 = document.getElementById('tot_col_disp_fin_30');
-            if(spanTotCol30) {
-                spanTotCol30.innerText = totCol30Val !== 0 ? totCol30Val : "";
-            }
+            if(spanTotCol30) spanTotCol30.innerText = totCol30Val !== 0 ? totCol30Val : "";
         }
     </script>
 </body>
