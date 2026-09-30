@@ -590,7 +590,7 @@
                 btnOjo.innerText = '🙈';
             } else {
                 inputPwd.type = 'password';
-                btnOjo.innerText = '👁️';
+                btnOjo.innerText = '👁️️';
             }
         }
 
@@ -1657,11 +1657,6 @@
                     let colNum = i + 2;
                     if(colNum <= 75 && colNum !== 16) sumas[colNum] += (parseFloat(inp.value) || 0);
                 });
-
-                sumas[30] += dispActual;
-                sumas[53] += totFolios;
-                sumas[54] += totFolios;
-                sumas[65] += (repVal + reimpVal);
             });
 
             sumas[16] = sumaCol16Total;
