@@ -6,7 +6,7 @@
     <title>Sistema de Reportes - Módulos MAC</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        body { background-color: #f4f6f9; font-family: Arial, sans-serif; font-size: 0.7rem; }
+        body { background-color: #f4f6f9; font-family: Arial, sans-serif; font-size: 0.7rem; padding-bottom: 30px; }
         .header-box { background: #ffffff; border-bottom: 2px solid #1b396b; padding: 8px; margin-bottom: 8px; }
         .table-container { max-height: 600px; overflow-x: auto; overflow-y: auto; background: #fff; border: 1px solid #ccc; }
         table.excel-table { border-collapse: collapse; width: max-content; }
@@ -50,7 +50,7 @@
             background-color: #f8f9fa;
         }
         
-        footer { position: fixed; bottom: 0; left: 0; width: 100%; background-color: #ffffff; border-top: 1px solid #dee2e6; padding: 5px; text-align: center; font-size: 0.65rem; color: #6c757d; }
+        footer { position: fixed; bottom: 0; left: 0; width: 100%; background-color: #ffffff; border-top: 1px solid #dee2e6; padding: 5px; text-align: center; font-size: 0.65rem; color: #6c757d; z-index: 9999; }
     </style>
 </head>
 <body>
@@ -97,11 +97,6 @@
             </div>
         </div>
     </div>
-
-    <!-- PIE DE PÁGINA CON DERECHOS RESERVADOS Y VERSIÓN -->
-    <footer id="piePaginaInicio">
-        <span>© 2026 Derechos Reservados - Sistema de Reportes Módulos MAC | <strong>Versión 03</strong></span>
-    </footer>
 
     <!-- VISTA 2: APLICACIÓN DE REPORTE -->
     <div id="vistaReporte" class="container-fluid p-2" style="display: none;">
@@ -465,11 +460,18 @@
         </div>
     </div>
 
+    <!-- PIE DE PÁGINA UNIVERSAL (VISIBLE EN TODAS LAS PÁGINAS) -->
+    <footer>
+        <span>© 2026 Derechos Reservados - Sistema de Reportes Módulos MAC | <strong>Versión 05</strong></span>
+    </footer>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         const diasNombresCortos = ['LUN', 'MAR', 'MIÉ', 'JUE', 'VIE', 'SÁB', 'DOM'];
         let moduloActual = null;
-        
+        let temporizadorInactividad = null;
+        const TIEMPO_INACTIVIDAD = 5 * 60 * 1000; // 5 minutos en milisegundos
+
         const configModulos = {
             '50351': { responsable: 'Pedro Cecilio Ornelas Iñiguez', conf: 'B+5' },
             '50353': { responsable: 'Arnoldo Montenegro Garza', conf: 'B+3' },
@@ -514,7 +516,22 @@
             if (moduloActivoGuardado && configModulos[moduloActivoGuardado]) {
                 cargarModuloDirecto(moduloActivoGuardado);
             }
+
+            // Monitoreo de actividad global para el cierre por inactividad
+            ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'].forEach(evento => {
+                window.addEventListener(evento, reiniciarTemporizadorInactividad);
+            });
         });
+
+        function reiniciarTemporizadorInactividad() {
+            if(!moduloActual) return; // Si estamos en el menú principal, no aplica el temporizador de reporte
+            
+            clearTimeout(temporizadorInactividad);
+            temporizadorInactividad = setTimeout(() => {
+                alert("⏳ La sesión se ha cerrado automáticamente por 5 minutos de inactividad. Sus datos han sido guardados.");
+                volverAlMenu();
+            }, TIEMPO_INACTIVIDAD);
+        }
 
         function intentarAcceso(idModulo, passwordEsperada) {
             let passwordIngresada = prompt(`Ingrese la contraseña para acceder al Módulo ${idModulo}:`);
@@ -532,9 +549,6 @@
             localStorage.setItem('sesion_modulo_activo', idModulo);
             
             document.getElementById('vistaSeleccion').style.display = 'none';
-            let footerInicio = document.getElementById('piePaginaInicio');
-            if(footerInicio) footerInicio.style.display = 'none';
-
             document.getElementById('vistaReporte').style.display = 'block';
             document.getElementById('lblModuloActivo').innerText = idModulo;
             document.getElementById('txtModulo').value = idModulo;
@@ -547,16 +561,17 @@
                 document.getElementById('txtResponsable').value = configModulos[idModulo].responsable;
                 document.getElementById('txtConfGlobal').value = configModulos[idModulo].conf;
             }
+
+            reiniciarTemporizadorInactividad();
         }
 
         function volverAlMenu() {
-            guardarDatosLocales();
-            localStorage.removeItem('sesion_modulo_activo');
+            clearTimeout(temporizadorInactividad);
+            guardarDatosLocales(); // Guarda antes de salir para que no se pierda nada
+            localStorage.removeItem('sesion_modulo_activo'); // Limpia sesión activa
             
             document.getElementById('vistaReporte').style.display = 'none';
             document.getElementById('vistaSeleccion').style.display = 'block';
-            let footerInicio = document.getElementById('piePaginaInicio');
-            if(footerInicio) footerInicio.style.display = 'block';
 
             moduloActual = null;
         }
