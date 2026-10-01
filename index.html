@@ -144,7 +144,7 @@
                 </div>
                 <div class="modal-body">
                     <div id="contenedorListaRemesas">
-                        <p class="text-muted small">Seleccione un registro guardado para visualizar y copiar sus datos:</p>
+                        <p class="text-muted small">Seleccione un registro guardado para visualizar y copiar sus datos, o bórrelo de requerirlo:</p>
                         <div class="table-responsive mb-3" style="max-height: 200px; overflow-y: auto;">
                             <table class="table table-sm table-bordered table-striped text-center" style="font-size: 0.68rem;">
                                 <thead class="table-dark sticky-top">
@@ -285,14 +285,14 @@
                             <th>REINCORP.</th>
                             <th>REEMPLAZO</th>
                             <th>REIMPRESIONES</th>
-                            <th>TOTAL TRÁM.</th>
+                            <th>Total Tramites</th>
                             <th>CANCELADOS</th>
                             <th>TOTAL ANEXO RECHAZO</th>
                             <th>CPV devuelta entrega</th>
                             <th>DISPONIBLES AL DIA ANTERIOR (iniciales)</th>
                             <th>RECIBIDAS Actualizacion</th>
-                            <th>ENTREGADAS</th>
                             <th>RECIBIDAS OTROS TIPOS</th>
+                            <th>ENTREGADAS</th>
                             <th>RECIBO Y/O EXTRAVIO</th>
                             <th>ANEXAS A FUAR</th>
                             <th>DATOS ERRONEOS</th>
@@ -518,7 +518,7 @@
                         <div class="col-md-3">
                             <div class="d-flex align-items-center mb-1">
                                 <span class="fw-bold me-2">CREDENCIALES POR CANJE:</span>
-                                <input type="text" id="inputCanjeGlobal" class="cell-input fw-bold text-center" style="width: 70px;" value="" oninput="recalcularTodo(); guardarDatosLocales();">
+                                <input type="text" id="inputCanjeGlobal" class="cell-input fw-bold text-center cell-formula" style="width: 70px;" value="" readonly>
                             </div>
                             <div class="d-flex align-items-center mb-1">
                                 <span class="fw-bold me-2">Script ejecutados</span>
@@ -570,7 +570,7 @@
 
     <!-- PIE DE PÁGINA UNIVERSAL -->
     <footer>
-        <span>© 2026 Derechos Reservados - Sistema de Reportes Módulos MAC (Nube) | <strong>Versión 10.2</strong></span>
+        <span>© 2026 Derechos Reservados - Sistema de Reportes Módulos MAC (Nube) | <strong>Versión 10.3</strong></span>
     </footer>
 
     <!-- Bootstrap JS -->
@@ -614,20 +614,20 @@
         };
 
         const datosBaseDefault = [
-            {dia: 'Lunes', fecha: '', horas: '', sede: '', fi: '', ff: '', ins: 0, corr: 0, cam: 0, rep: 0, cdir: 0, reinc: 0, reempl: 0, reimp: 0, cpvDev: 0, dispAnt: 0, rec: 0, ent: 0, canje: 0, fichEnt: 0, fichAtend: 0, exp: 0, ord: 0, rect: 0, juicio: 0, remesa: 202640},
-            {dia: 'Martes', fecha: '', horas: '', sede: '', fi: '', ff: '', ins: 0, corr: 0, cam: 0, rep: 0, cdir: 0, reinc: 0, reempl: 0, reimp: 0, cpvDev: 0, dispAnt: 0, rec: 0, ent: 0, canje: 0, fichEnt: 0, fichAtend: 0, exp: 0, ord: 0, rect: 0, juicio: 0, remesa: 202640},
-            {dia: 'Miércoles', fecha: '', horas: '', sede: '', fi: '', ff: '', ins: 0, corr: 0, cam: 0, rep: 0, cdir: 0, reinc: 0, reempl: 0, reimp: 0, cpvDev: 0, dispAnt: 0, rec: 0, ent: 0, canje: 0, fichEnt: 0, fichAtend: 0, exp: 0, ord: 0, rect: 0, juicio: 0, remesa: 202640},
-            {dia: 'Jueves', fecha: '', horas: '', sede: '', fi: '', ff: '', ins: 0, corr: 0, cam: 0, rep: 0, cdir: 0, reinc: 0, reempl: 0, reimp: 0, cpvDev: 0, dispAnt: 0, rec: 0, ent: 0, canje: 0, fichEnt: 0, fichAtend: 0, exp: 0, ord: 0, rect: 0, juicio: 0, remesa: 202640},
-            {dia: 'Viernes', fecha: '', horas: '', sede: '', fi: '', ff: '', ins: 0, corr: 0, cam: 0, rep: 0, cdir: 0, reinc: 0, reempl: 0, reimp: 0, cpvDev: 0, dispAnt: 0, rec: 0, ent: 0, canje: 0, fichEnt: 0, fichAtend: 0, exp: 0, ord: 0, rect: 0, juicio: 0, remesa: 202640},
-            {dia: 'Sábado', fecha: '', horas: '', sede: '', fi: '', ff: '', ins: 0, corr: 0, cam: 0, rep: 0, cdir: 0, reinc: 0, reempl: 0, reimp: 0, cpvDev: 0, dispAnt: 0, rec: 0, ent: 0, canje: 0, fichEnt: 0, fichAtend: 0, exp: 0, ord: 0, rect: 0, juicio: 0, remesa: 202640},
-            {dia: 'Domingo', fecha: '', horas: '', sede: '', fi: '', ff: '', ins: 0, corr: 0, cam: 0, rep: 0, cdir: 0, reinc: 0, reempl: 0, reimp: 0, cpvDev: 0, dispAnt: 0, rec: 0, ent: 0, canje: 0, fichEnt: 0, fichAtend: 0, exp: 0, ord: 0, rect: 0, juicio: 0, remesa: 202640}
+            {dia: 'Lunes', fecha: '', horas: '', sede: '', fi: '', ff: '', ins: 0, corr: 0, cam: 0, rep: 0, cdir: 0, reinc: 0, reempl: 0, reimp: 0, cpvDev: 0, dispAnt: 0, rec: 0, recOtr: 0, ent: 0, canje: 0, fichEnt: 0, fichAtend: 0, exp: 0, ord: 0, rect: 0, juicio: 0, remesa: 202640},
+            {dia: 'Martes', fecha: '', horas: '', sede: '', fi: '', ff: '', ins: 0, corr: 0, cam: 0, rep: 0, cdir: 0, reinc: 0, reempl: 0, reimp: 0, cpvDev: 0, dispAnt: 0, rec: 0, recOtr: 0, ent: 0, canje: 0, fichEnt: 0, fichAtend: 0, exp: 0, ord: 0, rect: 0, juicio: 0, remesa: 202640},
+            {dia: 'Miércoles', fecha: '', horas: '', sede: '', fi: '', ff: '', ins: 0, corr: 0, cam: 0, rep: 0, cdir: 0, reinc: 0, reempl: 0, reimp: 0, cpvDev: 0, dispAnt: 0, rec: 0, recOtr: 0, ent: 0, canje: 0, fichEnt: 0, fichAtend: 0, exp: 0, ord: 0, rect: 0, juicio: 0, remesa: 202640},
+            {dia: 'Jueves', fecha: '', horas: '', sede: '', fi: '', ff: '', ins: 0, corr: 0, cam: 0, rep: 0, cdir: 0, reinc: 0, reempl: 0, reimp: 0, cpvDev: 0, dispAnt: 0, rec: 0, recOtr: 0, ent: 0, canje: 0, fichEnt: 0, fichAtend: 0, exp: 0, ord: 0, rect: 0, juicio: 0, remesa: 202640},
+            {dia: 'Viernes', fecha: '', horas: '', sede: '', fi: '', ff: '', ins: 0, corr: 0, cam: 0, rep: 0, cdir: 0, reinc: 0, reempl: 0, reimp: 0, cpvDev: 0, dispAnt: 0, rec: 0, recOtr: 0, ent: 0, canje: 0, fichEnt: 0, fichAtend: 0, exp: 0, ord: 0, rect: 0, juicio: 0, remesa: 202640},
+            {dia: 'Sábado', fecha: '', horas: '', sede: '', fi: '', ff: '', ins: 0, corr: 0, cam: 0, rep: 0, cdir: 0, reinc: 0, reempl: 0, reimp: 0, cpvDev: 0, dispAnt: 0, rec: 0, recOtr: 0, ent: 0, canje: 0, fichEnt: 0, fichAtend: 0, exp: 0, ord: 0, rect: 0, juicio: 0, remesa: 202640},
+            {dia: 'Domingo', fecha: '', horas: '', sede: '', fi: '', ff: '', ins: 0, corr: 0, cam: 0, rep: 0, cdir: 0, reinc: 0, reempl: 0, reimp: 0, cpvDev: 0, dispAnt: 0, rec: 0, recOtr: 0, ent: 0, canje: 0, fichEnt: 0, fichAtend: 0, exp: 0, ord: 0, rect: 0, juicio: 0, remesa: 202640}
         ];
 
         const lotesDataDefault = [
             { lote: '', cant: '' }, { lote: '', cant: '' }, { lote: '', cant: '' }, { lote: '', cant: '' }, { lote: '', cant: '' }, { lote: '', cant: '' }, { lote: '', cant: '' }
         ];
 
-        const columnasSinSuma = [1, 2, 3, 4, 5, 6, 16, 17, 18, 20, 23, 29, 30, 31, 39, 44, 45, 46, 47, 48, 51, 52];
+        const columnasSinSuma = [1, 2, 3, 4, 5, 6, 16, 17, 18, 20, 22, 29, 30, 31, 39, 44, 45, 46, 47, 48, 51, 52];
 
         document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('btnVolver').addEventListener('click', volverAlMenu);
@@ -727,7 +727,7 @@
                     let remesasMac = data[macKey];
                     Object.keys(remesasMac).forEach(timestampKey => {
                         let reg = remesasMac[timestampKey];
-                        registros.push({ mac: macKey, remesa: reg.remesa, fechaHora: reg.fechaHora, filas1a75: reg.filas1a75 });
+                        registros.push({ mac: macKey, timestampKey: timestampKey, remesa: reg.remesa, fechaHora: reg.fechaHora, filas1a75: reg.filas1a75 });
                     });
                 });
 
@@ -736,7 +736,7 @@
                     return;
                 }
 
-                registros.forEach((r, idx) => {
+                registros.forEach((r) => {
                     let fechaFmt = new Date(r.fechaHora).toLocaleString();
                     let regJson = encodeURIComponent(JSON.stringify(r));
                     tbody.innerHTML += `
@@ -744,12 +744,29 @@
                             <td class="fw-bold">Módulo ${r.mac}</td>
                             <td>${r.remesa}</td>
                             <td>${fechaFmt}</td>
-                            <td><button class="btn btn-sm btn-primary py-0" onclick='verDetalleRemesaArchivada(decodeURIComponent("${regJson}"))'>🔍 Ver y Copiar</button></td>
+                            <td>
+                                <button class="btn btn-sm btn-primary py-0 me-1" onclick='verDetalleRemesaArchivada(decodeURIComponent("${regJson}"))'>🔍 Ver</button>
+                                <button class="btn btn-sm btn-danger py-0" onclick="borrarRemesaArchivada('${r.mac}', '${r.timestampKey}')">🗑️ Borrar</button>
+                            </td>
                         </tr>`;
                 });
             }).catch(err => {
                 tbody.innerHTML = `<tr><td colspan="4" class="text-danger">Error al cargar el historial.</td></tr>`;
             });
+        }
+
+        function borrarRemesaArchivada(mac, timestampKey) {
+            let pwd = prompt("🔐 Ingrese la contraseña de Administrador para borrar este registro:");
+            if (pwd === "admin" || pwd === "charro") {
+                db.ref(`remesas_completas/${mac}/${timestampKey}`).remove().then(() => {
+                    alert("🗑️ Remesa archivada eliminada correctamente.");
+                    abrirModalRemesasArchivadas();
+                }).catch(err => {
+                    alert("Error al eliminar el registro.");
+                });
+            } else if (pwd !== null) {
+                alert("❌ Contraseña incorrecta. No se eliminó el registro.");
+            }
         }
 
         function verDetalleRemesaArchivada(regStr) {
@@ -970,8 +987,8 @@
                     <td><input type="text" class="cell-input col-editable col-cpvdev" value="${d.cpvDev !== undefined ? d.cpvDev : ''}" oninput="recalcularTodo(); guardarDatosLocales();"></td>
                     <td><input type="text" class="cell-input col-editable col-disp-ant" value="${d.dispAnt !== undefined ? d.dispAnt : ''}" oninput="recalcularFila(this); guardarDatosLocales();"></td>
                     <td><input type="text" class="cell-input col-editable col-rec" value="${d.rec !== undefined ? d.rec : ''}" oninput="recalcularFila(this); guardarDatosLocales();"></td>
-                    <td><input type="text" class="cell-input col-editable col-ent" value="${d.ent !== undefined ? d.ent : ''}" oninput="recalcularFila(this); guardarDatosLocales();"></td>
                     <td><input type="text" class="cell-input cell-formula col-recotr-link" value="" readonly></td>
+                    <td><input type="text" class="cell-input col-editable col-ent" value="${d.ent !== undefined ? d.ent : ''}" oninput="recalcularFila(this); guardarDatosLocales();"></td>
                     <td><input type="text" class="cell-input col-editable col-num col-v24" value="${d.v24 || ''}" oninput="recalcularTodo(); guardarDatosLocales();"></td>
                     <td><input type="text" class="cell-input col-editable col-num col-v25" value="${d.v25 || ''}" oninput="recalcularTodo(); guardarDatosLocales();"></td>
                     <td><input type="text" class="cell-input col-editable col-num col-v26" value="${d.v26 || ''}" oninput="recalcularTodo(); guardarDatosLocales();"></td>
@@ -1010,8 +1027,8 @@
                     filaTotales.innerHTML += `<td class="${claseOculta}"><span id="tot_col_rech_18" class="fw-bold text-danger"></span></td>`;
                 } else if (c === 20) {
                     filaTotales.innerHTML += `<td class="${claseOculta}"><span id="tot_col_primer_disp_20" class="fw-bold text-danger"></span></td>`;
-                } else if (c === 23) {
-                    filaTotales.innerHTML += `<td class="${claseOculta}"><span id="tot_col_recotr_23" class="fw-bold text-danger"></span></td>`;
+                } else if (c === 22) {
+                    filaTotales.innerHTML += `<td class="${claseOculta}"><span id="tot_col_recotr_22" class="fw-bold text-danger"></span></td>`;
                 } else if (c === 29) {
                     filaTotales.innerHTML += `<td class="${claseOculta}"><span id="tot_col_ret_29" class="fw-bold text-danger"></span></td>`;
                 } else if (c === 30) {
@@ -1052,7 +1069,7 @@
             construirTablasInferiores();
             cargarValoresSubTablas(savedData);
             document.querySelectorAll('.col-horas').forEach(inp => validarHoras(inp));
-            inicializarNavegacionTeclado();
+            inicializarNavegacionTecladoUniversal();
             recalcularTodo();
         }
 
@@ -1147,6 +1164,7 @@
                     </tr>`;
             });
             tbodyLotes.innerHTML += `<tr class="row-total"><td class="text-end">TOT</td><td><span id="totLotesGeneral"></span></td></tr>`;
+            inicializarNavegacionTecladoUniversal();
         }
 
         function actualizarDatosGlobales() {
@@ -1233,8 +1251,8 @@
             document.getElementById('totCred3').innerText = sumC3 > 0 ? sumC3 : "";
             document.getElementById('totCredRes').innerText = sumCRes > 0 ? sumCRes : "";
 
-            let spanTotRecOtr23 = document.getElementById('tot_col_recotr_23');
-            if(spanTotRecOtr23) spanTotRecOtr23.innerText = sumCredTotal > 0 ? sumCredTotal : "";
+            let spanTotRecOtr22 = document.getElementById('tot_col_recotr_22');
+            if(spanTotRecOtr22) spanTotRecOtr22.innerText = sumCredTotal > 0 ? sumCredTotal : "";
             let spanTotResguardo48 = document.getElementById('tot_col_resguardo_48');
             if(spanTotResguardo48) spanTotResguardo48.innerText = sumResguardoTotal > 0 ? sumResguardoTotal : "";
 
@@ -1508,22 +1526,17 @@
             db.ref('modulos/' + moduloActual).set(objetoCompleto).catch(err => console.error("Error al sincronizar con nube:", err));
         }
 
-        // Recopila 1 a 75 columnas exactas por fila, rellenando vacíos con 0
         function recopilarColumnas1a75() {
             let filas1a75 = [];
             let rows = document.querySelectorAll('#cuerpoTablaCompleta tr');
             
             rows.forEach((r) => {
                 let filaVals = [];
-                // Recorremos las 75 columnas de la tabla principal
-                // Las celdas de la tabla tienen celdas de texto o inputs/selects
                 let celdasTd = r.querySelectorAll('td');
                 
-                // Col 1: Día
                 let col1 = celdasTd[0] ? celdasTd[0].innerText.trim() : "";
                 filaVals.push(col1 !== "" ? col1 : "0");
 
-                // Recorremos los inputs/selects desde la celda 1 en adelante (índice 1 a 74, total 74 inputs)
                 for(let i=1; i<75; i++) {
                     let td = celdasTd[i];
                     let val = "";
@@ -1535,7 +1548,6 @@
                             val = td.innerText.trim();
                         }
                     }
-                    // Si está vacío o es NaN, ponemos '0'
                     if (val === "" || val === null || val === undefined) {
                         filaVals.push("0");
                     } else {
@@ -1547,7 +1559,6 @@
             return filas1a75;
         }
 
-        // GUARDADO CON VALIDACIÓN DE REMESA COMPLETA Y ARCHIVO DE 1 A 75 COLUMNAS CON CEROS
         function guardarDatosManual() {
             let numRemesa = document.getElementById('txtRemesaGlobal').value.trim();
             let confirmacion = confirm(`¿Confirma que la remesa y el número de remesa (${numRemesa}) están completos?`);
@@ -1557,7 +1568,7 @@
                 return;
             }
 
-            guardarDatosLocales(); // Sincronización normal
+            guardarDatosLocales();
 
             let fechaHoraActual = new Date().toISOString();
             let filas1a75Datos = recopilarColumnas1a75();
@@ -1573,7 +1584,7 @@
                 let btnGuardar = document.getElementById('btnGuardar');
                 btnGuardar.classList.add('guardado-exito');
                 let textoOriginal = btnGuardar.innerHTML;
-                btnGuardar.innerHTML = '✅ ¡Remesa Archivada (1-75)!';
+                btnGuardar.innerHTML = '✅ ¡Remesa Archivada!';
                 setTimeout(() => {
                     btnGuardar.classList.remove('guardado-exito');
                     btnGuardar.innerHTML = textoOriginal;
@@ -1591,7 +1602,6 @@
                 document.getElementById('txtRemesaGlobal').value = data.configGlobal.remesa || '202640';
                 document.getElementById('txtConfGlobal').value = data.configGlobal.conf || (configModulos[moduloActual] ? configModulos[moduloActual].conf : '');
                 document.getElementById('txtResponsable').value = data.configGlobal.responsable || (configModulos[moduloActual] ? configModulos[moduloActual].responsable : '');
-                document.getElementById('inputCanjeGlobal').value = data.configGlobal.canje || '';
                 document.getElementById('inputScriptGlobal').value = data.configGlobal.script || '';
                 document.getElementById('inputFolioNecGlobal').value = data.configGlobal.folioNec || '';
                 document.getElementById('inputInstPadron').value = data.configGlobal.instPadron || '';
@@ -1600,7 +1610,6 @@
                 document.getElementById('inputRemInst').value = data.configGlobal.remInst || '';
                 document.getElementById('txtObservaciones').value = data.configGlobal.observaciones || '';
             } else {
-                document.getElementById('inputCanjeGlobal').value = '';
                 document.getElementById('inputInstPadron').value = '';
                 document.getElementById('inputInstCarto').value = '';
             }
@@ -1715,8 +1724,8 @@
                     totalesValores.push(document.getElementById('tot_col_rech_18').innerText);
                 } else if (c === 20) {
                     totalesValores.push(document.getElementById('tot_col_primer_disp_20').innerText);
-                } else if (c === 23) {
-                    totalesValores.push(document.getElementById('tot_col_recotr_23').innerText);
+                } else if (c === 22) {
+                    totalesValores.push(document.getElementById('tot_col_recotr_22').innerText);
                 } else if (c === 29) {
                     totalesValores.push(document.getElementById('tot_col_ret_29').innerText);
                 } else if (c === 30) {
@@ -1764,79 +1773,29 @@
             });
         }
 
-        // Navegación Vertical con Enter y salto a columna siguiente al llegar al total
-        function inicializarNavegacionTeclado() {
-            const rows = Array.from(document.querySelectorAll('#cuerpoTablaCompleta tr'));
-            const numRows = rows.length;
+        // Navegación Universal con Enter saltando celdas bloqueadas/inactivas
+        function inicializarNavegacionTecladoUniversal() {
+            const allInputs = Array.from(document.querySelectorAll('input.cell-input:not([readonly]), input.date-input:not([readonly]), select.cell-input'));
+            
+            allInputs.forEach((input, index) => {
+                input.addEventListener('focus', function() {
+                    setTimeout(() => { if(this.select) this.select(); }, 50);
+                });
 
-            rows.forEach((row, rIdx) => {
-                const inputs = Array.from(row.querySelectorAll('.col-editable:not([disabled]), .sub-table .cell-input:not([readonly])'));
-                
-                inputs.forEach((input, cIdx) => {
-                    input.addEventListener('focus', function() {
-                        setTimeout(() => { if(this.select) this.select(); }, 50);
-                    });
-
-                    input.addEventListener('keydown', function(e) {
-                        if (e.key === 'Enter') {
-                            e.preventDefault();
-                            if (rIdx < numRows - 1) {
-                                let nextRowInputs = rows[rIdx + 1].querySelectorAll('.col-editable:not([disabled])');
-                                if (nextRowInputs[cIdx]) {
-                                    nextRowInputs[cIdx].focus();
-                                    if(nextRowInputs[cIdx].select) nextRowInputs[cIdx].select();
-                                }
-                            } else {
-                                let firstRowInputs = rows[0].querySelectorAll('.col-editable:not([disabled])');
-                                if (firstRowInputs[cIdx + 1]) {
-                                    firstRowInputs[cIdx + 1].focus();
-                                    if(firstRowInputs[cIdx + 1].select) firstRowInputs[cIdx + 1].select();
-                                } else if (firstRowInputs[0]) {
-                                    firstRowInputs[0].focus();
-                                    if(firstRowInputs[0].select) firstRowInputs[0].select();
-                                }
+                input.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        let nextIndex = index + 1;
+                        while (nextIndex < allInputs.length) {
+                            let nextInp = allInputs[nextIndex];
+                            if (nextInp && !nextInp.disabled && !nextInp.readOnly && nextInp.offsetParent !== null) {
+                                nextInp.focus();
+                                if (nextInp.select) nextInp.select();
+                                break;
                             }
-                        } else if (['ArrowRight', 'ArrowLeft', 'ArrowDown', 'ArrowUp'].includes(e.key)) {
-                            let currentCell = input.closest('td');
-                            let currentRow = currentCell.closest('tr');
-                            let cellIndex = Array.from(currentRow.children).indexOf(currentCell);
-                            let tableBody = currentRow.closest('tbody');
-                            let allRows = Array.from(tableBody.querySelectorAll('tr'));
-                            let rowIndex = allRows.indexOf(currentRow);
-
-                            if (e.key === 'ArrowRight') {
-                                let nextTd = currentRow.children[cellIndex + 1];
-                                while(nextTd) {
-                                    let inp = nextTd.querySelector('.cell-input, .date-input, select');
-                                    if(inp && !inp.disabled && !inp.readOnly) { inp.focus(); if(inp.select) inp.select(); return; }
-                                    cellIndex++;
-                                    nextTd = currentRow.children[cellIndex + 1];
-                                }
-                            } else if (e.key === 'ArrowLeft') {
-                                let prevTd = currentRow.children[cellIndex - 1];
-                                while(prevTd) {
-                                    let inp = prevTd.querySelector('.cell-input, .date-input, select');
-                                    if(inp && !inp.disabled && !inp.readOnly) { inp.focus(); if(inp.select) inp.select(); return; }
-                                    cellIndex--;
-                                    prevTd = currentRow.children[cellIndex - 1];
-                                }
-                            } else if (e.key === 'ArrowDown') {
-                                let nextRow = allRows[rowIndex + 1];
-                                if(nextRow) {
-                                    let targetTd = nextRow.children[cellIndex];
-                                    let inp = targetTd ? targetTd.querySelector('.cell-input, .date-input, select') : null;
-                                    if(inp && !inp.disabled && !inp.readOnly) { inp.focus(); if(inp.select) inp.select(); }
-                                }
-                            } else if (e.key === 'ArrowUp') {
-                                let prevRow = allRows[rowIndex - 1];
-                                if(prevRow) {
-                                    let targetTd = prevRow.children[cellIndex];
-                                    let inp = targetTd ? targetTd.querySelector('.cell-input, .date-input, select') : null;
-                                    if(inp && !inp.disabled && !inp.readOnly) { inp.focus(); if(inp.select) inp.select(); }
-                                }
-                            }
+                            nextIndex++;
                         }
-                    });
+                    }
                 });
             });
         }
@@ -1874,7 +1833,7 @@
                     inp.style.backgroundColor = '#fff';
                 }
             });
-            inicializarNavegacionTeclado();
+            inicializarNavegacionTecladoUniversal();
             recalcularTodo();
         }
 
@@ -1913,7 +1872,7 @@
             let sumas = {};
             for(let c=1; c<=75; c++) sumas[c] = 0;
 
-            let minFolioInicial = null, maxFolioFinal = null, primerDispVal = 0, primerDispEncontrado = false, totalDiasTrabajados = 0, sumaCol16Total = 0;
+            let minFolioInicial = null, maxFolioFinal = null, primerDispVal = 0, primerDispEncontrado = false, totalDiasTrabajados = 0, sumaCol16Total = 0, sumaCol20Total = 0;
 
             rows.forEach((r) => {
                 let inputs = r.querySelectorAll('input, select');
@@ -1971,12 +1930,14 @@
                 sumaCol16Total += totalCol16Final;
 
                 let dispAntVal = rowVals[20] || 0;
+                sumaCol20Total += dispAntVal;
+
                 if (!primerDispEncontrado && dispAntVal > 0) {
                     primerDispVal = dispAntVal;
                     primerDispEncontrado = true;
                 }
 
-                let recVal = rowVals[21] || 0, entVal = rowVals[22] || 0, recOtrVal = rowVals[23] || 0;
+                let recVal = rowVals[21] || 0, recOtrVal = rowVals[22] || 0, entVal = rowVals[23] || 0;
                 let v24 = rowVals[24] || 0, v25 = rowVals[25] || 0, v26 = rowVals[26] || 0, v27 = rowVals[27] || 0, v28 = rowVals[28] || 0, v29 = rowVals[29] || 0;
                 let impVal = rowVals[63] || 0, expVal = rowVals[64] || 0;
 
@@ -1992,11 +1953,17 @@
 
             sumas[16] = sumaCol16Total;
 
+            // Credenciales por canje en la parte inferior = sumatoria de la columna 20
+            let inputCanje = document.getElementById('inputCanjeGlobal');
+            if(inputCanje) {
+                inputCanje.value = sumaCol20Total > 0 ? sumaCol20Total : "";
+            }
+
             document.getElementById('tot_col_min_5').innerText = minFolioInicial !== null && minFolioInicial !== "0" ? minFolioInicial : "";
             document.getElementById('tot_col_max_6').innerText = maxFolioFinal !== null && maxFolioFinal !== "0" ? maxFolioFinal : "";
             document.getElementById('tot_col_16').innerText = sumas[16] > 0 ? sumas[16] : "";
             document.getElementById('tot_col_primer_disp_20').innerText = primerDispVal > 0 ? primerDispVal : "";
-            document.getElementById('tot_col_canje_31').innerText = document.getElementById('inputCanjeGlobal').value || "";
+            document.getElementById('tot_col_canje_31').innerText = sumaCol20Total > 0 ? sumaCol20Total : "";
             document.getElementById('tot_col_dias_trab_34').innerText = totalDiasTrabajados > 0 ? totalDiasTrabajados : "";
             document.getElementById('tot_col_remesa_39').innerText = document.getElementById('txtRemesaGlobal').value;
             document.getElementById('tot_col_conf_44').innerText = document.getElementById('txtConfGlobal').value;
@@ -2013,7 +1980,7 @@
                 }
             }
 
-            let totCol30Val = (sumas[20]||0) + (sumas[21]||0) + (sumas[23]||0) - ((sumas[22]||0) + (sumas[24]||0) + (sumas[25]||0) + (sumas[26]||0) + (sumas[27]||0) + (sumas[28]||0) + (sumas[29]||0)) + (sumas[63]||0) - (sumas[64]||0);
+            let totCol30Val = (sumas[20]||0) + (sumas[21]||0) + (sumas[22]||0) - ((sumas[23]||0) + (sumas[24]||0) + (sumas[25]||0) + (sumas[26]||0) + (sumas[27]||0) + (sumas[28]||0) + (sumas[29]||0)) + (sumas[63]||0) - (sumas[64]||0);
             let spanTotCol30 = document.getElementById('tot_col_disp_fin_30');
             if(spanTotCol30) spanTotCol30.innerText = totCol30Val !== 0 ? totCol30Val : "";
         }
