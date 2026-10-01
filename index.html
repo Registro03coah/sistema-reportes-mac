@@ -267,7 +267,7 @@
                             <th rowspan="2">FECHA</th>
                             <th rowspan="2">HORAS</th>
                             <th rowspan="2">SEDE</th>
-                            <th colspan="3">FOLIOS (5-7)</th>
+                            <th colspan="3">FOLIOS</th>
                             <th colspan="9">FORMATOS ÚNICOS (8-16)</th>
                             <th colspan="14">ESTADÍSTICAS Y MOVIMIENTOS (17-30)</th>
                             <th colspan="10" class="col-oculta-modulo">INDICADORES Y CREDENCIALES (31-40)</th>
@@ -570,7 +570,7 @@
 
     <!-- PIE DE PÁGINA UNIVERSAL -->
     <footer>
-        <span>© 2026 Derechos Reservados - Sistema de Reportes Módulos MAC (Nube) | <strong>Versión 10.4</strong></span>
+        <span>© 2026 Derechos Reservados - Sistema de Reportes Módulos MAC (Nube) | <strong>Versión 10.5</strong></span>
     </footer>
 
     <!-- Bootstrap JS -->
@@ -1069,7 +1069,7 @@
             construirTablasInferiores();
             cargarValoresSubTablas(savedData);
             document.querySelectorAll('.col-horas').forEach(inp => validarHoras(inp));
-            inicializarNavegacionTecladoUniversal();
+            inicializarNavegacionIndependientePorTablas();
             recalcularTodo();
         }
 
@@ -1164,7 +1164,89 @@
                     </tr>`;
             });
             tbodyLotes.innerHTML += `<tr class="row-total"><td class="text-end">TOT</td><td><span id="totLotesGeneral"></span></td></tr>`;
-            inicializarNavegacionTecladoUniversal();
+            
+            inicializarNavegacionIndependientePorTablas();
+        }
+
+        // Navegación Enter independiente por cada tabla (por columna)
+        function configurarNavegacionTablaPorColumna(tableEl) {
+            if (!tableEl) return;
+            const rows = Array.from(tableEl.querySelectorAll('tbody tr'));
+            if (rows.length === 0) return;
+
+            rows.forEach((row, rIdx) => {
+                const inputsInRow = Array.from(row.querySelectorAll('input.cell-input:not([readonly]), input.date-input:not([readonly]), select.cell-input'));
+                
+                inputsInRow.forEach((input, cIdx) => {
+                    input.addEventListener('focus', function() {
+                        setTimeout(() => { if(this.select) this.select(); }, 50);
+                    });
+
+                    input.addEventListener('keydown', function(e) {
+                        if (e.key === 'Enter') {
+                            e.preventDefault();
+                            let targetInput = null;
+
+                            // 1. Buscar en la misma columna hacia abajo
+                            let nextR = rIdx + 1;
+                            while (nextR < rows.length) {
+                                let candidateRowInputs = Array.from(rows[nextR].querySelectorAll('input.cell-input:not([readonly]), input.date-input:not([readonly]), select.cell-input'));
+                                let candidate = candidateRowInputs[cIdx];
+                                if (candidate && !candidate.disabled && candidate.offsetParent !== null && !candidate.readOnly) {
+                                    targetInput = candidate;
+                                    break;
+                                }
+                                nextR++;
+                            }
+
+                            // 2. Si no hay celdas activas abajo, saltar al inicio de la siguiente columna dentro de esta misma tabla
+                            if (!targetInput) {
+                                let maxCols = Math.max(...rows.map(r => r.querySelectorAll('input.cell-input:not([readonly]), input.date-input:not([readonly]), select.cell-input').length));
+                                let nextC = cIdx + 1;
+                                while (nextC < maxCols) {
+                                    for (let r = 0; r < rows.length; r++) {
+                                        let candidateRowInputs = Array.from(rows[r].querySelectorAll('input.cell-input:not([readonly]), input.date-input:not([readonly]), select.cell-input'));
+                                        let candidate = candidateRowInputs[nextC];
+                                        if (candidate && !candidate.disabled && candidate.offsetParent !== null && !candidate.readOnly) {
+                                            targetInput = candidate;
+                                            break;
+                                        }
+                                    }
+                                    if (targetInput) break;
+                                    nextC++;
+                                }
+                            }
+
+                            // 3. Si llega al final de la tabla, volver a la primera columna de la primera fila
+                            if (!targetInput) {
+                                for (let r = 0; r < rows.length; r++) {
+                                    let candidateRowInputs = Array.from(rows[r].querySelectorAll('input.cell-input:not([readonly]), input.date-input:not([readonly]), select.cell-input'));
+                                    if (candidateRowInputs[0] && !candidateRowInputs[0].disabled && candidateRowInputs[0].offsetParent !== null && !candidateRowInputs[0].readOnly) {
+                                        targetInput = candidateRowInputs[0];
+                                        break;
+                                    }
+                                }
+                            }
+
+                            if (targetInput) {
+                                targetInput.focus();
+                                if (targetInput.select) targetInput.select();
+                            }
+                        }
+                    });
+                });
+            });
+        }
+
+        function inicializarNavegacionIndependientePorTablas() {
+            configurarNavegacionTablaPorColumna(document.getElementById('tablaCompleta'));
+            configurarNavegacionTablaPorColumna(document.getElementById('tablaRechazos'));
+            configurarNavegacionTablaPorColumna(document.getElementById('tablaRetiradasCausa'));
+            configurarNavegacionTablaPorColumna(document.getElementById('tablaCredRecibidas'));
+            configurarNavegacionTablaPorColumna(document.getElementById('tablaCancelados'));
+            configurarNavegacionTablaPorColumna(document.getElementById('tablaInstancias'));
+            configurarNavegacionTablaPorColumna(document.getElementById('tablaImpExp'));
+            configurarNavegacionTablaPorColumna(document.getElementById('tablaLotes'));
         }
 
         function actualizarDatosGlobales() {
@@ -1773,33 +1855,6 @@
             });
         }
 
-        // Navegación Universal con Enter saltando celdas bloqueadas/inactivas
-        function inicializarNavegacionTecladoUniversal() {
-            const allInputs = Array.from(document.querySelectorAll('input.cell-input:not([readonly]), input.date-input:not([readonly]), select.cell-input'));
-            
-            allInputs.forEach((input, index) => {
-                input.addEventListener('focus', function() {
-                    setTimeout(() => { if(this.select) this.select(); }, 50);
-                });
-
-                input.addEventListener('keydown', function(e) {
-                    if (e.key === 'Enter') {
-                        e.preventDefault();
-                        let nextIndex = index + 1;
-                        while (nextIndex < allInputs.length) {
-                            let nextInp = allInputs[nextIndex];
-                            if (nextInp && !nextInp.disabled && !nextInp.readOnly && nextInp.offsetParent !== null) {
-                                nextInp.focus();
-                                if (nextInp.select) nextInp.select();
-                                break;
-                            }
-                            nextIndex++;
-                        }
-                    }
-                });
-            });
-        }
-
         function actualizarFechasConsecutivas(inputLunes) {
             let valLunes = inputLunes.value;
             if(!valLunes) return;
@@ -1833,7 +1888,7 @@
                     inp.style.backgroundColor = '#fff';
                 }
             });
-            inicializarNavegacionTecladoUniversal();
+            inicializarNavegacionIndependientePorTablas();
             recalcularTodo();
         }
 
