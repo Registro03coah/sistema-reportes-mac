@@ -570,7 +570,7 @@
 
     <!-- PIE DE PÁGINA UNIVERSAL -->
     <footer>
-        <span>© 2026 Derechos Reservados - Sistema de Reportes Módulos MAC (Nube) | <strong>Versión 10.5</strong></span>
+        <span>© 2026 Derechos Reservados - Sistema de Reportes Módulos MAC (Nube) | <strong>Versión 10.6</strong></span>
     </footer>
 
     <!-- Bootstrap JS -->
@@ -1168,16 +1168,19 @@
             inicializarNavegacionIndependientePorTablas();
         }
 
-        // Navegación Enter independiente por cada tabla (por columna)
+        // Navegación Enter independiente por cada tabla (por columna basada en posición de celda)
         function configurarNavegacionTablaPorColumna(tableEl) {
             if (!tableEl) return;
             const rows = Array.from(tableEl.querySelectorAll('tbody tr'));
             if (rows.length === 0) return;
 
             rows.forEach((row, rIdx) => {
-                const inputsInRow = Array.from(row.querySelectorAll('input.cell-input:not([readonly]), input.date-input:not([readonly]), select.cell-input'));
+                const tds = Array.from(row.querySelectorAll('td'));
                 
-                inputsInRow.forEach((input, cIdx) => {
+                tds.forEach((td, cIdx) => {
+                    const input = td.querySelector('input.cell-input, input.date-input, select.cell-input');
+                    if (!input) return;
+
                     input.addEventListener('focus', function() {
                         setTimeout(() => { if(this.select) this.select(); }, 50);
                     });
@@ -1187,29 +1190,33 @@
                             e.preventDefault();
                             let targetInput = null;
 
-                            // 1. Buscar en la misma columna hacia abajo
+                            // 1. Buscar en la misma columna (mismo índice de celda) hacia abajo
                             let nextR = rIdx + 1;
                             while (nextR < rows.length) {
-                                let candidateRowInputs = Array.from(rows[nextR].querySelectorAll('input.cell-input:not([readonly]), input.date-input:not([readonly]), select.cell-input'));
-                                let candidate = candidateRowInputs[cIdx];
-                                if (candidate && !candidate.disabled && candidate.offsetParent !== null && !candidate.readOnly) {
-                                    targetInput = candidate;
-                                    break;
+                                let nextTd = rows[nextR].querySelectorAll('td')[cIdx];
+                                if (nextTd) {
+                                    let candidate = nextTd.querySelector('input.cell-input:not([readonly]), input.date-input:not([readonly]), select.cell-input');
+                                    if (candidate && !candidate.disabled && candidate.offsetParent !== null && !candidate.readOnly) {
+                                        targetInput = candidate;
+                                        break;
+                                    }
                                 }
                                 nextR++;
                             }
 
-                            // 2. Si no hay celdas activas abajo, saltar al inicio de la siguiente columna dentro de esta misma tabla
+                            // 2. Si no hay celdas activas abajo, saltar al inicio (fila 0) de la siguiente columna
                             if (!targetInput) {
-                                let maxCols = Math.max(...rows.map(r => r.querySelectorAll('input.cell-input:not([readonly]), input.date-input:not([readonly]), select.cell-input').length));
+                                let maxCols = Math.max(...rows.map(r => r.querySelectorAll('td').length));
                                 let nextC = cIdx + 1;
                                 while (nextC < maxCols) {
                                     for (let r = 0; r < rows.length; r++) {
-                                        let candidateRowInputs = Array.from(rows[r].querySelectorAll('input.cell-input:not([readonly]), input.date-input:not([readonly]), select.cell-input'));
-                                        let candidate = candidateRowInputs[nextC];
-                                        if (candidate && !candidate.disabled && candidate.offsetParent !== null && !candidate.readOnly) {
-                                            targetInput = candidate;
-                                            break;
+                                        let candidateTd = rows[r].querySelectorAll('td')[nextC];
+                                        if (candidateTd) {
+                                            let candidate = candidateTd.querySelector('input.cell-input:not([readonly]), input.date-input:not([readonly]), select.cell-input');
+                                            if (candidate && !candidate.disabled && candidate.offsetParent !== null && !candidate.readOnly) {
+                                                targetInput = candidate;
+                                                break;
+                                            }
                                         }
                                     }
                                     if (targetInput) break;
@@ -1217,14 +1224,18 @@
                                 }
                             }
 
-                            // 3. Si llega al final de la tabla, volver a la primera columna de la primera fila
+                            // 3. Si llega al final de la tabla, volver al primer elemento editable
                             if (!targetInput) {
                                 for (let r = 0; r < rows.length; r++) {
-                                    let candidateRowInputs = Array.from(rows[r].querySelectorAll('input.cell-input:not([readonly]), input.date-input:not([readonly]), select.cell-input'));
-                                    if (candidateRowInputs[0] && !candidateRowInputs[0].disabled && candidateRowInputs[0].offsetParent !== null && !candidateRowInputs[0].readOnly) {
-                                        targetInput = candidateRowInputs[0];
-                                        break;
+                                    let rowTds = rows[r].querySelectorAll('td');
+                                    for (let c = 0; c < rowTds.length; c++) {
+                                        let candidate = rowTds[c].querySelector('input.cell-input:not([readonly]), input.date-input:not([readonly]), select.cell-input');
+                                        if (candidate && !candidate.disabled && candidate.offsetParent !== null && !candidate.readOnly) {
+                                            targetInput = candidate;
+                                            break;
+                                        }
                                     }
+                                    if (targetInput) break;
                                 }
                             }
 
