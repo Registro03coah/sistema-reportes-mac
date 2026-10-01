@@ -51,6 +51,16 @@
         .card-modulo { cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; border: 2px solid #cbd5e1; }
         .card-modulo:hover { transform: translateY(-3px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); border-color: #0d6efd; }
 
+        .card-img-icon {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 6px;
+            border: 1px solid #cbd5e1;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+        }
+
         .guardado-exito {
             border: 2px solid #198754 !important;
             box-shadow: 0 0 8px rgba(25, 135, 84, 0.6) !important;
@@ -63,16 +73,17 @@
 <body>
 
     <!-- VISTA 1: SELECCIÓN DE MÓDULO -->
-    <div id="vistaSeleccion" class="container py-5 mb-4">
+    <div id="vistaSeleccion" class="container py-4 mb-4">
         <div class="text-center mb-4">
             <h3 class="fw-bold text-primary">SISTEMA DE REPORTES DIARIOS - MÓDULOS MAC (NUBE)</h3>
             <p class="text-secondary">Seleccione el módulo para gestionar su reporte sincronizado entre equipos</p>
         </div>
         <div class="row justify-content-center g-4 mb-4">
+            <!-- Módulo 50351 -->
             <div class="col-md-4">
-                <div class="card card-modulo text-center p-4 bg-white" onclick="abrirModalPassword('50351', '351', false)">
-                    <div class="card-body">
-                        <div class="display-5 text-primary mb-3">🏢</div>
+                <div class="card card-modulo text-center p-3 bg-white" onclick="abrirModalPassword('50351', '351', false)">
+                    <div class="card-body p-1">
+                        <img src="image_c1b0db.jpg" alt="Módulo 50351 Fijo" class="card-img-icon">
                         <h4 class="fw-bold">Módulo 50351</h4>
                         <p class="text-muted small mb-1">Coahuila 05 - Distrito 03</p>
                         <span class="badge bg-secondary mb-3">Fijo</span>
@@ -80,10 +91,11 @@
                     </div>
                 </div>
             </div>
+            <!-- Módulo 50353 -->
             <div class="col-md-4">
-                <div class="card card-modulo text-center p-4 bg-white" onclick="abrirModalPassword('50353', '353', false)">
-                    <div class="card-body">
-                        <div class="display-5 text-success mb-3">🏢🚗</div>
+                <div class="card card-modulo text-center p-3 bg-white" onclick="abrirModalPassword('50353', '353', false)">
+                    <div class="card-body p-1">
+                        <img src="image_c1b0b4.jpg" alt="Módulo 50353 Semifijo" class="card-img-icon">
                         <h4 class="fw-bold">Módulo 50353</h4>
                         <p class="text-muted small mb-1">Coahuila 05 - Distrito 03</p>
                         <span class="badge bg-success mb-3">Semifijo</span>
@@ -91,10 +103,11 @@
                     </div>
                 </div>
             </div>
+            <!-- Módulo 50354 -->
             <div class="col-md-4">
-                <div class="card card-modulo text-center p-4 bg-white" onclick="abrirModalPassword('50354', '354', false)">
-                    <div class="card-body">
-                        <div class="display-5 text-warning mb-3">🚐</div>
+                <div class="card card-modulo text-center p-3 bg-white" onclick="abrirModalPassword('50354', '354', false)">
+                    <div class="card-body p-1">
+                        <img src="image_c1b117.jpg" alt="Módulo 50354 Móvil" class="card-img-icon">
                         <h4 class="fw-bold">Módulo 50354</h4>
                         <p class="text-muted small mb-1">Coahuila 05 - Distrito 03</p>
                         <span class="badge bg-warning text-dark mb-3">Móvil (Camioneta)</span>
@@ -103,7 +116,7 @@
                 </div>
             </div>
         </div>
-        <!-- Botón de Acceso Admin con Ícono de Soporte Técnico -->
+        <!-- Botón de Acceso Admin -->
         <div class="text-center">
             <button type="button" class="btn btn-outline-dark btn-sm fw-bold px-3 py-2" onclick="abrirModalAdmin()">
                 🛠 Panel de Soporte Técnico / Administrador
@@ -207,7 +220,7 @@
         <!-- Panel de Control para Admin -->
         <div id="panelSelectorAdmin" class="section-card bg-light border-dark mb-2" style="display: none;">
             <div class="row align-items-center justify-content-center g-2">
-                <div class="col-auto fw-bold text-dark">🛠️ MÓDULO EN GESTIÓN (ADMINISTRADOR):</div>
+                <div class="col-auto fw-bold text-dark">🛠️️ MÓDULO EN GESTIÓN (ADMINISTRADOR):</div>
                 <div class="col-auto">
                     <select id="comboAdminModulo" class="form-select form-select-sm fw-bold text-primary" onchange="cambiarModuloAdmin(this.value)">
                         <option value="50351">Módulo 50351</option>
@@ -570,7 +583,7 @@
 
     <!-- PIE DE PÁGINA UNIVERSAL -->
     <footer>
-        <span>© 2026 Derechos Reservados - Sistema de Reportes Módulos MAC (Nube) | <strong>Versión 10.6</strong></span>
+        <span>© 2026 Derechos Reservados - Sistema de Reportes Módulos MAC (Nube) | <strong>Versión 10.7</strong></span>
     </footer>
 
     <!-- Bootstrap JS -->
