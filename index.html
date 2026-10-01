@@ -139,24 +139,44 @@
         <div class="modal-dialog modal-xl modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header bg-dark text-white py-2">
-                    <h5 class="modal-title fs-6">📂 Historial de Remesas Completas Guardadas (Admin)</h5>
+                    <h5 class="modal-title fs-6">📂 Historial de Remesas Archivadas (1 a 75 Columnas)</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <div class="table-responsive" style="max-height: 450px; overflow-y: auto;">
-                        <table class="table table-sm table-bordered table-striped text-center" style="font-size: 0.68rem;">
-                            <thead class="table-dark sticky-top">
-                                <tr>
-                                    <th>MAC / Módulo</th>
-                                    <th>Remesa</th>
-                                    <th>Fecha y Hora de Registro</th>
-                                    <th>Acción</th>
-                                </tr>
-                            </thead>
-                            <tbody id="cuerpoTablaRemesasArchivadas">
-                                <tr><td colspan="4" class="text-muted">Cargando registros...</td></tr>
-                            </tbody>
-                        </table>
+                    <div id="contenedorListaRemesas">
+                        <p class="text-muted small">Seleccione un registro guardado para visualizar y copiar sus datos:</p>
+                        <div class="table-responsive mb-3" style="max-height: 200px; overflow-y: auto;">
+                            <table class="table table-sm table-bordered table-striped text-center" style="font-size: 0.68rem;">
+                                <thead class="table-dark sticky-top">
+                                    <tr>
+                                        <th>Módulo MAC</th>
+                                        <th>Remesa</th>
+                                        <th>Fecha y Hora</th>
+                                        <th>Acción</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="cuerpoTablaRemesasArchivadas">
+                                    <tr><td colspan="4" class="text-muted">Cargando registros...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Vista detallada de la remesa seleccionada con botón de copiar -->
+                    <div id="detalleRemesaContainer" style="display: none;">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h6 class="fw-bold text-primary m-0" id="lblDetalleRemesaTitulo">Detalle de Remesa</h6>
+                            <div>
+                                <button class="btn btn-success btn-sm fw-bold py-1 px-2" onclick="copiarRemesaSeleccionadaAlPortapapeles()">📋 Copiar Tabla para Excel (1-75)</button>
+                                <button class="btn btn-outline-secondary btn-sm py-1 px-2" onclick="volverListaRemesas()">⬅ Volver a Lista</button>
+                            </div>
+                        </div>
+                        <div class="table-responsive" style="max-height: 350px; overflow-x: auto; overflow-y: auto;">
+                            <table class="table table-sm table-bordered text-center excel-table" style="font-size: 0.65rem;" id="tablaDetalleArchivada">
+                                <thead class="table-secondary"></thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer py-1">
@@ -550,7 +570,7 @@
 
     <!-- PIE DE PÁGINA UNIVERSAL -->
     <footer>
-        <span>© 2026 Derechos Reservados - Sistema de Reportes Módulos MAC (Nube) | <strong>Versión 10.1</strong></span>
+        <span>© 2026 Derechos Reservados - Sistema de Reportes Módulos MAC (Nube) | <strong>Versión 10.2</strong></span>
     </footer>
 
     <!-- Bootstrap JS -->
@@ -578,6 +598,7 @@
         let modoAdminPendiente = false;
         let temporizadorInactividad = null;
         let datosCargadosNube = {};
+        let remesaSeleccionadaParaCopiar = null;
         const TIEMPO_INACTIVIDAD = 5 * 60 * 1000;
 
         const configModulos = {
@@ -644,9 +665,7 @@
             pwdInput.value = '';
             pwdInput.type = 'password';
             modalPasswordInstance.show();
-            setTimeout(() => { 
-                pwdInput.focus(); 
-            }, 300);
+            setTimeout(() => { pwdInput.focus(); }, 300);
         }
 
         function abrirModalAdmin() {
@@ -690,6 +709,7 @@
         }
 
         function abrirModalRemesasArchivadas() {
+            volverListaRemesas();
             modalRemesasInstance.show();
             let tbody = document.getElementById('cuerpoTablaRemesasArchivadas');
             tbody.innerHTML = `<tr><td colspan="4" class="text-muted">Cargando registros...</td></tr>`;
@@ -707,7 +727,7 @@
                     let remesasMac = data[macKey];
                     Object.keys(remesasMac).forEach(timestampKey => {
                         let reg = remesasMac[timestampKey];
-                        registros.push({ mac: macKey, remesa: reg.remesa, fechaHora: reg.fechaHora, datos: reg.datosTabla });
+                        registros.push({ mac: macKey, remesa: reg.remesa, fechaHora: reg.fechaHora, filas1a75: reg.filas1a75 });
                     });
                 });
 
@@ -716,18 +736,66 @@
                     return;
                 }
 
-                registros.forEach(r => {
+                registros.forEach((r, idx) => {
                     let fechaFmt = new Date(r.fechaHora).toLocaleString();
+                    let regJson = encodeURIComponent(JSON.stringify(r));
                     tbody.innerHTML += `
                         <tr>
                             <td class="fw-bold">Módulo ${r.mac}</td>
                             <td>${r.remesa}</td>
                             <td>${fechaFmt}</td>
-                            <td><button class="btn btn-sm btn-outline-primary py-0" onclick="alert('Remesa del Módulo ${r.mac} guardada el ${fechaFmt}. Datos guardados correctamente.')">Ver Detalles</button></td>
+                            <td><button class="btn btn-sm btn-primary py-0" onclick='verDetalleRemesaArchivada(decodeURIComponent("${regJson}"))'>🔍 Ver y Copiar</button></td>
                         </tr>`;
                 });
             }).catch(err => {
                 tbody.innerHTML = `<tr><td colspan="4" class="text-danger">Error al cargar el historial.</td></tr>`;
+            });
+        }
+
+        function verDetalleRemesaArchivada(regStr) {
+            let reg = JSON.parse(regStr);
+            remesaSeleccionadaParaCopiar = reg;
+            document.getElementById('contenedorListaRemesas').style.display = 'none';
+            document.getElementById('detalleRemesaContainer').style.display = 'block';
+            document.getElementById('lblDetalleRemesaTitulo').innerText = `Remesa ${reg.remesa} - Módulo ${reg.mac} (${new Date(reg.fechaHora).toLocaleString()})`;
+
+            let thead = document.querySelector('#tablaDetalleArchivada thead');
+            let tbody = document.querySelector('#tablaDetalleArchivada tbody');
+            thead.innerHTML = '';
+            tbody.innerHTML = '';
+
+            let trHead = document.createElement('tr');
+            for(let i=1; i<=75; i++) {
+                trHead.innerHTML += `<th>Col ${i}</th>`;
+            }
+            thead.appendChild(trHead);
+
+            reg.filas1a75.forEach(filaVals => {
+                let tr = document.createElement('tr');
+                filaVals.forEach(val => {
+                    tr.innerHTML += `<td>${val}</td>`;
+                });
+                tbody.appendChild(tr);
+            });
+        }
+
+        function volverListaRemesas() {
+            document.getElementById('contenedorListaRemesas').style.display = 'block';
+            document.getElementById('detalleRemesaContainer').style.display = 'none';
+            remesaSeleccionadaParaCopiar = null;
+        }
+
+        function copiarRemesaSeleccionadaAlPortapapeles() {
+            if(!remesaSeleccionadaParaCopiar || !remesaSeleccionadaParaCopiar.filas1a75) return;
+            let lineas = [];
+            remesaSeleccionadaParaCopiar.filas1a75.forEach(filaVals => {
+                lineas.push(filaVals.join('\t'));
+            });
+            let textoFinal = lineas.join('\n');
+            navigator.clipboard.writeText(textoFinal).then(() => {
+                alert("¡Remesa (1-75 columnas con ceros) copiada con éxito para Excel!");
+            }).catch(err => {
+                alert("Error al copiar al portapapeles.");
             });
         }
 
@@ -1440,21 +1508,46 @@
             db.ref('modulos/' + moduloActual).set(objetoCompleto).catch(err => console.error("Error al sincronizar con nube:", err));
         }
 
-        function recopilarDatosRemesaActual() {
-            let datosDiarios = [];
-            document.querySelectorAll('#cuerpoTablaCompleta tr').forEach((r) => {
-                datosDiarios.push({
-                    dia: r.querySelector('.col-dia').innerText,
-                    fecha: r.querySelector('.col-fecha').value,
-                    horas: r.querySelector('.col-horas').value,
-                    fi: r.querySelector('.col-fi').value,
-                    ff: r.querySelector('.col-ff').value
-                });
+        // Recopila 1 a 75 columnas exactas por fila, rellenando vacíos con 0
+        function recopilarColumnas1a75() {
+            let filas1a75 = [];
+            let rows = document.querySelectorAll('#cuerpoTablaCompleta tr');
+            
+            rows.forEach((r) => {
+                let filaVals = [];
+                // Recorremos las 75 columnas de la tabla principal
+                // Las celdas de la tabla tienen celdas de texto o inputs/selects
+                let celdasTd = r.querySelectorAll('td');
+                
+                // Col 1: Día
+                let col1 = celdasTd[0] ? celdasTd[0].innerText.trim() : "";
+                filaVals.push(col1 !== "" ? col1 : "0");
+
+                // Recorremos los inputs/selects desde la celda 1 en adelante (índice 1 a 74, total 74 inputs)
+                for(let i=1; i<75; i++) {
+                    let td = celdasTd[i];
+                    let val = "";
+                    if(td) {
+                        let inp = td.querySelector('input, select');
+                        if(inp) {
+                            val = inp.value.trim();
+                        } else {
+                            val = td.innerText.trim();
+                        }
+                    }
+                    // Si está vacío o es NaN, ponemos '0'
+                    if (val === "" || val === null || val === undefined) {
+                        filaVals.push("0");
+                    } else {
+                        filaVals.push(val);
+                    }
+                }
+                filas1a75.push(filaVals);
             });
-            return datosDiarios;
+            return filas1a75;
         }
 
-        // GUARDADO CON VALIDACIÓN DE REMESA COMPLETA Y ARCHIVO HISTÓRICO EXCLUSIVO PARA ADMIN
+        // GUARDADO CON VALIDACIÓN DE REMESA COMPLETA Y ARCHIVO DE 1 A 75 COLUMNAS CON CEROS
         function guardarDatosManual() {
             let numRemesa = document.getElementById('txtRemesaGlobal').value.trim();
             let confirmacion = confirm(`¿Confirma que la remesa y el número de remesa (${numRemesa}) están completos?`);
@@ -1466,20 +1559,21 @@
 
             guardarDatosLocales(); // Sincronización normal
 
-            // Guardar registro histórico oficial (solo visible para admin)
             let fechaHoraActual = new Date().toISOString();
+            let filas1a75Datos = recopilarColumnas1a75();
+
             let registroHistorico = {
                 mac: moduloActual,
                 remesa: numRemesa,
                 fechaHora: fechaHoraActual,
-                datosTabla: recopilarDatosRemesaActual()
+                filas1a75: filas1a75Datos
             };
 
             db.ref('remesas_completas/' + moduloActual + '/' + Date.now()).set(registroHistorico).then(() => {
                 let btnGuardar = document.getElementById('btnGuardar');
                 btnGuardar.classList.add('guardado-exito');
                 let textoOriginal = btnGuardar.innerHTML;
-                btnGuardar.innerHTML = '✅ ¡Remesa Archivada!';
+                btnGuardar.innerHTML = '✅ ¡Remesa Archivada (1-75)!';
                 setTimeout(() => {
                     btnGuardar.classList.remove('guardado-exito');
                     btnGuardar.innerHTML = textoOriginal;
@@ -1867,7 +1961,6 @@
                 let totTramInput = r.querySelector('.col-tot-tram');
                 if(totTramInput) {
                     totTramInput.value = totalCol16Final > 0 ? totalCol16Final : "";
-                    // Si no son iguales, texto rojo; si son iguales, texto negro
                     if (totFolios > 0 && totalCol16Final !== totFolios) {
                         totTramInput.style.color = 'red';
                     } else {
