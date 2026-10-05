@@ -560,7 +560,7 @@
 
     <!-- PIE DE PÁGINA UNIVERSAL -->
     <footer>
-        <span>© 2026 Derechos Reservados - Sistema de Reportes Módulos MAC (Nube) | <strong>Versión 10.7</strong></span>
+        <span>© 2026 Derechos Reservados - Sistema de Reportes Módulos MAC (Nube) | <strong>Versión 11.0</strong></span>
     </footer>
 
     <!-- Bootstrap JS -->
@@ -1983,9 +1983,18 @@
                 }
             }
 
-            let totCol30Val = (sumas[20]||0) + (sumas[21]||0) + (sumas[22]||0) - ((sumas[23]||0) + (sumas[24]||0) + (sumas[25]||0) + (sumas[26]||0) + (sumas[27]||0) + (sumas[28]||0) + (sumas[29]||0)) + (sumas[63]||0) - (sumas[64]||0);
+            // Lógica para Columna 30: Último número de lunes a domingo (filas 0 a 6)
+            let ultimoDispMonSun = "";
+            rows.forEach((r, idx) => {
+                if (idx <= 6) { // Lunes (0) a Domingo (6)
+                    let colDisp = r.querySelector('.col-disp');
+                    if (colDisp && colDisp.value.trim() !== "" && !isNaN(colDisp.value)) {
+                        ultimoDispMonSun = colDisp.value;
+                    }
+                }
+            });
             let spanTotCol30 = document.getElementById('tot_col_disp_fin_30');
-            if(spanTotCol30) spanTotCol30.innerText = totCol30Val !== 0 ? totCol30Val : "";
+            if(spanTotCol30) spanTotCol30.innerText = ultimoDispMonSun;
         }
     </script>
 </body>
