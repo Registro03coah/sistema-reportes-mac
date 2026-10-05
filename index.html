@@ -12,6 +12,31 @@
     
     <style>
         body { background-color: #f4f6f9; font-family: Arial, sans-serif; font-size: 0.7rem; padding-bottom: 30px; }
+        
+        /* Vista de Selección con fondo de credencial y transparencia del 60% */
+        #vistaSeleccion {
+            position: relative;
+            min-height: 100vh;
+            background-color: #f4f6f9;
+        }
+        #vistaSeleccion::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('fondocredencial.jpg');
+            background-size: cover;
+            background-position: center;
+            opacity: 0.4; /* 60% de transparencia */
+            z-index: 0;
+        }
+        #vistaSeleccion > * {
+            position: relative;
+            z-index: 1;
+        }
+
         .header-box { background: #ffffff; border-bottom: 2px solid #1b396b; padding: 8px; margin-bottom: 8px; }
         .table-container { max-height: 600px; overflow-x: auto; overflow-y: auto; background: #fff; border: 1px solid #ccc; }
         table.excel-table { border-collapse: collapse; width: max-content; }
@@ -48,7 +73,7 @@
         .sub-table th, .sub-table td { border: 1px solid #b0bec5; padding: 2px 1px; text-align: center; vertical-align: middle; overflow: hidden; }
         .sub-table th { font-weight: bold; font-size: 0.52rem; }
         
-        .card-modulo { cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; border: 2px solid #cbd5e1; }
+        .card-modulo { cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; border: 2px solid #cbd5e1; background: rgba(255, 255, 255, 0.92) !important; backdrop-filter: blur(4px); }
         .card-modulo:hover { transform: translateY(-3px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); border-color: #0d6efd; }
 
         .card-img-icon {
@@ -73,54 +98,56 @@
 <body>
 
     <!-- VISTA 1: SELECCIÓN DE MÓDULO -->
-    <div id="vistaSeleccion" class="container py-4 mb-4">
-        <div class="text-center mb-4">
-            <h3 class="fw-bold text-primary">SISTEMA DE REPORTES DIARIOS - MÓDULOS MAC (NUBE)</h3>
-            <p class="text-secondary">Seleccione el módulo para gestionar su reporte sincronizado entre equipos</p>
-        </div>
-        <div class="row justify-content-center g-4 mb-4">
-            <!-- Módulo 50351 -->
-            <div class="col-md-4">
-                <div class="card card-modulo text-center p-3 bg-white" onclick="cargarModuloDirecto('50351')">
-                    <div class="card-body p-1">
-                        <img src="image_c1b0db.jpg" alt="Módulo 50351 Fijo" class="card-img-icon">
-                        <h4 class="fw-bold">Módulo 50351</h4>
-                        <p class="text-muted small mb-1">Coahuila 05 - Distrito 03</p>
-                        <span class="badge bg-secondary mb-3">Fijo</span>
-                        <div><button type="button" class="btn btn-primary btn-sm px-4">Ingresar al Reporte</button></div>
+    <div id="vistaSeleccion" class="container-fluid py-4 mb-4">
+        <div class="container">
+            <div class="text-center mb-4 p-3 rounded" style="background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(4px);">
+                <h3 class="fw-bold text-primary">SISTEMA DE REPORTES DIARIOS - MÓDULOS MAC (NUBE)</h3>
+                <p class="text-secondary mb-0">Seleccione el módulo para gestionar su reporte sincronizado entre equipos</p>
+            </div>
+            <div class="row justify-content-center g-4 mb-4">
+                <!-- Módulo 50351 -->
+                <div class="col-md-4">
+                    <div class="card card-modulo text-center p-3" onclick="cargarModuloDirecto('50351')">
+                        <div class="card-body p-1">
+                            <img src="image_c1b0db.jpg" alt="Módulo 50351 Fijo" class="card-img-icon">
+                            <h4 class="fw-bold">Módulo 50351</h4>
+                            <p class="text-muted small mb-1">Coahuila 05 - Distrito 03</p>
+                            <span class="badge bg-secondary mb-3">Fijo</span>
+                            <div><button type="button" class="btn btn-primary btn-sm px-4">Ingresar al Reporte</button></div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Módulo 50353 -->
+                <div class="col-md-4">
+                    <div class="card card-modulo text-center p-3" onclick="cargarModuloDirecto('50353')">
+                        <div class="card-body p-1">
+                            <img src="image_c1b0b4.jpg" alt="Módulo 50353 Semifijo" class="card-img-icon">
+                            <h4 class="fw-bold">Módulo 50353</h4>
+                            <p class="text-muted small mb-1">Coahuila 05 - Distrito 03</p>
+                            <span class="badge bg-success mb-3">Semifijo</span>
+                            <div><button type="button" class="btn btn-success btn-sm px-4">Ingresar al Reporte</button></div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Módulo 50354 -->
+                <div class="col-md-4">
+                    <div class="card card-modulo text-center p-3" onclick="cargarModuloDirecto('50354')">
+                        <div class="card-body p-1">
+                            <img src="image_c1b117.jpg" alt="Módulo 50354 Móvil" class="card-img-icon">
+                            <h4 class="fw-bold">Módulo 50354</h4>
+                            <p class="text-muted small mb-1">Coahuila 05 - Distrito 03</p>
+                            <span class="badge bg-warning text-dark mb-3">Móvil (Camioneta)</span>
+                            <div><button type="button" class="btn btn-warning btn-sm px-4 text-dark">Ingresar al Reporte</button></div>
+                        </div>
                     </div>
                 </div>
             </div>
-            <!-- Módulo 50353 -->
-            <div class="col-md-4">
-                <div class="card card-modulo text-center p-3 bg-white" onclick="cargarModuloDirecto('50353')">
-                    <div class="card-body p-1">
-                        <img src="image_c1b0b4.jpg" alt="Módulo 50353 Semifijo" class="card-img-icon">
-                        <h4 class="fw-bold">Módulo 50353</h4>
-                        <p class="text-muted small mb-1">Coahuila 05 - Distrito 03</p>
-                        <span class="badge bg-success mb-3">Semifijo</span>
-                        <div><button type="button" class="btn btn-success btn-sm px-4">Ingresar al Reporte</button></div>
-                    </div>
-                </div>
+            <!-- Botón de Acceso Admin -->
+            <div class="text-center">
+                <button type="button" class="btn btn-dark btn-sm fw-bold px-4 py-2 shadow" onclick="accesoAdminDirecto()">
+                    🛠 Panel de Soporte Técnico / Administrador
+                </button>
             </div>
-            <!-- Módulo 50354 -->
-            <div class="col-md-4">
-                <div class="card card-modulo text-center p-3 bg-white" onclick="cargarModuloDirecto('50354')">
-                    <div class="card-body p-1">
-                        <img src="image_c1b117.jpg" alt="Módulo 50354 Móvil" class="card-img-icon">
-                        <h4 class="fw-bold">Módulo 50354</h4>
-                        <p class="text-muted small mb-1">Coahuila 05 - Distrito 03</p>
-                        <span class="badge bg-warning text-dark mb-3">Móvil (Camioneta)</span>
-                        <div><button type="button" class="btn btn-warning btn-sm px-4 text-dark">Ingresar al Reporte</button></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <!-- Botón de Acceso Admin -->
-        <div class="text-center">
-            <button type="button" class="btn btn-outline-dark btn-sm fw-bold px-3 py-2" onclick="accesoAdminDirecto()">
-                🛠 Panel de Soporte Técnico / Administrador
-            </button>
         </div>
     </div>
 
@@ -1107,7 +1134,6 @@
             inicializarNavegacionIndependientePorTablas();
         }
 
-        // Navegación Enter independiente por cada tabla (por columna basada en posición de celda)
         function configurarNavegacionTablaPorColumna(tableEl) {
             if (!tableEl) return;
             const rows = Array.from(tableEl.querySelectorAll('tbody tr'));
@@ -1129,7 +1155,6 @@
                             e.preventDefault();
                             let targetInput = null;
 
-                            // 1. Buscar en la misma columna hacia abajo
                             let nextR = rIdx + 1;
                             while (nextR < rows.length) {
                                 let nextTd = rows[nextR].querySelectorAll('td')[cIdx];
@@ -1143,7 +1168,6 @@
                                 nextR++;
                             }
 
-                            // 2. Saltar al inicio (fila 0) de la siguiente columna
                             if (!targetInput) {
                                 let maxCols = Math.max(...rows.map(r => r.querySelectorAll('td').length));
                                 let nextC = cIdx + 1;
@@ -1163,7 +1187,6 @@
                                 }
                             }
 
-                            // 3. Volver al primer elemento si llega al final
                             if (!targetInput) {
                                 for (let r = 0; r < rows.length; r++) {
                                     let rowTds = rows[r].querySelectorAll('td');
@@ -1983,10 +2006,9 @@
                 }
             }
 
-            // Lógica para Columna 30: Último número de lunes a domingo (filas 0 a 6)
             let ultimoDispMonSun = "";
             rows.forEach((r, idx) => {
-                if (idx <= 6) { // Lunes (0) a Domingo (6)
+                if (idx <= 6) {
                     let colDisp = r.querySelector('.col-disp');
                     if (colDisp && colDisp.value.trim() !== "" && !isNaN(colDisp.value)) {
                         ultimoDispMonSun = colDisp.value;
