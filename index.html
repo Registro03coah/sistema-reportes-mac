@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reporte Diario de Solicitudes - Módulo 050351 (Completo)</title>
+    <title>Reporte Diario de Solicitudes - Módulo 050351 (Versión 10.8)</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body { background-color: #f4f6f9; font-family: Arial, sans-serif; font-size: 0.7rem; }
@@ -40,6 +40,7 @@
         .sub-table { width: 100%; border-collapse: collapse; font-size: 0.68rem; background: #fff; table-layout: fixed; }
         .sub-table th, .sub-table td { border: 1px solid #b0bec5; padding: 3px 4px; text-align: center; vertical-align: middle; overflow: hidden; }
         .sub-table th { font-weight: bold; font-size: 0.62rem; }
+        .footer-derechos { text-align: center; font-size: 0.65rem; color: #6c757d; margin-top: 10px; border-top: 1px solid #dee2e6; padding-top: 5px; }
     </style>
 </head>
 <body>
@@ -49,7 +50,7 @@
         <div class="header-box text-center">
             <h6 class="fw-bold m-0 text-dark" style="font-size: 0.75rem;">DIRECCIÓN EJECUTIVA DEL REGISTRO FEDERAL DE ELECTORES</h6>
             <h6 class="fw-bold text-secondary" style="font-size: 0.7rem;">COORDINACIÓN DE ACTUALIZACIÓN EN CAMPO DEL PADRÓN ELECTORAL - CAI 2026</h6>
-            <h5 class="fw-bold text-primary mt-1" style="font-size: 0.85rem;">REPORTE DIARIO DE SOLICITUDES Y OPERACIÓN</h5>
+            <h5 class="fw-bold text-primary mt-1" style="font-size: 0.85rem;">REPORTE DIARIO DE SOLICITUDES Y OPERACIÓN <span class="text-muted" style="font-size: 0.65rem;">(Versión 10.8)</span></h5>
         </div>
 
         <!-- Datos Generales Compactos -->
@@ -387,6 +388,11 @@
                     </div>
                 </div>
             </div>
+        </div>
+
+        <!-- Leyenda de Derechos Reservados -->
+        <div class="footer-derechos">
+            © 2026 Módulo 050351 - Todos los derechos reservados. | Sistema de Reporte Diario de Solicitudes y Operación (Versión 10.8)
         </div>
     </div>
 
@@ -1152,7 +1158,7 @@
             if(spanMod48) spanMod48.innerText = modVal;
             if(spanScript52) spanScript52.innerText = scriptVal;
             if(spanFolioNec53) spanFolioNec53.innerText = folionecVal;
-            if(spanDispFin31) spanDispFin31.innerText = ultimoDisp; // Asigna el último valor de la columna 30 (Domingo) al total
+            if(spanDispFin31) spanDispFin31.innerText = ultimoDisp;
 
             for(let c=7; c<=76; c++) {
                 if(!columnasSinSuma.includes(c)) {
