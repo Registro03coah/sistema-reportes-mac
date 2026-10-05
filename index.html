@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reporte Diario de Solicitudes - Módulo 050351 (Versión 10.9)</title>
+    <title>Reporte Diario de Solicitudes - Módulo 050351 (Completo)</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body { background-color: #f4f6f9; font-family: Arial, sans-serif; font-size: 0.7rem; }
@@ -40,7 +40,6 @@
         .sub-table { width: 100%; border-collapse: collapse; font-size: 0.68rem; background: #fff; table-layout: fixed; }
         .sub-table th, .sub-table td { border: 1px solid #b0bec5; padding: 3px 4px; text-align: center; vertical-align: middle; overflow: hidden; }
         .sub-table th { font-weight: bold; font-size: 0.62rem; }
-        .footer-derechos { text-align: center; font-size: 0.65rem; color: #6c757d; margin-top: 10px; border-top: 1px solid #dee2e6; padding-top: 5px; }
     </style>
 </head>
 <body>
@@ -50,7 +49,7 @@
         <div class="header-box text-center">
             <h6 class="fw-bold m-0 text-dark" style="font-size: 0.75rem;">DIRECCIÓN EJECUTIVA DEL REGISTRO FEDERAL DE ELECTORES</h6>
             <h6 class="fw-bold text-secondary" style="font-size: 0.7rem;">COORDINACIÓN DE ACTUALIZACIÓN EN CAMPO DEL PADRÓN ELECTORAL - CAI 2026</h6>
-            <h5 class="fw-bold text-primary mt-1" style="font-size: 0.85rem;">REPORTE DIARIO DE SOLICITUDES Y OPERACIÓN <span class="text-muted" style="font-size: 0.65rem;">(Versión 10.9)</span></h5>
+            <h5 class="fw-bold text-primary mt-1" style="font-size: 0.85rem;">REPORTE DIARIO DE SOLICITUDES Y OPERACIÓN</h5>
         </div>
 
         <!-- Datos Generales Compactos -->
@@ -389,11 +388,6 @@
                 </div>
             </div>
         </div>
-
-        <!-- Leyenda de Derechos Reservados -->
-        <div class="footer-derechos">
-            © 2026 Módulo 050351 - Todos los derechos reservados. | Sistema de Reporte Diario de Solicitudes y Operación (Versión 10.9)
-        </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
@@ -418,7 +412,7 @@
             { lote: '', cant: '' },
         ];
 
-        const columnasSinSuma = [1, 2, 3, 4, 5, 6, 18, 19, 21, 24, 30, 31, 32, 40, 45, 46, 47, 48, 49, 52, 53, 74, 75];
+        const columnasSinSuma = [1, 2, 3, 4, 5, 6, 18, 19, 21, 24, 30, 32, 40, 45, 46, 47, 48, 49, 52, 53, 74, 75];
 
         function construirTabla() {
             let filaConsecutivos = document.getElementById('filaConsecutivos');
@@ -556,6 +550,7 @@
         }
 
         function construirTablasInferiores() {
+            // 1. Anexo a Rechazos
             let tbodyRech = document.querySelector('#tablaRechazos tbody');
             tbodyRech.innerHTML = '';
             datosDiarios.forEach(d => {
@@ -577,6 +572,7 @@
             });
             tbodyRech.innerHTML += `<tr class="row-total"><td class="text-end">TOTAL:</td><td colspan="10"></td><td><span id="totRechGeneral">0</span></td></tr>`;
 
+            // 2. Credenciales Recibidas Otros Tipos
             let tbodyCred = document.querySelector('#tablaCredRecibidas tbody');
             tbodyCred.innerHTML = '';
             datosDiarios.forEach(d => {
@@ -590,6 +586,7 @@
                     </tr>`;
             });
 
+            // 3. Cancelados por
             let tbodyCanc = document.querySelector('#tablaCancelados tbody');
             tbodyCanc.innerHTML = '';
             datosDiarios.forEach(d => {
@@ -605,6 +602,7 @@
             });
             tbodyCanc.innerHTML += `<tr class="row-total"><td class="text-end">TOTAL:</td><td colspan="4"></td><td><span id="totCancGeneral">0</span></td></tr>`;
 
+            // 4. Instancias administrativas y demandas de juicio
             let tbodyInst = document.querySelector('#tablaInstancias tbody');
             tbodyInst.innerHTML = '';
             datosDiarios.forEach(d => {
@@ -620,6 +618,7 @@
             });
             tbodyInst.innerHTML += `<tr class="row-total"><td class="text-end">TOTAL:</td><td colspan="4"></td><td><span id="totInstGeneral">0</span></td></tr>`;
 
+            // 5. Retiradas por Causa
             let tbodyRet = document.querySelector('#tablaRetiradasCausa tbody');
             tbodyRet.innerHTML = '';
             datosDiarios.forEach(d => {
@@ -641,6 +640,7 @@
             });
             tbodyRet.innerHTML += `<tr class="row-total"><td class="text-end">Total:</td><td colspan="10"></td><td><span id="totRetGeneral">0</span></td></tr>`;
 
+            // 6. Importación / Exportación (Lila)
             let tbodyImpExp = document.querySelector('#tablaImpExp tbody');
             tbodyImpExp.innerHTML = '';
             datosDiarios.forEach(d => {
@@ -653,6 +653,7 @@
             });
             tbodyImpExp.innerHTML += `<tr class="row-total"><td class="text-end">TOTAL</td><td><span id="totImpGeneral">0</span></td><td><span id="totExpGeneral">0</span></td></tr>`;
 
+            // 7. Lotes de Credenciales (Compacta, sin columna de días)
             let tbodyLotes = document.querySelector('#tablaLotes tbody');
             tbodyLotes.innerHTML = '';
             lotesData.forEach(l => {
@@ -750,4 +751,426 @@
             });
             document.getElementById('totInstGeneral').innerText = sumInstTotal;
 
-            let rowsRet = document.querySelectorAll('#tabla
+            let rowsRet = document.querySelectorAll('#tablaRetiradasCausa tbody tr');
+            let sumRetTotal = 0;
+            rowsRet.forEach((r, idx) => {
+                if(idx < rowsRet.length - 1) {
+                    let inputs = r.querySelectorAll('.col-ret');
+                    let sum = 0;
+                    inputs.forEach(i => sum += parseFloat(i.value) || 0);
+                    r.querySelector('.row-tot-ret').value = sum;
+                    sumRetTotal += sum;
+
+                    let mainRow = rowsMain[idx];
+                    if(mainRow) {
+                        let linkInput = mainRow.querySelector('.col-ret-link');
+                        if(linkInput) linkInput.value = sum;
+                    }
+                }
+            });
+            document.getElementById('totRetGeneral').innerText = sumRetTotal;
+            let spanTotRetCol30 = document.getElementById('tot_col_ret_30');
+            if(spanTotRetCol30) spanTotRetCol30.innerText = sumRetTotal;
+
+            let rowsImpExp = document.querySelectorAll('#tablaImpExp tbody tr');
+            let sumImpTotal = 0;
+            let sumExpTotal = 0;
+            rowsImpExp.forEach((r, idx) => {
+                if(idx < rowsImpExp.length - 1) {
+                    let impVal = parseFloat(r.querySelector('.col-imp').value) || 0;
+                    let expVal = parseFloat(r.querySelector('.col-exp').value) || 0;
+                    sumImpTotal += impVal;
+                    sumExpTotal += expVal;
+
+                    let mainRow = rowsMain[idx];
+                    if(mainRow) {
+                        let impInput = mainRow.querySelector('.col-imp-link');
+                        if(impInput) impInput.value = impVal;
+
+                        let expInput = mainRow.querySelector('.col-exp-link');
+                        if(expInput) expInput.value = expVal;
+                    }
+                }
+            });
+            document.getElementById('totImpGeneral').innerText = sumImpTotal;
+            document.getElementById('totExpGeneral').innerText = sumExpTotal;
+            let spanTotImp74 = document.getElementById('tot_col_imp_74');
+            let spanTotExp75 = document.getElementById('tot_col_exp_75');
+            if(spanTotImp74) spanTotImp74.innerText = sumImpTotal;
+            if(spanTotExp75) spanTotExp75.innerText = sumExpTotal;
+        }
+
+        function recalcularLotes() {
+            let inputs = document.querySelectorAll('.col-lote-cant');
+            let total = 0;
+            inputs.forEach(i => total += parseFloat(i.value) || 0);
+            document.getElementById('totLotesGeneral').innerText = total;
+        }
+
+        function copiarTablaAlPortapapeles() {
+            let lineas = [];
+            let rows = document.querySelectorAll('#cuerpoTablaCompleta tr');
+            rows.forEach(r => {
+                let cols = r.querySelectorAll('td');
+                let filaValores = [];
+                cols.forEach((td, idx) => {
+                    if(idx === 0) {
+                        filaValores.push(td.innerText.trim());
+                    } else {
+                        let inp = td.querySelector('input');
+                        filaValores.push(inp ? inp.value.trim() : '');
+                    }
+                });
+                lineas.push(filaValores.join('\t'));
+            });
+
+            let remesaVal = document.getElementById('txtRemesaGlobal').value;
+            let confVal = document.getElementById('txtConfGlobal').value;
+            let entVal = document.getElementById('txtEntidadGlobal').value;
+            let dttoVal = document.getElementById('txtDistritoGlobal').value;
+            let modVal = document.getElementById('txtModulo').value;
+            let canjeVal = document.getElementById('inputCanjeGlobal').value;
+            let scriptVal = document.getElementById('inputScriptGlobal').value;
+            let folionecVal = document.getElementById('inputFolioNecGlobal').value;
+
+            let totalesValores = ["LÍNEA TOTALES", "", "", ""];
+            for(let c=5; c<=76; c++) {
+                if (c === 5) {
+                    totalesValores.push(document.getElementById('tot_col_min_5').innerText);
+                } else if (c === 6) {
+                    totalesValores.push(document.getElementById('tot_col_max_6').innerText);
+                } else if (c === 18) {
+                    totalesValores.push(document.getElementById('tot_col_canc_18').innerText);
+                } else if (c === 19) {
+                    totalesValores.push(document.getElementById('tot_col_rech_19').innerText);
+                } else if (c === 21) {
+                    totalesValores.push(document.getElementById('tot_col_primer_disp_21').innerText);
+                } else if (c === 24) {
+                    totalesValores.push(document.getElementById('tot_col_recotr_24').innerText);
+                } else if (c === 30) {
+                    totalesValores.push(document.getElementById('tot_col_ret_30').innerText);
+                } else if (c === 31) {
+                    totalesValores.push(document.getElementById('tot_col_disp_fin_31').innerText);
+                } else if (c === 32) {
+                    totalesValores.push(canjeVal);
+                } else if (c === 35) {
+                    totalesValores.push(document.getElementById('tot_col_dias_trab_35').innerText);
+                } else if (c === 40) {
+                    totalesValores.push(remesaVal);
+                } else if (c === 45) {
+                    totalesValores.push(confVal);
+                } else if (c === 46) {
+                    totalesValores.push(entVal);
+                } else if (c === 47) {
+                    totalesValores.push(dttoVal);
+                } else if (c === 48) {
+                    totalesValores.push(modVal);
+                } else if (c === 49) {
+                    totalesValores.push(document.getElementById('tot_col_resguardo_49').innerText);
+                } else if (c === 52) {
+                    totalesValores.push(scriptVal);
+                } else if (c === 53) {
+                    totalesValores.push(folionecVal);
+                } else if (c === 74) {
+                    totalesValores.push(document.getElementById('tot_col_imp_74').innerText);
+                } else if (c === 75) {
+                    totalesValores.push(document.getElementById('tot_col_exp_75').innerText);
+                } else if (columnasSinSuma.includes(c)) {
+                    totalesValores.push("");
+                } else {
+                    let span = document.getElementById(`tot_col_${c}`);
+                    totalesValores.push(span ? span.innerText : "0");
+                }
+            }
+            lineas.push(totalesValores.join('\t'));
+
+            let textoFinal = lineas.join('\n');
+            navigator.clipboard.writeText(textoFinal).then(() => {
+                alert("¡Tabla principal copiada con éxito! Ya puedes pegarla en Excel con Ctrl + V.");
+            }).catch(err => {
+                alert("Error al copiar al portapapeles.");
+            });
+        }
+
+        function inicializarNavegacionTeclado() {
+            const editables = Array.from(document.querySelectorAll('.col-editable:not([disabled]), .sub-table .cell-input:not([readonly])'));
+
+            editables.forEach((input, index) => {
+                input.addEventListener('focus', function() {
+                    setTimeout(() => this.select(), 50);
+                });
+
+                input.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        let nextIndex = (index + 1) % editables.length;
+                        editables[nextIndex].focus();
+                        editables[nextIndex].select();
+                    } else if (['ArrowRight', 'ArrowLeft', 'ArrowDown', 'ArrowUp'].includes(e.key)) {
+                        let currentCell = input.closest('td');
+                        let currentRow = currentCell.closest('tr');
+                        let cellIndex = Array.from(currentRow.children).indexOf(currentCell);
+                        let tableBody = currentRow.closest('tbody');
+                        let rows = Array.from(tableBody.querySelectorAll('tr'));
+                        let rowIndex = rows.indexOf(currentRow);
+
+                        if (e.key === 'ArrowRight') {
+                            let nextTd = currentRow.children[cellIndex + 1];
+                            while(nextTd) {
+                                let inp = nextTd.querySelector('.cell-input, .date-input');
+                                if(inp && !inp.disabled && !inp.readOnly) { inp.focus(); inp.select(); return; }
+                                cellIndex++;
+                                nextTd = currentRow.children[cellIndex + 1];
+                            }
+                        } else if (e.key === 'ArrowLeft') {
+                            let prevTd = currentRow.children[cellIndex - 1];
+                            while(prevTd) {
+                                let inp = prevTd.querySelector('.cell-input, .date-input');
+                                if(inp && !inp.disabled && !inp.readOnly) { inp.focus(); inp.select(); return; }
+                                cellIndex--;
+                                prevTd = currentRow.children[cellIndex - 1];
+                            }
+                        } else if (e.key === 'ArrowDown') {
+                            let nextRow = rows[rowIndex + 1];
+                            if(nextRow) {
+                                let targetTd = nextRow.children[cellIndex];
+                                let inp = targetTd ? targetTd.querySelector('.cell-input, .date-input') : null;
+                                if(inp && !inp.disabled && !inp.readOnly) { inp.focus(); inp.select(); }
+                            }
+                        } else if (e.key === 'ArrowUp') {
+                            let prevRow = rows[rowIndex - 1];
+                            if(prevRow) {
+                                let targetTd = prevRow.children[cellIndex];
+                                let inp = prevRow.children[cellIndex].querySelector('.cell-input, .date-input');
+                                if(inp && !inp.disabled && !inp.readOnly) { inp.focus(); inp.select(); }
+                            }
+                        }
+                    }
+                });
+            });
+        }
+
+        function actualizarFechasConsecutivas(inputLunes) {
+            let valLunes = inputLunes.value;
+            if(!valLunes) return;
+
+            let fechaBase = new Date(valLunes + 'T00:00:00');
+            let inputsFecha = document.querySelectorAll('.col-fecha');
+
+            inputsFecha.forEach((inpFecha, idx) => {
+                let nuevaFecha = new Date(fechaBase);
+                nuevaFecha.setDate(fechaBase.getDate() + idx);
+                
+                let yyyy = nuevaFecha.getFullYear();
+                let mm = String(nuevaFecha.getMonth() + 1).padStart(2, '0');
+                let dd = String(nuevaFecha.getDate()).padStart(2, '0');
+                
+                inpFecha.value = `${yyyy}-${mm}-${dd}`;
+            });
+        }
+
+        function validarHoras(input) {
+            let row = input.closest('tr');
+            let horas = parseFloat(input.value) || 0;
+            let inputsFila = row.querySelectorAll('.col-editable:not(.col-horas):not(.col-fecha)');
+            
+            inputsFila.forEach(inp => {
+                if (horas === 0) {
+                    inp.disabled = true;
+                    inp.style.backgroundColor = '#e2e8f0';
+                    if(!inp.classList.contains('col-remesa')) inp.value = 0;
+                } else {
+                    inp.disabled = false;
+                    inp.style.backgroundColor = '#fff';
+                }
+            });
+            inicializarNavegacionTeclado();
+            recalcularTodo();
+        }
+
+        function actualizarRemesaGlobal(valor) {
+            let inputsRemesa = document.querySelectorAll('.col-remesa');
+            inputsRemesa.forEach(input => {
+                input.value = valor;
+            });
+            let spanRemesa40 = document.getElementById('tot_col_remesa_40');
+            if(spanRemesa40) spanRemesa40.innerText = valor;
+        }
+
+        function actualizarConfGlobal(valor) {
+            let spanConf45 = document.getElementById('tot_col_conf_45');
+            if(spanConf45) spanConf45.innerText = valor;
+        }
+
+        function actualizarEntidadGlobal(valor) {
+            let spanEnt46 = document.getElementById('tot_col_ent_46');
+            if(spanEnt46) spanEnt46.innerText = valor;
+        }
+
+        function actualizarDistritoGlobal(valor) {
+            let spanDtto47 = document.getElementById('tot_col_dtto_47');
+            if(spanDtto47) spanDtto47.innerText = valor;
+        }
+
+        function actualizarModuloGlobal(valor) {
+            let spanMod48 = document.getElementById('tot_col_modulo_48');
+            if(spanMod48) spanMod48.innerText = valor;
+        }
+
+        function recalcularFila(input) {
+            recalcularTodo();
+        }
+
+        function recalcularTodo() {
+            let rows = document.querySelectorAll('#cuerpoTablaCompleta tr');
+            let sumas = {};
+            for(let c=1; c<=76; c++) sumas[c] = 0;
+
+            let minFolioInicial = null;
+            let maxFolioFinal = null;
+            let primerDispVal = 0;
+            let primerDispEncontrado = false;
+            let ultimoDisp = 0;
+            let totalDiasTrabajados = 0;
+
+            rows.forEach((r, idx) => {
+                let inputs = r.querySelectorAll('input');
+                let rowVals = {};
+                inputs.forEach((inp, i) => {
+                    let colNum = i + 2; 
+                    rowVals[colNum] = parseFloat(inp.value) || 0;
+                });
+
+                let horasVal = rowVals[3] || 0;
+                let diasTrabInput = r.querySelector('.col-dias-trab');
+                let diasVal = 0;
+                if(diasTrabInput) {
+                    diasVal = (horasVal > 0) ? 1 : 0;
+                    diasTrabInput.value = diasVal;
+                }
+                totalDiasTrabajados += diasVal;
+
+                let fiInput = r.querySelector('.col-fi');
+                let ffInput = r.querySelector('.col-ff');
+                let fiVal = parseInt(fiInput.value) || 0;
+                let ffVal = parseInt(ffInput.value) || 0;
+                let totFolios = 0;
+                if(fiVal > 0) {
+                    totFolios = (ffVal >= fiVal) ? (ffVal - fiVal + 1) : 0;
+                    r.querySelector('.col-tot-folios').value = totFolios;
+                    if(minFolioInicial === null || fiVal < minFolioInicial) minFolioInicial = fiVal;
+                    if(maxFolioFinal === null || ffVal > maxFolioFinal) maxFolioFinal = ffVal;
+                } else {
+                    r.querySelector('.col-tot-folios').value = 0;
+                }
+
+                let col54 = r.querySelector('.col-adic-54');
+                let col55 = r.querySelector('.col-adic-55');
+                if(col54) col54.value = totFolios;
+                if(col55) col55.value = totFolios;
+
+                let repVal = parseFloat(r.querySelector('.col-rep').value) || 0;
+                let reimpVal = parseFloat(r.querySelector('.col-reimp').value) || 0;
+                let col66 = r.querySelector('.col-adic-66');
+                if(col66) col66.value = repVal + reimpVal;
+
+                let sumaTramites = 0;
+                for(let c=8; c<=17; c++) {
+                    sumaTramites += (rowVals[c] || 0);
+                }
+                let totTramInput = r.querySelector('.col-tot-tram');
+                totTramInput.value = sumaTramites;
+
+                let dispAntVal = rowVals[21] || 0;
+                if (!primerDispEncontrado && dispAntVal > 0) {
+                    primerDispVal = dispAntVal;
+                    primerDispEncontrado = true;
+                }
+
+                let recVal = rowVals[24] || 0; 
+                let entVal = rowVals[23] || 0;
+                
+                let sumaRetiradas = 0;
+                for(let c=25; c<=29; c++) {
+                    sumaRetiradas += (rowVals[c] || 0);
+                }
+                sumaRetiradas += (rowVals[30] || 0);
+
+                let dispActual = dispAntVal + recVal - entVal - sumaRetiradas;
+                r.querySelector('.col-disp').value = dispActual;
+                
+                if(horasVal > 0) {
+                    ultimoDisp = dispActual;
+                }
+
+                inputs.forEach((inp, i) => {
+                    let colNum = i + 2;
+                    if(colNum <= 76) {
+                        let val = parseFloat(inp.value) || 0;
+                        sumas[colNum] += val;
+                    }
+                });
+                
+                sumas[54] += totFolios;
+                sumas[55] += totFolios;
+                sumas[66] += (repVal + reimpVal);
+            });
+
+            recalcularTablasInferiores();
+
+            let spanMin5 = document.getElementById('tot_col_min_5');
+            let spanMax6 = document.getElementById('tot_col_max_6');
+            let spanPrimerDisp21 = document.getElementById('tot_col_primer_disp_21');
+            let spanRecOtr24 = document.getElementById('tot_col_recotr_24');
+            let spanRet30 = document.getElementById('tot_col_ret_30');
+            let spanDispFin31 = document.getElementById('tot_col_disp_fin_31');
+            let spanCanje32 = document.getElementById('tot_col_canje_32');
+            let spanDiasTrab35 = document.getElementById('tot_col_dias_trab_35');
+            let spanRemesa40 = document.getElementById('tot_col_remesa_40');
+            let spanConf45 = document.getElementById('tot_col_conf_45');
+            let spanEnt46 = document.getElementById('tot_col_ent_46');
+            let spanDtto47 = document.getElementById('tot_col_dtto_47');
+            let spanMod48 = document.getElementById('tot_col_modulo_48');
+            let spanResguardo49 = document.getElementById('tot_col_resguardo_49');
+            let spanScript52 = document.getElementById('tot_col_script_52');
+            let spanFolioNec53 = document.getElementById('tot_col_folionec_53');
+            let spanImp74 = document.getElementById('tot_col_imp_74');
+            let spanExp75 = document.getElementById('tot_col_exp_75');
+            
+            let remesaVal = document.getElementById('txtRemesaGlobal').value;
+            let confVal = document.getElementById('txtConfGlobal').value;
+            let entVal = document.getElementById('txtEntidadGlobal').value;
+            let dttoVal = document.getElementById('txtDistritoGlobal').value;
+            let modVal = document.getElementById('txtModulo').value;
+            
+            let canjeVal = document.getElementById('inputCanjeGlobal').value;
+            let scriptVal = document.getElementById('inputScriptGlobal').value;
+            let folionecVal = document.getElementById('inputFolioNecGlobal').value;
+
+            if(spanMin5) spanMin5.innerText = minFolioInicial !== null ? minFolioInicial : 0;
+            if(spanMax6) spanMax6.innerText = maxFolioFinal !== null ? maxFolioFinal : 0;
+            if(spanPrimerDisp21) spanPrimerDisp21.innerText = primerDispVal;
+            if(spanCanje32) spanCanje32.innerText = canjeVal;
+            if(spanDiasTrab35) spanDiasTrab35.innerText = totalDiasTrabajados;
+            if(spanRemesa40) spanRemesa40.innerText = remesaVal;
+            if(spanConf45) spanConf45.innerText = confVal;
+            if(spanEnt46) spanEnt46.innerText = entVal;
+            if(spanDtto47) spanDtto47.innerText = dttoVal;
+            if(spanMod48) spanMod48.innerText = modVal;
+            if(spanScript52) spanScript52.innerText = scriptVal;
+            if(spanFolioNec53) spanFolioNec53.innerText = folionecVal;
+
+            for(let c=7; c<=76; c++) {
+                if(!columnasSinSuma.includes(c)) {
+                    let span = document.getElementById(`tot_col_${c}`);
+                    if(span) {
+                        span.innerText = sumas[c];
+                    }
+                }
+            }
+        }
+
+        window.onload = construirTabla;
+    </script>
+</body>
+</html>
