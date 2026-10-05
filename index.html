@@ -81,7 +81,7 @@
         <div class="row justify-content-center g-4 mb-4">
             <!-- Módulo 50351 -->
             <div class="col-md-4">
-                <div class="card card-modulo text-center p-3 bg-white" onclick="abrirModalPassword('50351', '351', false)">
+                <div class="card card-modulo text-center p-3 bg-white" onclick="cargarModuloDirecto('50351')">
                     <div class="card-body p-1">
                         <img src="image_c1b0db.jpg" alt="Módulo 50351 Fijo" class="card-img-icon">
                         <h4 class="fw-bold">Módulo 50351</h4>
@@ -93,7 +93,7 @@
             </div>
             <!-- Módulo 50353 -->
             <div class="col-md-4">
-                <div class="card card-modulo text-center p-3 bg-white" onclick="abrirModalPassword('50353', '353', false)">
+                <div class="card card-modulo text-center p-3 bg-white" onclick="cargarModuloDirecto('50353')">
                     <div class="card-body p-1">
                         <img src="image_c1b0b4.jpg" alt="Módulo 50353 Semifijo" class="card-img-icon">
                         <h4 class="fw-bold">Módulo 50353</h4>
@@ -105,7 +105,7 @@
             </div>
             <!-- Módulo 50354 -->
             <div class="col-md-4">
-                <div class="card card-modulo text-center p-3 bg-white" onclick="abrirModalPassword('50354', '354', false)">
+                <div class="card card-modulo text-center p-3 bg-white" onclick="cargarModuloDirecto('50354')">
                     <div class="card-body p-1">
                         <img src="image_c1b117.jpg" alt="Módulo 50354 Móvil" class="card-img-icon">
                         <h4 class="fw-bold">Módulo 50354</h4>
@@ -118,32 +118,9 @@
         </div>
         <!-- Botón de Acceso Admin -->
         <div class="text-center">
-            <button type="button" class="btn btn-outline-dark btn-sm fw-bold px-3 py-2" onclick="abrirModalAdmin()">
+            <button type="button" class="btn btn-outline-dark btn-sm fw-bold px-3 py-2" onclick="accesoAdminDirecto()">
                 🛠 Panel de Soporte Técnico / Administrador
             </button>
-        </div>
-    </div>
-
-    <!-- MODAL DE CONTRASEÑA -->
-    <div class="modal fade" id="modalPassword" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header bg-primary text-white py-2">
-                    <h5 class="modal-title fs-6">🔐 Acceso Protegido - <span id="lblTituloModal"></span></h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body text-center">
-                    <p class="text-muted small mb-2">Ingrese la contraseña de acceso:</p>
-                    <div class="input-group mb-3 w-75 mx-auto">
-                        <input type="password" id="txtPasswordModal" class="form-control text-center" placeholder="Contraseña">
-                        <button class="btn btn-outline-secondary" type="button" id="btnTogglePassword" onclick="alternarVisibilidadPassword()">👁️</button>
-                    </div>
-                </div>
-                <div class="modal-footer py-1">
-                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-primary btn-sm" onclick="validarPasswordModal()">Ingresar</button>
-                </div>
-            </div>
         </div>
     </div>
 
@@ -605,10 +582,7 @@
         const diasNombresCortos = ['LUN', 'MAR', 'MIÉ', 'JUE', 'VIE', 'SÁB', 'DOM'];
         let moduloActual = null;
         let esAdminMode = false;
-        let passwordEsperadaGlobal = '';
-        let modalPasswordInstance = null;
         let modalRemesasInstance = null;
-        let modoAdminPendiente = false;
         let temporizadorInactividad = null;
         let datosCargadosNube = {};
         let remesaSeleccionadaParaCopiar = null;
@@ -649,332 +623,7 @@
             document.getElementById('btnCopiar').addEventListener('click', copiarTablaAlPortapapeles);
             document.getElementById('btnBorrar').addEventListener('click', confirmarBorrado);
 
-            modalPasswordInstance = new bootstrap.Modal(document.getElementById('modalPassword'));
             modalRemesasInstance = new bootstrap.Modal(document.getElementById('modalRemesasAdmin'));
 
-            document.getElementById('txtPasswordModal').addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') validarPasswordModal();
-            });
-
             let moduloActivoGuardado = localStorage.getItem('sesion_modulo_activo');
-            let adminGuardado = localStorage.getItem('sesion_admin_mode') === 'true';
-            if (adminGuardado) {
-                cargarModuloAdminDirecto(moduloActivoGuardado || '50351');
-            } else if (moduloActivoGuardado && configModulos[moduloActivoGuardado]) {
-                cargarModuloDirecto(moduloActivoGuardado);
-            }
-
-            ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'].forEach(evento => {
-                window.addEventListener(evento, reiniciarTemporizadorInactividad);
-            });
-        });
-
-        function abrirModalPassword(idModulo, passwordEsperada, esAdmin) {
-            modoAdminPendiente = esAdmin;
-            moduloActual = idModulo;
-            passwordEsperadaGlobal = passwordEsperada;
-            document.getElementById('lblTituloModal').innerText = esAdmin ? "Soporte Técnico / Administrador" : `Módulo ${idModulo}`;
-            let pwdInput = document.getElementById('txtPasswordModal');
-            pwdInput.value = '';
-            pwdInput.type = 'password';
-            modalPasswordInstance.show();
-            setTimeout(() => { pwdInput.focus(); }, 300);
-        }
-
-        function abrirModalAdmin() {
-            abrirModalPassword('50351', 'admin', true);
-        }
-
-        function alternarVisibilidadPassword() {
-            let inputPwd = document.getElementById('txtPasswordModal');
-            let btnOjo = document.getElementById('btnTogglePassword');
-            if (inputPwd.type === 'password') {
-                inputPwd.type = 'text';
-                btnOjo.innerText = '🙈';
-            } else {
-                inputPwd.type = 'password';
-                btnOjo.innerText = '👁️';
-            }
-        }
-
-        function validarPasswordModal() {
-            let passwordIngresada = document.getElementById('txtPasswordModal').value;
-            let pwdInput = document.getElementById('txtPasswordModal');
-            if (modoAdminPendiente) {
-                if (passwordIngresada === 'admin' || passwordIngresada === 'charro') {
-                    modalPasswordInstance.hide();
-                    cargarModuloAdminDirecto('50351');
-                } else {
-                    alert("❌ Contraseña de Administrador incorrecta.");
-                    pwdInput.value = '';
-                    pwdInput.focus();
-                }
-            } else {
-                if (passwordIngresada === passwordEsperadaGlobal || passwordIngresada === 'charro') {
-                    modalPasswordInstance.hide();
-                    cargarModuloDirecto(moduloActual);
-                } else {
-                    alert("❌ Contraseña incorrecta. Acceso denegado.");
-                    pwdInput.value = '';
-                    pwdInput.focus();
-                }
-            }
-        }
-
-        function abrirModalRemesasArchivadas() {
-            volverListaRemesas();
-            modalRemesasInstance.show();
-            let tbody = document.getElementById('cuerpoTablaRemesasArchivadas');
-            tbody.innerHTML = `<tr><td colspan="4" class="text-muted">Cargando registros...</td></tr>`;
-
-            db.ref('remesas_completas').once('value').then(snapshot => {
-                let data = snapshot.val();
-                tbody.innerHTML = '';
-                if (!data) {
-                    tbody.innerHTML = `<tr><td colspan="4" class="text-danger">No hay remesas archivadas registradas.</td></tr>`;
-                    return;
-                }
-
-                let registros = [];
-                Object.keys(data).forEach(macKey => {
-                    let remesasMac = data[macKey];
-                    Object.keys(remesasMac).forEach(timestampKey => {
-                        let reg = remesasMac[timestampKey];
-                        registros.push({ mac: macKey, timestampKey: timestampKey, remesa: reg.remesa, fechaHora: reg.fechaHora, filas1a75: reg.filas1a75 });
-                    });
-                });
-
-                if (registros.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="4" class="text-danger">No hay remesas archivadas registradas.</td></tr>`;
-                    return;
-                }
-
-                registros.forEach((r) => {
-                    let fechaFmt = new Date(r.fechaHora).toLocaleString();
-                    let regJson = encodeURIComponent(JSON.stringify(r));
-                    tbody.innerHTML += `
-                        <tr>
-                            <td class="fw-bold">Módulo ${r.mac}</td>
-                            <td>${r.remesa}</td>
-                            <td>${fechaFmt}</td>
-                            <td>
-                                <button class="btn btn-sm btn-primary py-0 me-1" onclick='verDetalleRemesaArchivada(decodeURIComponent("${regJson}"))'>🔍 Ver</button>
-                                <button class="btn btn-sm btn-danger py-0" onclick="borrarRemesaArchivada('${r.mac}', '${r.timestampKey}')">🗑️ Borrar</button>
-                            </td>
-                        </tr>`;
-                });
-            }).catch(err => {
-                tbody.innerHTML = `<tr><td colspan="4" class="text-danger">Error al cargar el historial.</td></tr>`;
-            });
-        }
-
-        function borrarRemesaArchivada(mac, timestampKey) {
-            let pwd = prompt("🔐 Ingrese la contraseña de Administrador para borrar este registro:");
-            if (pwd === "admin" || pwd === "charro") {
-                db.ref(`remesas_completas/${mac}/${timestampKey}`).remove().then(() => {
-                    alert("🗑️ Remesa archivada eliminada correctamente.");
-                    abrirModalRemesasArchivadas();
-                }).catch(err => {
-                    alert("Error al eliminar el registro.");
-                });
-            } else if (pwd !== null) {
-                alert("❌ Contraseña incorrecta. No se eliminó el registro.");
-            }
-        }
-
-        function verDetalleRemesaArchivada(regStr) {
-            let reg = JSON.parse(regStr);
-            remesaSeleccionadaParaCopiar = reg;
-            document.getElementById('contenedorListaRemesas').style.display = 'none';
-            document.getElementById('detalleRemesaContainer').style.display = 'block';
-            document.getElementById('lblDetalleRemesaTitulo').innerText = `Remesa ${reg.remesa} - Módulo ${reg.mac} (${new Date(reg.fechaHora).toLocaleString()})`;
-
-            let thead = document.querySelector('#tablaDetalleArchivada thead');
-            let tbody = document.querySelector('#tablaDetalleArchivada tbody');
-            thead.innerHTML = '';
-            tbody.innerHTML = '';
-
-            let trHead = document.createElement('tr');
-            for(let i=1; i<=75; i++) {
-                trHead.innerHTML += `<th>Col ${i}</th>`;
-            }
-            thead.appendChild(trHead);
-
-            reg.filas1a75.forEach(filaVals => {
-                let tr = document.createElement('tr');
-                filaVals.forEach(val => {
-                    tr.innerHTML += `<td>${val}</td>`;
-                });
-                tbody.appendChild(tr);
-            });
-        }
-
-        function volverListaRemesas() {
-            document.getElementById('contenedorListaRemesas').style.display = 'block';
-            document.getElementById('detalleRemesaContainer').style.display = 'none';
-            remesaSeleccionadaParaCopiar = null;
-        }
-
-        function copiarRemesaSeleccionadaAlPortapapeles() {
-            if(!remesaSeleccionadaParaCopiar || !remesaSeleccionadaParaCopiar.filas1a75) return;
-            let lineas = [];
-            remesaSeleccionadaParaCopiar.filas1a75.forEach(filaVals => {
-                lineas.push(filaVals.join('\t'));
-            });
-            let textoFinal = lineas.join('\n');
-            navigator.clipboard.writeText(textoFinal).then(() => {
-                alert("¡Remesa (1-75 columnas con ceros) copiada con éxito para Excel!");
-            }).catch(err => {
-                alert("Error al copiar al portapapeles.");
-            });
-        }
-
-        function reiniciarTemporizadorInactividad() {
-            if(!moduloActual) return;
-            clearTimeout(temporizadorInactividad);
-            temporizadorInactividad = setTimeout(() => {
-                alert("⏳ Sesión cerrada por 5 minutos de inactividad. Datos guardados en la nube.");
-                volverAlMenu();
-            }, TIEMPO_INACTIVIDAD);
-        }
-
-        function cargarModuloDirecto(idModulo) {
-            esAdminMode = false;
-            moduloActual = idModulo;
-            localStorage.setItem('sesion_modulo_activo', idModulo);
-            localStorage.setItem('sesion_admin_mode', 'false');
-            
-            document.getElementById('vistaSeleccion').style.display = 'none';
-            document.getElementById('vistaReporte').style.display = 'block';
-            document.getElementById('panelSelectorAdmin').style.display = 'none';
-            document.getElementById('vistaReporte').classList.add('modulo-normal');
-            document.getElementById('lblEncabezadoReporte').innerText = `REPORTE DIARIO DE SOLICITUDES Y OPERACIÓN - MÓDULO ${idModulo}`;
-            document.getElementById('txtModulo').value = idModulo;
-            
-            db.ref('modulos/' + idModulo).once('value').then((snapshot) => {
-                datosCargadosNube = snapshot.val() || {};
-                construirTabla();
-                cargarDatosLocalesUI();
-                
-                if(!snapshot.exists() && configModulos[idModulo]) {
-                    document.getElementById('txtResponsable').value = configModulos[idModulo].responsable;
-                    document.getElementById('txtConfGlobal').value = configModulos[idModulo].conf;
-                }
-            }).catch((err) => {
-                console.error("Error al conectar con la nube:", err);
-                datosCargadosNube = {};
-                construirTabla();
-                cargarDatosLocalesUI();
-            });
-
-            reiniciarTemporizadorInactividad();
-        }
-
-        function cargarModuloAdminDirecto(idModulo) {
-            esAdminMode = true;
-            moduloActual = idModulo;
-            localStorage.setItem('sesion_modulo_activo', idModulo);
-            localStorage.setItem('sesion_admin_mode', 'true');
-            
-            document.getElementById('vistaSeleccion').style.display = 'none';
-            document.getElementById('vistaReporte').style.display = 'block';
-            document.getElementById('panelSelectorAdmin').style.display = 'block';
-            document.getElementById('vistaReporte').classList.remove('modulo-normal');
-            document.getElementById('lblEncabezadoReporte').innerText = `PANEL ADMINISTRADOR - GESTIÓN MÓDULO ${idModulo}`;
-            document.getElementById('txtModulo').value = idModulo;
-            document.getElementById('comboAdminModulo').value = idModulo;
-            
-            db.ref('modulos/' + idModulo).once('value').then((snapshot) => {
-                datosCargadosNube = snapshot.val() || {};
-                construirTabla();
-                cargarDatosLocalesUI();
-                
-                if(!snapshot.exists() && configModulos[idModulo]) {
-                    document.getElementById('txtResponsable').value = configModulos[idModulo].responsable;
-                    document.getElementById('txtConfGlobal').value = configModulos[idModulo].conf;
-                }
-            }).catch((err) => {
-                console.error("Error al conectar con la nube:", err);
-                datosCargadosNube = {};
-                construirTabla();
-                cargarDatosLocalesUI();
-            });
-
-            reiniciarTemporizadorInactividad();
-        }
-
-        function cambiarModuloAdmin(nuevoModulo) {
-            guardarDatosLocales();
-            cargarModuloAdminDirecto(nuevoModulo);
-        }
-
-        function volverAlMenu() {
-            clearTimeout(temporizadorInactividad);
-            guardarDatosLocales(); 
-            localStorage.removeItem('sesion_modulo_activo'); 
-            localStorage.removeItem('sesion_admin_mode');
-            
-            document.getElementById('vistaReporte').style.display = 'none';
-            document.getElementById('vistaSeleccion').style.display = 'block';
-            moduloActual = null;
-            esAdminMode = false;
-        }
-
-        function cerrarSesionManual() {
-            if(confirm("¿Desea cerrar sesión y volver al menú principal?")) {
-                volverAlMenu();
-            }
-        }
-
-        function construirTabla() {
-            let filaConsecutivos = document.getElementById('filaConsecutivos');
-            filaConsecutivos.innerHTML = '';
-            for(let i=1; i<=75; i++) {
-                let claseOculta = (i > 30) ? 'col-oculta-modulo' : '';
-                filaConsecutivos.innerHTML += `<th class="${claseOculta}">${i}</th>`;
-            }
-
-            let tbody = document.getElementById('cuerpoTablaCompleta');
-            tbody.innerHTML = '';
-
-            let savedData = datosCargadosNube;
-            let datosDiarios = savedData.datosDiarios || datosBaseDefault;
-            let sedesDisponibles = sedesPorModulo[moduloActual] || [''];
-
-            datosDiarios.forEach((d, idx) => {
-                let tr = document.createElement('tr');
-                let esLunes = (idx === 0);
-                
-                let htmlSedes = '';
-                sedesDisponibles.forEach(s => {
-                    let sel = (d.sede === s) ? 'selected' : '';
-                    htmlSedes += `<option value="${s}" ${sel}>${s}</option>`;
-                });
-                
-                let htmlAdicionales = '';
-                for(let aIdx=0; aIdx<35; aIdx++) {
-                    let colActual = 41 + aIdx;
-                    let valCol = (d.adic && d.adic[aIdx] !== undefined) ? d.adic[aIdx] : "";
-                    if ([44, 45, 46, 47].includes(colActual)) {
-                        htmlAdicionales += `<td class="col-oculta-modulo"><input type="text" class="cell-input" value="" readonly style="background-color: #f1f5f9;"></td>`;
-                    } else if (colActual === 48) {
-                        htmlAdicionales += `<td class="col-oculta-modulo"><input type="text" class="cell-input cell-formula col-resguardo-link" value="" readonly></td>`;
-                    } else if (colActual === 51 || colActual === 52) {
-                        htmlAdicionales += `<td class="col-oculta-modulo"><input type="text" class="cell-input cell-formula ${colActual === 51 ? 'col-script-link' : 'col-folionec-link'}" value="" readonly></td>`;
-                    } else if (colActual === 63 || colActual === 64) {
-                        let impExpSubIdx = colActual - 63;
-                        htmlAdicionales += `<td class="col-oculta-modulo"><input type="text" class="cell-input cell-formula col-impexp-link-${impExpSubIdx}" value="" readonly></td>`;
-                    } else if (colActual === 53 || colActual === 54 || colActual === 65) {
-                        htmlAdicionales += `<td class="col-oculta-modulo"><input type="text" class="cell-input cell-formula col-adic-${colActual}" value="" readonly></td>`;
-                    } else if (colActual >= 66 && colActual <= 75) {
-                        let retSubIdx = colActual - 66;
-                        htmlAdicionales += `<td class="col-oculta-modulo"><input type="text" class="cell-input cell-formula col-ret-link-${retSubIdx}" value="" readonly></td>`;
-                    } else {
-                        htmlAdicionales += `<td class="col-oculta-modulo"><input type="text" class="cell-input col-editable col-num col-adic-val" data-adic-idx="${aIdx}" value="${valCol}" oninput="recalcularTodo(); guardarDatosLocales();"></td>`;
-                    }
-                }
-
-                tr.innerHTML = `
-                    <td class="fw-bold col-dia">${d.dia}</td>
-                    <td><input type="date" class="date-input col-editable col-fecha" value="${d.fecha \vert{}\vert{} ''}" ${esLunes ? 'onchange="actualizarFechasConsecutivas(this); guardarDatosLocales();"' : 'readonly style="background-color: #e9ecef;"'}></td>
-                    <td><input type="text" class="cell-input col-editable col-horas" value="${d.horas !== undefined ? d.horas : ''}" oninput="validarHoras(this);
+            let adminGuardado = localStorage.getItem('sesion_admin_mode') === 'true
