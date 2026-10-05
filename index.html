@@ -3,10 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reporte Diario de Solicitudes - Módulo 050351 (Completo)</title>
+    <title>Sistema de Reportes - Módulos MAC (Nube)</title>
+    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Firebase SDKs (Compat) -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+    
     <style>
-        body { background-color: #f4f6f9; font-family: Arial, sans-serif; font-size: 0.7rem; }
+        body { background-color: #f4f6f9; font-family: Arial, sans-serif; font-size: 0.7rem; padding-bottom: 30px; }
         .header-box { background: #ffffff; border-bottom: 2px solid #1b396b; padding: 8px; margin-bottom: 8px; }
         .table-container { max-height: 600px; overflow-x: auto; overflow-y: auto; background: #fff; border: 1px solid #ccc; }
         table.excel-table { border-collapse: collapse; width: max-content; }
@@ -15,7 +20,7 @@
         table.excel-table th:nth-child(1), table.excel-table td:nth-child(1) { width: 75px; white-space: nowrap; }
         table.excel-table th:nth-child(2), table.excel-table td:nth-child(2) { width: 105px; white-space: nowrap; }
         table.excel-table th:nth-child(3), table.excel-table td:nth-child(3) { width: 55px; white-space: nowrap; }
-        table.excel-table th:nth-child(4), table.excel-table td:nth-child(4) { width: 100px; white-space: nowrap; }
+        table.excel-table th:nth-child(4), table.excel-table td:nth-child(4) { width: 130px; white-space: nowrap; }
         table.excel-table th:nth-child(5), table.excel-table td:nth-child(5) { width: 115px; white-space: nowrap; }
         table.excel-table th:nth-child(6), table.excel-table td:nth-child(6) { width: 115px; white-space: nowrap; }
 
@@ -28,52 +33,231 @@
             line-height: 1.1;
         }
 
+        .modulo-normal .col-oculta-modulo { display: none !important; }
+
         table.excel-table th { background-color: #e2e8f0; position: sticky; top: 0; z-index: 2; font-weight: bold; color: #1e293b; }
         .row-index th { background-color: #cbd5e1; color: #0f172a; font-size: 0.65rem; padding: 2px; position: sticky; top: 32px; z-index: 2; }
-        .cell-input { width: 100%; border: 1px solid #cbd5e1; text-align: center; font-size: 0.65rem; padding: 1px; background-color: #fff; color: black; box-sizing: border-box; }
-        .cell-formula { background-color: #f1f5f9; font-weight: bold; color: red !important; }
-        .date-input { width: 100%; border: 1px solid #cbd5e1; text-align: center; font-size: 0.65rem; padding: 1px; background-color: #fff; color: black; box-sizing: border-box; }
+        .cell-input { width: 100%; border: 1px solid #cbd5e1; text-align: center; font-size: 0.65rem; padding: 1px; background-color: #fff; color: black !important; box-sizing: border-box; }
+        .cell-formula { background-color: #f1f5f9; font-weight: bold; color: black !important; }
+        .date-input { width: 100%; border: 1px solid #cbd5e1; text-align: center; font-size: 0.65rem; padding: 1px; background-color: #fff; color: black !important; box-sizing: border-box; }
         .cell-input:focus, .date-input:focus { border-color: #3b82f6; outline: none; box-shadow: 0 0 0 2px rgba(59,130,246,0.2); }
         .row-total { background-color: #e9ecef; font-weight: bold; }
-        .section-card { background: #fff; border: 1px solid #cbd5e1; border-radius: 6px; padding: 8px 12px; margin-bottom: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); font-size: 0.65rem; height: 100%; }
+        .section-card { background: #fff; border: 1px solid #cbd5e1; border-radius: 6px; padding: 6px 8px; margin-bottom: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); font-size: 0.65rem; height: 100%; }
 
-        .sub-table { width: 100%; border-collapse: collapse; font-size: 0.68rem; background: #fff; table-layout: fixed; }
-        .sub-table th, .sub-table td { border: 1px solid #b0bec5; padding: 3px 4px; text-align: center; vertical-align: middle; overflow: hidden; }
-        .sub-table th { font-weight: bold; font-size: 0.62rem; }
+        .sub-table { width: 100%; border-collapse: collapse; font-size: 0.63rem; background: #fff; table-layout: fixed; }
+        .sub-table th, .sub-table td { border: 1px solid #b0bec5; padding: 2px 1px; text-align: center; vertical-align: middle; overflow: hidden; }
+        .sub-table th { font-weight: bold; font-size: 0.52rem; }
+        
+        .card-modulo { cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; border: 2px solid #cbd5e1; }
+        .card-modulo:hover { transform: translateY(-3px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); border-color: #0d6efd; }
+
+        .card-img-icon {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 6px;
+            border: 1px solid #cbd5e1;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+        }
+
+        .guardado-exito {
+            border: 2px solid #198754 !important;
+            box-shadow: 0 0 8px rgba(25, 135, 84, 0.6) !important;
+            background-color: #f8f9fa;
+        }
+        
+        footer { position: fixed; bottom: 0; left: 0; width: 100%; background-color: #ffffff; border-top: 1px solid #dee2e6; padding: 5px; text-align: center; font-size: 0.65rem; color: #6c757d; z-index: 9999; }
     </style>
 </head>
 <body>
 
-    <div class="container-fluid p-2">
+    <!-- VISTA 1: SELECCIÓN DE MÓDULO -->
+    <div id="vistaSeleccion" class="container py-4 mb-4">
+        <div class="text-center mb-4">
+            <h3 class="fw-bold text-primary">SISTEMA DE REPORTES DIARIOS - MÓDULOS MAC (NUBE)</h3>
+            <p class="text-secondary">Seleccione el módulo para gestionar su reporte sincronizado entre equipos</p>
+        </div>
+        <div class="row justify-content-center g-4 mb-4">
+            <!-- Módulo 50351 -->
+            <div class="col-md-4">
+                <div class="card card-modulo text-center p-3 bg-white" onclick="abrirModalPassword('50351', '351', false)">
+                    <div class="card-body p-1">
+                        <img src="image_c1b0db.jpg" alt="Módulo 50351 Fijo" class="card-img-icon">
+                        <h4 class="fw-bold">Módulo 50351</h4>
+                        <p class="text-muted small mb-1">Coahuila 05 - Distrito 03</p>
+                        <span class="badge bg-secondary mb-3">Fijo</span>
+                        <div><button type="button" class="btn btn-primary btn-sm px-4">Ingresar al Reporte</button></div>
+                    </div>
+                </div>
+            </div>
+            <!-- Módulo 50353 -->
+            <div class="col-md-4">
+                <div class="card card-modulo text-center p-3 bg-white" onclick="abrirModalPassword('50353', '353', false)">
+                    <div class="card-body p-1">
+                        <img src="image_c1b0b4.jpg" alt="Módulo 50353 Semifijo" class="card-img-icon">
+                        <h4 class="fw-bold">Módulo 50353</h4>
+                        <p class="text-muted small mb-1">Coahuila 05 - Distrito 03</p>
+                        <span class="badge bg-success mb-3">Semifijo</span>
+                        <div><button type="button" class="btn btn-success btn-sm px-4">Ingresar al Reporte</button></div>
+                    </div>
+                </div>
+            </div>
+            <!-- Módulo 50354 -->
+            <div class="col-md-4">
+                <div class="card card-modulo text-center p-3 bg-white" onclick="abrirModalPassword('50354', '354', false)">
+                    <div class="card-body p-1">
+                        <img src="image_c1b117.jpg" alt="Módulo 50354 Móvil" class="card-img-icon">
+                        <h4 class="fw-bold">Módulo 50354</h4>
+                        <p class="text-muted small mb-1">Coahuila 05 - Distrito 03</p>
+                        <span class="badge bg-warning text-dark mb-3">Móvil (Camioneta)</span>
+                        <div><button type="button" class="btn btn-warning btn-sm px-4 text-dark">Ingresar al Reporte</button></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Botón de Acceso Admin -->
+        <div class="text-center">
+            <button type="button" class="btn btn-outline-dark btn-sm fw-bold px-3 py-2" onclick="abrirModalAdmin()">
+                🛠 Panel de Soporte Técnico / Administrador
+            </button>
+        </div>
+    </div>
+
+    <!-- MODAL DE CONTRASEÑA -->
+    <div class="modal fade" id="modalPassword" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white py-2">
+                    <h5 class="modal-title fs-6">🔐 Acceso Protegido - <span id="lblTituloModal"></span></h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <p class="text-muted small mb-2">Ingrese la contraseña de acceso:</p>
+                    <div class="input-group mb-3 w-75 mx-auto">
+                        <input type="password" id="txtPasswordModal" class="form-control text-center" placeholder="Contraseña">
+                        <button class="btn btn-outline-secondary" type="button" id="btnTogglePassword" onclick="alternarVisibilidadPassword()">👁️</button>
+                    </div>
+                </div>
+                <div class="modal-footer py-1">
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary btn-sm" onclick="validarPasswordModal()">Ingresar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DE REMESAS ARCHIVADAS (SOLO ADMIN) -->
+    <div class="modal fade" id="modalRemesasAdmin" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-dark text-white py-2">
+                    <h5 class="modal-title fs-6">📂 Historial de Remesas Archivadas (1 a 75 Columnas)</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="contenedorListaRemesas">
+                        <p class="text-muted small">Seleccione un registro guardado para visualizar y copiar sus datos, o bórrelo de requerirlo:</p>
+                        <div class="table-responsive mb-3" style="max-height: 200px; overflow-y: auto;">
+                            <table class="table table-sm table-bordered table-striped text-center" style="font-size: 0.68rem;">
+                                <thead class="table-dark sticky-top">
+                                    <tr>
+                                        <th>Módulo MAC</th>
+                                        <th>Remesa</th>
+                                        <th>Fecha y Hora</th>
+                                        <th>Acción</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="cuerpoTablaRemesasArchivadas">
+                                    <tr><td colspan="4" class="text-muted">Cargando registros...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Vista detallada de la remesa seleccionada con botón de copiar -->
+                    <div id="detalleRemesaContainer" style="display: none;">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h6 class="fw-bold text-primary m-0" id="lblDetalleRemesaTitulo">Detalle de Remesa</h6>
+                            <div>
+                                <button class="btn btn-success btn-sm fw-bold py-1 px-2" onclick="copiarRemesaSeleccionadaAlPortapapeles()">📋 Copiar Tabla para Excel (1-75)</button>
+                                <button class="btn btn-outline-secondary btn-sm py-1 px-2" onclick="volverListaRemesas()">⬅ Volver a Lista</button>
+                            </div>
+                        </div>
+                        <div class="table-responsive" style="max-height: 350px; overflow-x: auto; overflow-y: auto;">
+                            <table class="table table-sm table-bordered text-center excel-table" style="font-size: 0.65rem;" id="tablaDetalleArchivada">
+                                <thead class="table-secondary"></thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer py-1">
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- VISTA 2: APLICACIÓN DE REPORTE -->
+    <div id="vistaReporte" class="container-fluid p-2" style="display: none;">
         <!-- Encabezado Institucional -->
-        <div class="header-box text-center">
-            <h6 class="fw-bold m-0 text-dark" style="font-size: 0.75rem;">DIRECCIÓN EJECUTIVA DEL REGISTRO FEDERAL DE ELECTORES</h6>
-            <h6 class="fw-bold text-secondary" style="font-size: 0.7rem;">COORDINACIÓN DE ACTUALIZACIÓN EN CAMPO DEL PADRÓN ELECTORAL - CAI 2026</h6>
-            <h5 class="fw-bold text-primary mt-1" style="font-size: 0.85rem;">REPORTE DIARIO DE SOLICITUDES Y OPERACIÓN</h5>
+        <div class="header-box d-flex justify-content-between align-items-center">
+            <div class="d-flex gap-1">
+                <button type="button" id="btnVolver" class="btn btn-sm btn-outline-secondary py-0 px-2 fw-bold" style="font-size: 0.65rem;">⬅ Volver al Menú</button>
+                <button type="button" id="btnCerrarSesion" class="btn btn-sm btn-outline-danger py-0 px-2 fw-bold" style="font-size: 0.65rem;">🔒 Cerrar Sesión</button>
+            </div>
+            <div class="text-center flex-grow-1">
+                <h6 class="fw-bold m-0 text-dark" style="font-size: 0.75rem;">DIRECCIÓN EJECUTIVA DEL REGISTRO FEDERAL DE ELECTORES</h6>
+                <h6 class="fw-bold text-secondary" style="font-size: 0.7rem;">COORDINACIÓN DE ACTUALIZACIÓN EN CAMPO DEL PADRÓN ELECTORAL - CAI 2026</h6>
+                <h5 class="fw-bold text-primary mt-1" id="lblEncabezadoReporte" style="font-size: 0.85rem;">REPORTE DIARIO DE SOLICITUDES Y OPERACIÓN</h5>
+            </div>
+            <div>
+                <button type="button" id="btnGuardar" class="btn btn-sm btn-outline-primary py-0 px-2 fw-bold" style="font-size: 0.65rem;">💾 Guardar en Nube</button>
+            </div>
+        </div>
+
+        <!-- Panel de Control para Admin -->
+        <div id="panelSelectorAdmin" class="section-card bg-light border-dark mb-2" style="display: none;">
+            <div class="row align-items-center justify-content-center g-2">
+                <div class="col-auto fw-bold text-dark">🛠 MÓDULO EN GESTIÓN (ADMINISTRADOR):</div>
+                <div class="col-auto">
+                    <select id="comboAdminModulo" class="form-select form-select-sm fw-bold text-primary" onchange="cambiarModuloAdmin(this.value)">
+                        <option value="50351">Módulo 50351</option>
+                        <option value="50353">Módulo 50353</option>
+                        <option value="50354">Módulo 50354</option>
+                    </select>
+                </div>
+                <div class="col-auto">
+                    <button type="button" class="btn btn-dark btn-sm fw-bold px-3 py-1" onclick="abrirModalRemesasArchivadas()">
+                        📂 Ver Remesas Archivadas (Admin)
+                    </button>
+                </div>
+            </div>
         </div>
 
         <!-- Datos Generales Compactos -->
         <div class="section-card" style="height: auto;">
             <div class="row g-1 align-items-center justify-content-between text-center mb-1">
                 <div class="col-auto">
-                    <strong>ENTIDAD:</strong> <input type="text" id="txtEntidadGlobal" class="cell-input d-inline-block fw-bold text-primary text-center" style="width: 95px;" value="COAHUILA 05" oninput="actualizarEntidadGlobal(this.value)">
+                    <strong>ENTIDAD:</strong> <input type="text" id="txtEntidadGlobal" class="cell-input d-inline-block fw-bold text-primary text-center" style="width: 95px;" value="COAHUILA 05" oninput="actualizarEntidadGlobal(this.value); guardarDatosLocales();">
                 </div>
                 <div class="col-auto">
-                    <strong>DISTRITO:</strong> <input type="text" id="txtDistritoGlobal" class="cell-input d-inline-block fw-bold text-primary text-center" style="width: 40px;" value="03" oninput="actualizarDistritoGlobal(this.value)">
+                    <strong>DISTRITO:</strong> <input type="text" id="txtDistritoGlobal" class="cell-input d-inline-block fw-bold text-primary text-center" style="width: 40px;" value="03" oninput="actualizarDistritoGlobal(this.value); guardarDatosLocales();">
                 </div>
                 <div class="col-auto">
-                    <strong>REMESA:</strong> <input type="text" id="txtRemesaGlobal" class="cell-input d-inline-block fw-bold text-primary text-center" style="width: 75px;" value="202640" oninput="actualizarRemesaGlobal(this.value)">
+                    <strong>REMESA:</strong> <input type="text" id="txtRemesaGlobal" class="cell-input d-inline-block fw-bold text-primary text-center" style="width: 75px;" value="202640" oninput="actualizarRemesaGlobal(this.value); guardarDatosLocales();">
                 </div>
             </div>
             <div class="row g-1 align-items-center justify-content-between text-center">
                 <div class="col-auto">
-                    <strong>MÓDULO:</strong> <input type="text" id="txtModulo" class="cell-input d-inline-block fw-bold text-primary text-center" style="width: 75px;" value="050351" oninput="actualizarModuloGlobal(this.value)">
+                    <strong>MÓDULO:</strong> <input type="text" id="txtModulo" class="cell-input d-inline-block fw-bold text-primary text-center" style="width: 75px;" value="" readonly style="background-color: #e9ecef;">
                 </div>
                 <div class="col-auto">
-                    <strong>CONF.:</strong> <input type="text" id="txtConfGlobal" class="cell-input d-inline-block fw-bold text-primary text-center" style="width: 50px;" value="B+5" oninput="actualizarConfGlobal(this.value)">
+                    <strong>CONF.:</strong> <input type="text" id="txtConfGlobal" class="cell-input d-inline-block fw-bold text-primary text-center" style="width: 50px;" value="" oninput="actualizarConfGlobal(this.value); guardarDatosLocales();">
                 </div>
                 <div class="col-auto">
-                    <strong>RESPONSABLE:</strong> <input type="text" class="cell-input d-inline-block text-center" style="width: 130px;" value="P. Ornelas">
+                    <strong>RESPONSABLE:</strong> <input type="text" id="txtResponsable" class="cell-input d-inline-block text-center" style="width: 220px;" value="" oninput="guardarDatosLocales()">
                 </div>
             </div>
         </div>
@@ -83,11 +267,12 @@
             <div class="d-flex justify-content-between align-items-center mb-2">
                 <h6 class="text-primary fw-bold m-0" style="font-size: 0.75rem;">📋 Reporte Diario Digital</h6>
                 <div>
-                    <button class="btn btn-sm btn-outline-success fw-bold py-0 px-2" style="font-size: 0.65rem;" onclick="copiarTablaAlPortapapeles()">📋 Copiar Tabla Completa</button>
+                    <button type="button" id="btnCopiar" class="btn btn-sm btn-outline-success fw-bold py-0 px-2 me-1" style="font-size: 0.65rem;">📋 Copiar Tabla Completa</button>
+                    <button type="button" id="btnBorrar" class="btn btn-sm btn-danger fw-bold py-0 px-2" style="font-size: 0.65rem;">🗑️ Borrar Módulo / Limpiar</button>
                 </div>
             </div>
 
-            <div class="table-container">
+            <div class="table-container" id="contenedorTablaPrincipal">
                 <table class="excel-table" id="tablaCompleta">
                     <thead>
                         <tr>
@@ -95,11 +280,11 @@
                             <th rowspan="2">FECHA</th>
                             <th rowspan="2">HORAS</th>
                             <th rowspan="2">SEDE</th>
-                            <th colspan="3">FOLIOS (5-7)</th>
-                            <th colspan="10">FORMATOS ÚNICOS (8-17)</th>
-                            <th colspan="14">ESTADÍSTICAS Y MOVIMIENTOS (18-31)</th>
-                            <th colspan="10">INDICADORES Y CREDENCIALES (32-41)</th>
-                            <th colspan="35">REGISTROS Y CONFIGURACIÓN ADICIONAL (42-76)</th>
+                            <th colspan="3">FOLIOS</th>
+                            <th colspan="9">FORMATOS ÚNICOS (8-16)</th>
+                            <th colspan="14">ESTADÍSTICAS Y MOVIMIENTOS (17-30)</th>
+                            <th colspan="10" class="col-oculta-modulo">INDICADORES Y CREDENCIALES (31-40)</th>
+                            <th colspan="35" class="col-oculta-modulo">REGISTROS Y CONFIGURACIÓN ADICIONAL (41-75)</th>
                         </tr>
                         <tr>
                             <th>INICIAL</th>
@@ -109,19 +294,18 @@
                             <th>CORR. DATOS</th>
                             <th>CAMBIO DOM.</th>
                             <th>REPOSICIÓN</th>
-                            <th>REIMPRESIONES</th>
-                            <th>CORR. DIR.</th>
                             <th>CORR. DE DATOS DIRECCION</th>
                             <th>REINCORP.</th>
                             <th>REEMPLAZO</th>
-                            <th>TOTAL TRÁM.</th>
+                            <th>REIMPRESIONES</th>
+                            <th>Total Tramites</th>
                             <th>CANCELADOS</th>
                             <th>TOTAL ANEXO RECHAZO</th>
                             <th>CPV devuelta entrega</th>
                             <th>DISPONIBLES AL DIA ANTERIOR (iniciales)</th>
                             <th>RECIBIDAS Actualizacion</th>
-                            <th>ENTREGADAS</th>
                             <th>RECIBIDAS OTROS TIPOS</th>
+                            <th>ENTREGADAS</th>
                             <th>RECIBO Y/O EXTRAVIO</th>
                             <th>ANEXAS A FUAR</th>
                             <th>DATOS ERRONEOS</th>
@@ -129,51 +313,51 @@
                             <th>REIMPRESION</th>
                             <th>RETIRADAS POR CAUSA</th>
                             <th>DISPONIBLES</th>
-                            <th>credenciales x canje</th>
-                            <th>fichas Entregadas</th>
-                            <th>fichas atendidas</th>
-                            <th>Dias trabajados</th>
-                            <th>SOLICITUD EXPEDICIÒN</th>
-                            <th>SOLICITUD EXPEDICIÒN ORDINARIA</th>
-                            <th>SOLICITU DE RECTIFICACIÓN</th>
-                            <th>DEMANDA DE JUICIO</th>
-                            <th>REMESA</th>
-                            <th>Total de movimientos</th>
-                            <th>DEVUELTAS POR TERCEROS</th>
-                            <th>34 Imagen inconsistente</th>
-                            <th>35 Movimiento posterior</th>
-                            <th>CONFIGURACION</th>
-                            <th>ENT</th>
-                            <th>DTTO</th>
-                            <th>MODULO</th>
-                            <th>RESGUARDO</th>
-                            <th>SOLICITUD DE REIMPRESION</th>
-                            <th>CPV devuelta entrega</th>
-                            <th>Script ejecutados</th>
-                            <th>FOLIO NEC</th>
-                            <th>Número de trámites aplicados</th>
-                            <th>Número de fichas requisitadas</th>
-                            <th>Número de Archivos de Transacción aceptados</th>
-                            <th>Total de Archivos de Transacción procesados</th>
-                            <th>Credenciales recibidas</th>
-                            <th>Credenciales inconsistentes</th>
-                            <th>Credenciales en resguardo</th>
-                            <th>Credenciales totales en SIIRFE disponibles para entrega</th>
-                            <th>Total de credenciales entregadas</th>
-                            <th>Total de credenciales solicitadas</th>
-                            <th>IMPORTADAS</th>
-                            <th>EXPORTADAS</th>
-                            <th>reposiciones + reimpresiones</th>
-                            <th>MAL IMPRESA</th>
-                            <th>ERROR EN CARTOGRAFIA</th>
-                            <th>DEFUNCION</th>
-                            <th>SUSPENSION</th>
-                            <th>DUPLICADO</th>
-                            <th>ERROR EN NUM. DE EMISION</th>
-                            <th>PERDIDA DE VIGENCIA</th>
-                            <th>MOV.POST.</th>
-                            <th>ANEXAS A SOLICITUD</th>
-                            <th>OTRAS BAJAS</th>
+                            <th class="col-oculta-modulo">credenciales x canje</th>
+                            <th class="col-oculta-modulo">fichas Entregadas</th>
+                            <th class="col-oculta-modulo">fichas atendidas</th>
+                            <th class="col-oculta-modulo">Dias trabajados</th>
+                            <th class="col-oculta-modulo">SOLICITUD EXPEDICIÒN</th>
+                            <th class="col-oculta-modulo">SOLICITUD EXPEDICIÒN ORDINARIA</th>
+                            <th class="col-oculta-modulo">SOLICITU DE RECTIFICACIÓN</th>
+                            <th class="col-oculta-modulo">DEMANDA DE JUICIO</th>
+                            <th class="col-oculta-modulo">REMESA</th>
+                            <th class="col-oculta-modulo">Total de movimientos</th>
+                            <th class="col-oculta-modulo">DEVUELTAS POR TERCEROS</th>
+                            <th class="col-oculta-modulo">34 Imagen inconsistente</th>
+                            <th class="col-oculta-modulo">35 Movimiento posterior</th>
+                            <th class="col-oculta-modulo">CONFIGURACION</th>
+                            <th class="col-oculta-modulo">ENT</th>
+                            <th class="col-oculta-modulo">DTTO</th>
+                            <th class="col-oculta-modulo">MODULO</th>
+                            <th class="col-oculta-modulo">RESGUARDO</th>
+                            <th class="col-oculta-modulo">SOLICITUD DE REIMPRESION</th>
+                            <th class="col-oculta-modulo">CPV devuelta entrega</th>
+                            <th class="col-oculta-modulo">Script ejecutados</th>
+                            <th class="col-oculta-modulo">FOLIO NEC</th>
+                            <th class="col-oculta-modulo">Número de trámites aplicados</th>
+                            <th class="col-oculta-modulo">Número de fichas requisitadas</th>
+                            <th class="col-oculta-modulo">Número de Archivos de Transacción aceptados</th>
+                            <th class="col-oculta-modulo">Total de Archivos de Transacción procesados</th>
+                            <th class="col-oculta-modulo">Credenciales recibidas</th>
+                            <th class="col-oculta-modulo">Credenciales inconsistentes</th>
+                            <th class="col-oculta-modulo">Credenciales en resguardo</th>
+                            <th class="col-oculta-modulo">Credenciales totales en SIIRFE disponibles para entrega</th>
+                            <th class="col-oculta-modulo">Total de credenciales entregadas</th>
+                            <th class="col-oculta-modulo">Total de credenciales solicitadas</th>
+                            <th class="col-oculta-modulo" style="background-color: #d7ccc8; color: #3e2723;">IMPORTADAS</th>
+                            <th class="col-oculta-modulo" style="background-color: #d7ccc8; color: #3e2723;">EXPORTADAS</th>
+                            <th class="col-oculta-modulo">reposiciones + reimpresiones</th>
+                            <th class="col-oculta-modulo" style="background-color: #673ab7; color: white;">MAL IMPRESA</th>
+                            <th class="col-oculta-modulo" style="background-color: #673ab7; color: white;">ERROR EN CARTOGRAFIA</th>
+                            <th class="col-oculta-modulo" style="background-color: #673ab7; color: white;">DEFUNCION</th>
+                            <th class="col-oculta-modulo" style="background-color: #673ab7; color: white;">SUSPENSION</th>
+                            <th class="col-oculta-modulo" style="background-color: #673ab7; color: white;">DUPLICADO</th>
+                            <th class="col-oculta-modulo" style="background-color: #673ab7; color: white;">ERROR EN NUM. DE EMISION</th>
+                            <th class="col-oculta-modulo" style="background-color: #673ab7; color: white;">PERDIDA DE VIGENCIA</th>
+                            <th class="col-oculta-modulo" style="background-color: #673ab7; color: white;">MOV.POST.</th>
+                            <th class="col-oculta-modulo" style="background-color: #673ab7; color: white;">ANEXAS A SOLICITUD</th>
+                            <th class="col-oculta-modulo" style="background-color: #673ab7; color: white;">OTRAS BAJAS</th>
                         </tr>
                         <tr class="row-index" id="filaConsecutivos"></tr>
                     </thead>
@@ -189,26 +373,26 @@
 
         <!-- SECCIONES ADICIONALES INFERIORES -->
         <div class="row g-2">
-            <!-- Anexo a Rechazos -->
-            <div class="col-12">
+            <!-- BLOQUE DE ANEXOS UNIDOS LADO A LADO -->
+            <div class="col-xl-6">
                 <div class="section-card">
-                    <h6 class="fw-bold text-center mb-1" style="background: #ffeb3b; padding: 4px; border: 1px solid #fbc02d; font-size: 0.7rem;">* ANEXO A RECHAZOS</h6>
+                    <h6 class="fw-bold text-center mb-1" style="background: #ffeb3b; padding: 4px; border: 1px solid #fbc02d; font-size: 0.65rem;">* ANEXO A RECHAZOS</h6>
                     <div class="table-responsive">
                         <table class="sub-table" id="tablaRechazos">
                             <thead>
-                                <tr style="background-color: #fffde7;">
-                                    <th style="width: 100px;">FECHA OP.</th>
-                                    <th>Res. 00</th>
+                                <tr style="background-color: #ffe082;">
+                                    <th style="width: 75px;">FECHA DE OPERACIÓN</th>
+                                    <th>Residencia 00</th>
                                     <th>Datos Null</th>
-                                    <th>Col. Mayor</th>
-                                    <th>Id. c/clave ant.</th>
-                                    <th>Img. Inc. CECYR</th>
-                                    <th>Sin Firma</th>
-                                    <th>Fecha C. Elector</th>
-                                    <th>Sin huella</th>
-                                    <th>34 Img. Inc.</th>
-                                    <th>35 Mov. Post.</th>
-                                    <th style="background-color: #e2e8f0; width: 65px;">Total</th>
+                                    <th>Colonia Mayor</th>
+                                    <th>Identificado s/clave elector anterior</th>
+                                    <th>Imagen inconsistente identificada por CECYR</th>
+                                    <th>Sin Firma o imagen No corresponde a la firma</th>
+                                    <th>Fecha Clave Electoral (no trae formato aamm)</th>
+                                    <th>sin huella o Minucia</th>
+                                    <th>34 Imagen inconsistente</th>
+                                    <th>35 Movimiento posterior</th>
+                                    <th style="background-color: #e2e8f0; width: 35px;">Total</th>
                                 </tr>
                             </thead>
                             <tbody></tbody>
@@ -217,89 +401,25 @@
                 </div>
             </div>
 
-            <!-- Tablas Medias -->
-            <div class="col-xl-4 col-md-4">
-                <div class="section-card d-flex flex-column">
-                    <h6 class="fw-bold text-center text-white mb-1" style="background: #795548; padding: 4px; font-size: 0.65rem;">CREDENCIALES RECIBIDAS OTROS TIPOS</h6>
-                    <div class="table-responsive flex-grow-1">
-                        <table class="sub-table" id="tablaCredRecibidas">
-                            <thead>
-                                <tr style="background-color: #efebe9;">
-                                    <th style="width: 55px;">DÍA</th>
-                                    <th>REC. REIMP.</th>
-                                    <th>INST. ADMIN.</th>
-                                    <th>DEM. JUICIO</th>
-                                    <th>RESGUARDO</th>
-                                </tr>
-                            </thead>
-                            <tbody></tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-xl-4 col-md-4">
-                <div class="section-card d-flex flex-column">
-                    <h6 class="fw-bold text-center mb-1" style="background: #ffcdd2; padding: 4px; border: 1px solid #ef9a9a; font-size: 0.65rem;">*** CANCELADOS POR</h6>
-                    <div class="table-responsive flex-grow-1">
-                        <table class="sub-table" id="tablaCancelados">
-                            <thead>
-                                <tr style="background-color: #ffebee;">
-                                    <th style="width: 55px;">DÍA</th>
-                                    <th>No cerrar</th>
-                                    <th>Falla Eléc.</th>
-                                    <th>Err. Capt.</th>
-                                    <th>Fallas Sist.</th>
-                                    <th style="background-color: #e2e8f0; width: 55px;">TOTAL</th>
-                                </tr>
-                            </thead>
-                            <tbody></tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-xl-4 col-md-4">
-                <div class="section-card d-flex flex-column">
-                    <h6 class="fw-bold text-center text-white mb-1" style="background: #3f51b5; padding: 4px; font-size: 0.65rem;">INSTANCIAS ADMINISTRATIVAS Y DEMANDAS DE JUICIO</h6>
-                    <div class="table-responsive flex-grow-1">
-                        <table class="sub-table" id="tablaInstancias">
-                            <thead>
-                                <tr style="background-color: #e8eaf6;">
-                                    <th style="width: 55px;">DÍA</th>
-                                    <th>EXP. ORD.</th>
-                                    <th>EXP. REP.</th>
-                                    <th>RECTIF.</th>
-                                    <th>JUICIO</th>
-                                    <th style="background-color: #e2e8f0; width: 55px;">TOTAL</th>
-                                </tr>
-                            </thead>
-                            <tbody></tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Retiradas, Importación/Exportación y Lotes -->
             <div class="col-xl-6">
                 <div class="section-card">
-                    <h6 class="fw-bold text-center text-white mb-1" style="background: #673ab7; padding: 4px; font-size: 0.7rem;">** ANEXO DE CREDENCIALES RETIRADAS POR CAUSA</h6>
+                    <h6 class="fw-bold text-center text-white mb-1" style="background: #673ab7; padding: 4px; font-size: 0.65rem;">** ANEXO DE CREDENCIALES RETIRADAS POR CAUSA</h6>
                     <div class="table-responsive">
                         <table class="sub-table" id="tablaRetiradasCausa">
                             <thead>
-                                <tr style="background-color: #ede7f6;">
-                                    <th style="width: 85px;">FECHA OP.</th>
-                                    <th>Mal Imp.</th>
-                                    <th>Err. Cart.</th>
-                                    <th>Defunc.</th>
-                                    <th>Suspens.</th>
-                                    <th>Duplic.</th>
-                                    <th>Err. Emisión</th>
-                                    <th>Pérd. Vig.</th>
-                                    <th>Mov. Post.</th>
-                                    <th>Anex. Sol.</th>
-                                    <th>Otras Bajas</th>
-                                    <th style="background-color: #e2e8f0; width: 55px;">Total</th>
+                                <tr style="background-color: #d1c4e9;">
+                                    <th style="width: 75px;">FECHA DE OPERACIÓN</th>
+                                    <th>MAL IMPRESA</th>
+                                    <th>ERROR EN CARTOGRAFIA</th>
+                                    <th>DEFUNCION</th>
+                                    <th>SUSPENSION</th>
+                                    <th>DUPLICADO</th>
+                                    <th>ERROR EN NUM. DE EMISION</th>
+                                    <th>PERDIDA DE VIGENCIA</th>
+                                    <th>MOV.POST.</th>
+                                    <th>ANEXAS A SOLICITUD</th>
+                                    <th>OTRAS BAJAS</th>
+                                    <th style="background-color: #e2e8f0; width: 35px;">Total</th>
                                 </tr>
                             </thead>
                             <tbody></tbody>
@@ -308,17 +428,19 @@
                 </div>
             </div>
 
-            <!-- Tabla Importación / Exportación (Encabezado Lila) -->
-            <div class="col-xl-4">
-                <div class="section-card">
-                    <h6 class="fw-bold text-center mb-1" style="background: #e1bee7; padding: 4px; border: 1px solid #ba68c8; font-size: 0.7rem; color: #4a148c;">IMPORTACIÓN / EXPORTACIÓN</h6>
-                    <div class="table-responsive">
-                        <table class="sub-table" id="tablaImpExp">
+            <!-- BLOQUE DE LAS 5 TABLAS JUNTAS EN FILA -->
+            <div class="col-xl-3 col-md-4">
+                <div class="section-card d-flex flex-column">
+                    <h6 class="fw-bold text-center text-white mb-1" style="background: #e65100; padding: 4px; font-size: 0.55rem;">RECIBIDAS OTROS TIPOS</h6>
+                    <div class="table-responsive flex-grow-1">
+                        <table class="sub-table" id="tablaCredRecibidas">
                             <thead>
-                                <tr style="background-color: #f3e5f5;">
-                                    <th style="width: 70px;">DÍA</th>
-                                    <th>IMPORTACIÓN</th>
-                                    <th>EXPORTACIÓN</th>
+                                <tr style="background-color: #ffe0b2;">
+                                    <th style="width: 38px;">DÍA</th>
+                                    <th style="background-color: #ef6c00; color: white; font-size: 0.48rem;">RECIBIDAS POR REIMPRESIÓN</th>
+                                    <th style="background-color: #ef6c00; color: white; font-size: 0.48rem;">INSTANCIAS ADMINISTRATIVAS</th>
+                                    <th style="background-color: #ef6c00; color: white; font-size: 0.48rem;">DEMANDAS DE JUICIO</th>
+                                    <th style="background-color: #4e5b31; color: white; font-size: 0.48rem;">RESGUARDO</th>
                                 </tr>
                             </thead>
                             <tbody></tbody>
@@ -327,16 +449,73 @@
                 </div>
             </div>
 
-            <!-- Tabla de Lotes Optimizada (Sin columna de días) -->
-            <div class="col-xl-2">
-                <div class="section-card">
-                    <h6 class="fw-bold text-center mb-1" style="background: #b2dfdb; padding: 4px; border: 1px solid #80cbc4; font-size: 0.7rem;">Lotes Recibidos</h6>
-                    <div class="table-responsive">
+            <div class="col-xl-3 col-md-3">
+                <div class="section-card d-flex flex-column">
+                    <h6 class="fw-bold text-center text-white mb-1" style="background: #ef5350; color: white; padding: 4px; font-size: 0.55rem;">*** CANCELADOS</h6>
+                    <div class="table-responsive flex-grow-1">
+                        <table class="sub-table" id="tablaCancelados">
+                            <thead>
+                                <tr style="background-color: #ef5350; color: white;">
+                                    <th style="background-color: #ef5350; color: white; font-size: 0.46rem;">No cerrar sesion adecuadamente LT</th>
+                                    <th style="background-color: #ef5350; color: white; font-size: 0.46rem;">Falla de Energia Eléctrica</th>
+                                    <th style="background-color: #ef5350; color: white; font-size: 0.46rem;">Error de Captura</th>
+                                    <th style="background-color: #ef5350; color: white; font-size: 0.46rem;">Fallas del Sistema</th>
+                                    <th style="background-color: #ef5350; color: white; font-size: 0.46rem;">No guardar las minusias correctamente</th>
+                                    <th style="background-color: #ef5350; color: white; font-size: 0.46rem; width: 35px;">TOTAL</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-2 col-md-2">
+                <div class="section-card d-flex flex-column">
+                    <h6 class="fw-bold text-center text-white mb-1" style="background: #90caf9; color: #0d47a1; padding: 4px; font-size: 0.55rem;">INSTANCIAS Y DEMANDAS DE JUICIO</h6>
+                    <div class="table-responsive flex-grow-1">
+                        <table class="sub-table" id="tablaInstancias">
+                            <thead>
+                                <tr style="background-color: #90caf9; color: #000;">
+                                    <th style="background-color: #90caf9; color: #000; font-size: 0.46rem;">SOLICITUD EXPEDICIÓN ORDINARIA</th>
+                                    <th style="background-color: #90caf9; color: #000; font-size: 0.46rem;">SOLICITUD EXPEDICIÓN REPATRIADOS</th>
+                                    <th style="background-color: #90caf9; color: #000; font-size: 0.46rem;">SOLICITU DE RECTIFICACIÓN</th>
+                                    <th style="background-color: #90caf9; color: #000; font-size: 0.46rem;">DEMANDA DE JUICIO</th>
+                                    <th style="background-color: #90caf9; color: red; font-size: 0.46rem; width: 35px; font-weight: bold;">TOTAL</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-2 col-md-2">
+                <div class="section-card d-flex flex-column">
+                    <h6 class="fw-bold text-center text-white mb-1" style="background: #d7ccc8; padding: 4px; border: 1px solid #bcaaa4; font-size: 0.55rem; color: #3e2723;">IMPORTADAS / EXPORTADAS</h6>
+                    <div class="table-responsive flex-grow-1">
+                        <table class="sub-table" id="tablaImpExp" style="table-layout: auto;">
+                            <thead>
+                                <tr style="background-color: #efebe9;">
+                                    <th style="width: 45px;">IMP.</th>
+                                    <th style="width: 45px;">EXP.</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-2 col-md-2">
+                <div class="section-card d-flex flex-column">
+                    <h6 class="fw-bold text-center mb-1" style="background: #b2dfdb; padding: 4px; border: 1px solid #80cbc4; font-size: 0.55rem;">Lotes Recibidos</h6>
+                    <div class="table-responsive flex-grow-1">
                         <table class="sub-table" id="tablaLotes">
                             <thead>
                                 <tr style="background-color: #e0f2f1;">
-                                    <th>Lotes</th>
-                                    <th style="width: 50px;">Cant.</th>
+                                    <th>Lote</th>
+                                    <th style="width: 32px;">Cant</th>
                                 </tr>
                             </thead>
                             <tbody></tbody>
@@ -346,42 +525,54 @@
             </div>
 
             <!-- Controles y Observaciones Finales -->
-            <div class="col-12">
+            <div class="col-12 mb-5">
                 <div class="section-card">
                     <div class="row g-2 align-items-center">
                         <div class="col-md-3">
                             <div class="d-flex align-items-center mb-1">
                                 <span class="fw-bold me-2">CREDENCIALES POR CANJE:</span>
-                                <input type="text" id="inputCanjeGlobal" class="cell-input fw-bold text-center" style="width: 70px;" value="143" oninput="recalcularTodo()">
+                                <input type="text" id="inputCanjeGlobal" class="cell-input fw-bold text-center cell-formula" style="width: 70px;" value="" readonly>
                             </div>
                             <div class="d-flex align-items-center mb-1">
                                 <span class="fw-bold me-2">Script ejecutados</span>
-                                <input type="text" id="inputScriptGlobal" class="cell-input text-center" style="width: 70px;" value="" oninput="recalcularTodo()">
+                                <input type="text" id="inputScriptGlobal" class="cell-input text-center" style="width: 70px;" value="" oninput="recalcularTodo(); guardarDatosLocales();">
                                 <div style="width: 25px; height: 18px; background: red; margin-left: 8px; display: inline-block;"></div>
                             </div>
                             <div class="d-flex align-items-center">
                                 <span class="fw-bold me-2">FOLIO ENTREGA NEC</span>
-                                <input type="text" id="inputFolioNecGlobal" class="cell-input text-center" style="width: 140px;" value="05035126026721" oninput="recalcularTodo()">
+                                <input type="text" id="inputFolioNecGlobal" class="cell-input text-center" style="width: 140px;" value="" oninput="recalcularTodo(); guardarDatosLocales();">
                             </div>
                         </div>
                         <div class="col-md-5 border-start border-end">
                             <div class="row g-2 align-items-center mb-2">
                                 <div class="col-auto"><span class="fw-bold">Instalación del Padron:</span></div>
-                                <div class="col-auto"><input type="text" class="cell-input fw-bold text-center" style="width: 50px;" value="SI"></div>
+                                <div class="col-auto">
+                                    <select id="inputInstPadron" class="cell-input fw-bold text-center" style="width: 70px;" onchange="guardarDatosLocales()">
+                                        <option value=""></option>
+                                        <option value="SI">SI</option>
+                                        <option value="NO">NO</option>
+                                    </select>
+                                </div>
                                 <div class="col-auto offset-md-1"><span class="fw-bold">Instalación del Cartografía:</span></div>
-                                <div class="col-auto"><input type="text" class="cell-input fw-bold text-center" style="width: 50px;" value="NO"></div>
+                                <div class="col-auto">
+                                    <select id="inputInstCarto" class="cell-input fw-bold text-center" style="width: 70px;" onchange="guardarDatosLocales()">
+                                        <option value=""></option>
+                                        <option value="SI">SI</option>
+                                        <option value="NO">NO</option>
+                                    </select>
+                                </div>
                             </div>
                             <div class="row g-2 align-items-center">
                                 <div class="col-auto"><span class="fw-bold">Num. Registros Cargados:</span></div>
-                                <div class="col-md-3"><input type="text" class="cell-input text-center" style="background-color: #ffebee;" value=""></div>
+                                <div class="col-md-3"><input type="text" id="inputNumReg" class="cell-input text-center" style="background-color: #ffebee;" value="" oninput="guardarDatosLocales()"></div>
                                 <div class="col-auto"><span class="fw-bold">Remesa Instalada:</span></div>
-                                <div class="col-md-3"><input type="text" class="cell-input text-center" style="background-color: #ffcdd2;" value=""></div>
+                                <div class="col-md-3"><input type="text" id="inputRemInst" class="cell-input text-center" style="background-color: #ffcdd2;" value="" oninput="guardarDatosLocales()"></div>
                             </div>
                         </div>
                         <div class="col-md-4">
                             <div class="border p-1" style="background: #f8f9fa; min-height: 70px;">
                                 <div class="fw-bold text-primary mb-1" style="font-size: 0.65rem;">OBSERVACIONES:</div>
-                                <div class="text-center fw-bold" style="font-size: 0.65rem; color: #333;">1 CPV PRESTADA A LA STN</div>
+                                <textarea id="txtObservaciones" class="cell-input text-center fw-bold" style="height: 45px; resize: none;" oninput="guardarDatosLocales()"></textarea>
                             </div>
                         </div>
                     </div>
@@ -390,787 +581,400 @@
         </div>
     </div>
 
+    <!-- PIE DE PÁGINA UNIVERSAL -->
+    <footer>
+        <span>© 2026 Derechos Reservados - Sistema de Reportes Módulos MAC (Nube) | <strong>Versión 10.7</strong></span>
+    </footer>
+
+    <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        const datosDiarios = [
-            {dia: 'Lunes', fecha: '2026-09-21', horas: 7, sede: 'MVA 050351', fi: '2605035126166', ff: '2605035126381', ins: 41, corr: 0, cam: 58, rep: 76, reimp: 1, cdir: 21, cdirDir: 0, reinc: 19, reempl: 0, cancelados: 0, anexoRech: 0, cpvDev: 0, dispAnt: 1339, rec: 0, ent: 169, recOtr: 0, ret1: 0, ret2: 0, ret3: 0, ret4: 0, ret5: 0, ret6: 0, canje: 0, fichEnt: 1170, fichAtend: 169, exp: 0, ord: 0, rect: 0, juicio: 0, remesa: 202640, totMov: 0, adic: Array(35).fill(0)},
-            {dia: 'Martes', fecha: '2026-09-22', horas: 7, sede: 'MVA 050351', fi: '2605035126382', ff: '2605035126553', ins: 35, corr: 2, cam: 32, rep: 59, reimp: 2, cdir: 16, cdirDir: 0, reinc: 26, reempl: 0, cancelados: 0, anexoRech: 0, cpvDev: 0, dispAnt: 1170, rec: 439, ent: 117, recOtr: 0, ret1: 0, ret2: 0, ret3: 0, ret4: 0, ret5: 0, ret6: 0, canje: 0, fichEnt: 1492, fichAtend: 439, exp: 0, ord: 0, rect: 0, juicio: 0, remesa: 202640, totMov: 0, adic: Array(35).fill(0)},
-            {dia: 'Miércoles', fecha: '2026-09-23', horas: 7, sede: 'MVA 050351', fi: '2605035126554', ff: '2605035126724', ins: 33, corr: 2, cam: 25, rep: 74, reimp: 3, cdir: 12, cdirDir: 0, reinc: 22, reempl: 0, cancelados: 0, anexoRech: 0, cpvDev: 0, dispAnt: 1492, rec: 164, ent: 172, recOtr: 0, ret1: 0, ret2: 0, ret3: 0, ret4: 0, ret5: 0, ret6: 0, canje: 0, fichEnt: 1484, fichAtend: 164, exp: 0, ord: 0, rect: 0, juicio: 0, remesa: 202640, totMov: 0, adic: Array(35).fill(0)},
-            {dia: 'Jueves', fecha: '2026-09-24', horas: 7, sede: 'MVA 050351', fi: '2605035126725', ff: '2605035126870', ins: 13, corr: 1, cam: 26, rep: 63, reimp: 2, cdir: 17, cdirDir: 0, reinc: 24, reempl: 0, cancelados: 0, anexoRech: 0, cpvDev: 0, dispAnt: 1484, rec: 160, ent: 141, recOtr: 0, ret1: 0, ret2: 0, ret3: 0, ret4: 0, ret5: 0, ret6: 0, canje: 0, fichEnt: 1503, fichAtend: 160, exp: 0, ord: 0, rect: 0, juicio: 0, remesa: 202640, totMov: 0, adic: Array(35).fill(0)},
-            {dia: 'Viernes', fecha: '2026-09-25', horas: 7, sede: 'MVA 050351', fi: '2605035126871', ff: '2605035127063', ins: 40, corr: 1, cam: 42, rep: 60, reimp: 2, cdir: 20, cdirDir: 0, reinc: 28, reempl: 0, cancelados: 0, anexoRech: 0, cpvDev: 0, dispAnt: 1503, rec: 318, ent: 106, recOtr: 0, ret1: 0, ret2: 0, ret3: 0, ret4: 0, ret5: 0, ret6: 0, canje: 0, fichEnt: 1715, fichAtend: 318, exp: 0, ord: 0, rect: 0, juicio: 0, remesa: 202640, totMov: 0, adic: Array(35).fill(0)},
-            {dia: 'Sábado', fecha: '2026-09-26', horas: 7, sede: 'MVA 050351', fi: '2605035127064', ff: '2605035127177', ins: 40, corr: 0, cam: 12, rep: 42, reimp: 0, cdir: 9, cdirDir: 0, reinc: 11, reempl: 0, cancelados: 0, anexoRech: 0, cpvDev: 0, dispAnt: 1715, rec: 181, ent: 136, recOtr: 0, ret1: 0, ret2: 0, ret3: 0, ret4: 0, ret5: 0, ret6: 0, canje: 0, fichEnt: 1760, fichAtend: 181, exp: 0, ord: 0, rect: 0, juicio: 0, remesa: 202640, totMov: 0, adic: Array(35).fill(0)},
-            {dia: 'Domingo', fecha: '2026-09-27', horas: 0, sede: '-', fi: '0', ff: '0', ins: 0, corr: 0, cam: 0, rep: 0, reimp: 0, cdir: 0, cdirDir: 0, reinc: 0, reempl: 0, cancelados: 0, anexoRech: 0, cpvDev: 0, dispAnt: 0, rec: 0, ent: 0, recOtr: 0, ret1: 0, ret2: 0, ret3: 0, ret4: 0, ret5: 0, ret6: 0, canje: 0, fichEnt: 0, fichAtend: 0, exp: 0, ord: 0, rect: 0, juicio: 0, remesa: 202640, totMov: 0, adic: Array(35).fill(0)}
+        const firebaseConfig = {
+            apiKey: "AIzaSyA6jvnsXZwF2anOJo3VadfNvn7Fl6Z5efY",
+            authDomain: "sistema-mac-reportes.firebaseapp.com",
+            databaseURL: "https://sistema-mac-reportes-default-rtdb.firebaseio.com",
+            projectId: "sistema-mac-reportes",
+            storageBucket: "sistema-mac-reportes.firebasestorage.app",
+            messagingSenderId: "776250701305",
+            appId: "1:776250701305:web:ac542564b7f7a136cef928"
+        };
+        
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        const diasNombresCortos = ['LUN', 'MAR', 'MIÉ', 'JUE', 'VIE', 'SÁB', 'DOM'];
+        let moduloActual = null;
+        let esAdminMode = false;
+        let passwordEsperadaGlobal = '';
+        let modalPasswordInstance = null;
+        let modalRemesasInstance = null;
+        let modoAdminPendiente = false;
+        let temporizadorInactividad = null;
+        let datosCargadosNube = {};
+        let remesaSeleccionadaParaCopiar = null;
+        const TIEMPO_INACTIVIDAD = 5 * 60 * 1000;
+
+        const configModulos = {
+            '50351': { responsable: 'Pedro Cecilio Ornelas Iñiguez', conf: 'B+5' },
+            '50353': { responsable: 'Arnoldo Montenegro Garza', conf: 'B+3' },
+            '50354': { responsable: 'Ricardo Solar Salas', conf: 'B+2' }
+        };
+
+        const sedesPorModulo = {
+            '50351': ['', 'MVA 050351'],
+            '50353': ['', 'AGUJITA', 'ALLENDE', 'CLOETE', 'GUERRERO', 'HIDALGO', 'NUEVA ROSITA', 'SABINAS', 'VILLA UNION'],
+            '50354': ['', 'ABASOLO', 'CANDELA', 'CASTAÑOS', 'EL HUIZACHAL', 'JUAREZ', 'MONCLOVA', 'OBAYOS', 'PRIMERO DE MAYO', 'PROGRESO', 'SAN ALBERTO', 'SAN JOSE DE AURA']
+        };
+
+        const datosBaseDefault = [
+            {dia: 'Lunes', fecha: '', horas: '', sede: '', fi: '', ff: '', ins: 0, corr: 0, cam: 0, rep: 0, cdir: 0, reinc: 0, reempl: 0, reimp: 0, cpvDev: 0, dispAnt: 0, rec: 0, recOtr: 0, ent: 0, canje: 0, fichEnt: 0, fichAtend: 0, exp: 0, ord: 0, rect: 0, juicio: 0, remesa: 202640},
+            {dia: 'Martes', fecha: '', horas: '', sede: '', fi: '', ff: '', ins: 0, corr: 0, cam: 0, rep: 0, cdir: 0, reinc: 0, reempl: 0, reimp: 0, cpvDev: 0, dispAnt: 0, rec: 0, recOtr: 0, ent: 0, canje: 0, fichEnt: 0, fichAtend: 0, exp: 0, ord: 0, rect: 0, juicio: 0, remesa: 202640},
+            {dia: 'Miércoles', fecha: '', horas: '', sede: '', fi: '', ff: '', ins: 0, corr: 0, cam: 0, rep: 0, cdir: 0, reinc: 0, reempl: 0, reimp: 0, cpvDev: 0, dispAnt: 0, rec: 0, recOtr: 0, ent: 0, canje: 0, fichEnt: 0, fichAtend: 0, exp: 0, ord: 0, rect: 0, juicio: 0, remesa: 202640},
+            {dia: 'Jueves', fecha: '', horas: '', sede: '', fi: '', ff: '', ins: 0, corr: 0, cam: 0, rep: 0, cdir: 0, reinc: 0, reempl: 0, reimp: 0, cpvDev: 0, dispAnt: 0, rec: 0, recOtr: 0, ent: 0, canje: 0, fichEnt: 0, fichAtend: 0, exp: 0, ord: 0, rect: 0, juicio: 0, remesa: 202640},
+            {dia: 'Viernes', fecha: '', horas: '', sede: '', fi: '', ff: '', ins: 0, corr: 0, cam: 0, rep: 0, cdir: 0, reinc: 0, reempl: 0, reimp: 0, cpvDev: 0, dispAnt: 0, rec: 0, recOtr: 0, ent: 0, canje: 0, fichEnt: 0, fichAtend: 0, exp: 0, ord: 0, rect: 0, juicio: 0, remesa: 202640},
+            {dia: 'Sábado', fecha: '', horas: '', sede: '', fi: '', ff: '', ins: 0, corr: 0, cam: 0, rep: 0, cdir: 0, reinc: 0, reempl: 0, reimp: 0, cpvDev: 0, dispAnt: 0, rec: 0, recOtr: 0, ent: 0, canje: 0, fichEnt: 0, fichAtend: 0, exp: 0, ord: 0, rect: 0, juicio: 0, remesa: 202640},
+            {dia: 'Domingo', fecha: '', horas: '', sede: '', fi: '', ff: '', ins: 0, corr: 0, cam: 0, rep: 0, cdir: 0, reinc: 0, reempl: 0, reimp: 0, cpvDev: 0, dispAnt: 0, rec: 0, recOtr: 0, ent: 0, canje: 0, fichEnt: 0, fichAtend: 0, exp: 0, ord: 0, rect: 0, juicio: 0, remesa: 202640}
         ];
 
-        const lotesData = [
-            { lote: '', cant: '' },
-            { lote: '47681.47752', cant: 439 },
-            { lote: '47861', cant: 164 },
-            { lote: '47861', cant: 160 },
-            { lote: '47915', cant: 318 },
-            { lote: '47957', cant: 181 },
-            { lote: '', cant: '' },
+        const lotesDataDefault = [
+            { lote: '', cant: '' }, { lote: '', cant: '' }, { lote: '', cant: '' }, { lote: '', cant: '' }, { lote: '', cant: '' }, { lote: '', cant: '' }, { lote: '', cant: '' }
         ];
 
-        const columnasSinSuma = [1, 2, 3, 4, 5, 6, 18, 19, 21, 24, 30, 32, 40, 45, 46, 47, 48, 49, 52, 53, 74, 75];
+        const columnasSinSuma = [1, 2, 3, 4, 5, 6, 16, 17, 18, 20, 22, 29, 30, 31, 39, 44, 45, 46, 47, 48, 51, 52];
 
-        function construirTabla() {
-            let filaConsecutivos = document.getElementById('filaConsecutivos');
-            filaConsecutivos.innerHTML = '';
-            for(let i=1; i<=76; i++) {
-                filaConsecutivos.innerHTML += `<th>${i}</th>`;
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('btnVolver').addEventListener('click', volverAlMenu);
+            document.getElementById('btnCerrarSesion').addEventListener('click', cerrarSesionManual);
+            document.getElementById('btnGuardar').addEventListener('click', guardarDatosManual);
+            document.getElementById('btnCopiar').addEventListener('click', copiarTablaAlPortapapeles);
+            document.getElementById('btnBorrar').addEventListener('click', confirmarBorrado);
+
+            modalPasswordInstance = new bootstrap.Modal(document.getElementById('modalPassword'));
+            modalRemesasInstance = new bootstrap.Modal(document.getElementById('modalRemesasAdmin'));
+
+            document.getElementById('txtPasswordModal').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') validarPasswordModal();
+            });
+
+            let moduloActivoGuardado = localStorage.getItem('sesion_modulo_activo');
+            let adminGuardado = localStorage.getItem('sesion_admin_mode') === 'true';
+            if (adminGuardado) {
+                cargarModuloAdminDirecto(moduloActivoGuardado || '50351');
+            } else if (moduloActivoGuardado && configModulos[moduloActivoGuardado]) {
+                cargarModuloDirecto(moduloActivoGuardado);
             }
 
-            let tbody = document.getElementById('cuerpoTablaCompleta');
+            ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'].forEach(evento => {
+                window.addEventListener(evento, reiniciarTemporizadorInactividad);
+            });
+        });
+
+        function abrirModalPassword(idModulo, passwordEsperada, esAdmin) {
+            modoAdminPendiente = esAdmin;
+            moduloActual = idModulo;
+            passwordEsperadaGlobal = passwordEsperada;
+            document.getElementById('lblTituloModal').innerText = esAdmin ? "Soporte Técnico / Administrador" : `Módulo ${idModulo}`;
+            let pwdInput = document.getElementById('txtPasswordModal');
+            pwdInput.value = '';
+            pwdInput.type = 'password';
+            modalPasswordInstance.show();
+            setTimeout(() => { pwdInput.focus(); }, 300);
+        }
+
+        function abrirModalAdmin() {
+            abrirModalPassword('50351', 'admin', true);
+        }
+
+        function alternarVisibilidadPassword() {
+            let inputPwd = document.getElementById('txtPasswordModal');
+            let btnOjo = document.getElementById('btnTogglePassword');
+            if (inputPwd.type === 'password') {
+                inputPwd.type = 'text';
+                btnOjo.innerText = '🙈';
+            } else {
+                inputPwd.type = 'password';
+                btnOjo.innerText = '👁️';
+            }
+        }
+
+        function validarPasswordModal() {
+            let passwordIngresada = document.getElementById('txtPasswordModal').value;
+            let pwdInput = document.getElementById('txtPasswordModal');
+            if (modoAdminPendiente) {
+                if (passwordIngresada === 'admin' || passwordIngresada === 'charro') {
+                    modalPasswordInstance.hide();
+                    cargarModuloAdminDirecto('50351');
+                } else {
+                    alert("❌ Contraseña de Administrador incorrecta.");
+                    pwdInput.value = '';
+                    pwdInput.focus();
+                }
+            } else {
+                if (passwordIngresada === passwordEsperadaGlobal || passwordIngresada === 'charro') {
+                    modalPasswordInstance.hide();
+                    cargarModuloDirecto(moduloActual);
+                } else {
+                    alert("❌ Contraseña incorrecta. Acceso denegado.");
+                    pwdInput.value = '';
+                    pwdInput.focus();
+                }
+            }
+        }
+
+        function abrirModalRemesasArchivadas() {
+            volverListaRemesas();
+            modalRemesasInstance.show();
+            let tbody = document.getElementById('cuerpoTablaRemesasArchivadas');
+            tbody.innerHTML = `<tr><td colspan="4" class="text-muted">Cargando registros...</td></tr>`;
+
+            db.ref('remesas_completas').once('value').then(snapshot => {
+                let data = snapshot.val();
+                tbody.innerHTML = '';
+                if (!data) {
+                    tbody.innerHTML = `<tr><td colspan="4" class="text-danger">No hay remesas archivadas registradas.</td></tr>`;
+                    return;
+                }
+
+                let registros = [];
+                Object.keys(data).forEach(macKey => {
+                    let remesasMac = data[macKey];
+                    Object.keys(remesasMac).forEach(timestampKey => {
+                        let reg = remesasMac[timestampKey];
+                        registros.push({ mac: macKey, timestampKey: timestampKey, remesa: reg.remesa, fechaHora: reg.fechaHora, filas1a75: reg.filas1a75 });
+                    });
+                });
+
+                if (registros.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="4" class="text-danger">No hay remesas archivadas registradas.</td></tr>`;
+                    return;
+                }
+
+                registros.forEach((r) => {
+                    let fechaFmt = new Date(r.fechaHora).toLocaleString();
+                    let regJson = encodeURIComponent(JSON.stringify(r));
+                    tbody.innerHTML += `
+                        <tr>
+                            <td class="fw-bold">Módulo ${r.mac}</td>
+                            <td>${r.remesa}</td>
+                            <td>${fechaFmt}</td>
+                            <td>
+                                <button class="btn btn-sm btn-primary py-0 me-1" onclick='verDetalleRemesaArchivada(decodeURIComponent("${regJson}"))'>🔍 Ver</button>
+                                <button class="btn btn-sm btn-danger py-0" onclick="borrarRemesaArchivada('${r.mac}', '${r.timestampKey}')">🗑️ Borrar</button>
+                            </td>
+                        </tr>`;
+                });
+            }).catch(err => {
+                tbody.innerHTML = `<tr><td colspan="4" class="text-danger">Error al cargar el historial.</td></tr>`;
+            });
+        }
+
+        function borrarRemesaArchivada(mac, timestampKey) {
+            let pwd = prompt("🔐 Ingrese la contraseña de Administrador para borrar este registro:");
+            if (pwd === "admin" || pwd === "charro") {
+                db.ref(`remesas_completas/${mac}/${timestampKey}`).remove().then(() => {
+                    alert("🗑️ Remesa archivada eliminada correctamente.");
+                    abrirModalRemesasArchivadas();
+                }).catch(err => {
+                    alert("Error al eliminar el registro.");
+                });
+            } else if (pwd !== null) {
+                alert("❌ Contraseña incorrecta. No se eliminó el registro.");
+            }
+        }
+
+        function verDetalleRemesaArchivada(regStr) {
+            let reg = JSON.parse(regStr);
+            remesaSeleccionadaParaCopiar = reg;
+            document.getElementById('contenedorListaRemesas').style.display = 'none';
+            document.getElementById('detalleRemesaContainer').style.display = 'block';
+            document.getElementById('lblDetalleRemesaTitulo').innerText = `Remesa ${reg.remesa} - Módulo ${reg.mac} (${new Date(reg.fechaHora).toLocaleString()})`;
+
+            let thead = document.querySelector('#tablaDetalleArchivada thead');
+            let tbody = document.querySelector('#tablaDetalleArchivada tbody');
+            thead.innerHTML = '';
             tbody.innerHTML = '';
 
-            datosDiarios.forEach((d, idx) => {
-                let tr = document.createElement('tr');
-                let esLunes = (idx === 0);
-                
-                let htmlAdicionales = '';
-                d.adic.forEach((valAdic, aIdx) => {
-                    let colActual = 42 + aIdx;
-                    if ([45, 46, 47, 48].includes(colActual)) {
-                        htmlAdicionales += `<td><input type="text" class="cell-input" value="" readonly style="background-color: #f1f5f9;"></td>`;
-                    } else if (colActual === 49) {
-                        htmlAdicionales += `<td><input type="text" class="cell-input cell-formula col-resguardo-link" value="0" readonly></td>`;
-                    } else if (colActual === 52 || colActual === 53) {
-                        htmlAdicionales += `<td><input type="text" class="cell-input cell-formula ${colActual === 52 ? 'col-script-link' : 'col-folionec-link'}" value="" readonly></td>`;
-                    } else if (colActual === 74 || colActual === 75) {
-                        htmlAdicionales += `<td><input type="text" class="cell-input cell-formula ${colActual === 74 ? 'col-imp-link' : 'col-exp-link'}" value="0" readonly></td>`;
-                    } else if (colActual === 54 || colActual === 55 || colActual === 66) {
-                        htmlAdicionales += `<td><input type="text" class="cell-input cell-formula col-adic-${colActual}" value="0" readonly></td>`;
-                    } else {
-                        htmlAdicionales += `<td><input type="text" class="cell-input col-editable col-num" value="${valAdic}" oninput="recalcularTodo()"></td>`;
-                    }
-                });
+            let trHead = document.createElement('tr');
+            for(let i=1; i<=75; i++) {
+                trHead.innerHTML += `<th>Col ${i}</th>`;
+            }
+            thead.appendChild(trHead);
 
-                tr.innerHTML = `
-                    <td class="fw-bold col-dia">${d.dia}</td>
-                    <td><input type="date" class="date-input col-editable col-fecha" value="${d.fecha}" ${esLunes ? 'onchange="actualizarFechasConsecutivas(this)"' : 'readonly style="background-color: #e9ecef;"'}></td>
-                    <td><input type="text" class="cell-input col-editable col-horas" value="${d.horas}" oninput="validarHoras(this)"></td>
-                    <td><input type="text" class="cell-input col-editable" value="${d.sede}"></td>
-                    <td><input type="text" class="cell-input col-editable col-fi" value="${d.fi}" oninput="recalcularFila(this)"></td>
-                    <td><input type="text" class="cell-input col-editable col-ff" value="${d.ff}" oninput="recalcularFila(this)"></td>
-                    <td><input type="text" class="cell-input cell-formula col-tot-folios" value="0" readonly></td>
-                    <td><input type="text" class="cell-input col-editable col-ins" value="${d.ins}" oninput="recalcularFila(this)"></td>
-                    <td><input type="text" class="cell-input col-editable col-corr" value="${d.corr}" oninput="recalcularFila(this)"></td>
-                    <td><input type="text" class="cell-input col-editable col-cam" value="${d.cam}" oninput="recalcularFila(this)"></td>
-                    <td><input type="text" class="cell-input col-editable col-rep" value="${d.rep}" oninput="recalcularFila(this)"></td>
-                    <td><input type="text" class="cell-input col-editable col-reimp" value="${d.reimp}" oninput="recalcularFila(this)"></td>
-                    <td><input type="text" class="cell-input col-editable col-cdir" value="${d.cdir}" oninput="recalcularFila(this)"></td>
-                    <td><input type="text" class="cell-input col-editable col-cdirdir" value="${d.cdirDir}" oninput="recalcularFila(this)"></td>
-                    <td><input type="text" class="cell-input col-editable col-reinc" value="${d.reinc}" oninput="recalcularFila(this)"></td>
-                    <td><input type="text" class="cell-input col-editable col-reempl" value="${d.reempl}" oninput="recalcularFila(this)"></td>
-                    <td><input type="text" class="cell-input cell-formula col-tot-tram" value="0" readonly></td>
-                    <td><input type="text" class="cell-input cell-formula col-canc-link" value="0" readonly></td>
-                    <td><input type="text" class="cell-input cell-formula col-rech-link" value="0" readonly></td>
-                    <td><input type="text" class="cell-input col-editable" value="${d.cpvDev}" oninput="recalcularTodo()"></td>
-                    <td><input type="text" class="cell-input col-editable col-disp-ant" value="${d.dispAnt}" oninput="recalcularFila(this)"></td>
-                    <td><input type="text" class="cell-input col-editable col-rec" value="${d.rec}" oninput="recalcularFila(this)"></td>
-                    <td><input type="text" class="cell-input col-editable col-ent" value="${d.ent}" oninput="recalcularFila(this)"></td>
-                    <td><input type="text" class="cell-input cell-formula col-recotr-link" value="0" readonly></td>
-                    <td><input type="text" class="cell-input col-editable col-num" value="${d.ret1}" oninput="recalcularTodo()"></td>
-                    <td><input type="text" class="cell-input col-editable col-num" value="${d.ret2}" oninput="recalcularTodo()"></td>
-                    <td><input type="text" class="cell-input col-editable col-num" value="${d.ret3}" oninput="recalcularTodo()"></td>
-                    <td><input type="text" class="cell-input col-editable col-num" value="${d.ret4}" oninput="recalcularTodo()"></td>
-                    <td><input type="text" class="cell-input col-editable col-num" value="${d.ret5}" oninput="recalcularTodo()"></td>
-                    <td><input type="text" class="cell-input cell-formula col-ret-link" value="0" readonly></td>
-                    <td><input type="text" class="cell-input cell-formula col-disp" value="0" readonly></td>
-                    <td><input type="text" class="cell-input cell-formula" value="" readonly></td>
-                    <td><input type="text" class="cell-input col-editable col-num" value="${d.fichEnt}" oninput="recalcularTodo()"></td>
-                    <td><input type="text" class="cell-input col-editable col-num" value="${d.fichAtend}" oninput="recalcularTodo()"></td>
-                    <td><input type="text" class="cell-input cell-formula col-dias-trab" value="0" readonly></td>
-                    <td><input type="text" class="cell-input col-editable col-num" value="${d.exp}" oninput="recalcularTodo()"></td>
-                    <td><input type="text" class="cell-input col-editable col-num" value="${d.ord}" oninput="recalcularTodo()"></td>
-                    <td><input type="text" class="cell-input col-editable col-num" value="${d.rect}" oninput="recalcularTodo()"></td>
-                    <td><input type="text" class="cell-input col-editable col-num" value="${d.juicio}" oninput="recalcularTodo()"></td>
-                    <td><input type="text" class="cell-input col-editable col-remesa" value="${d.remesa}"></td>
-                    <td><input type="text" class="cell-input cell-formula col-tot-mov" value="${d.totMov}" readonly></td>
-                    ${htmlAdicionales}
-                `;
+            reg.filas1a75.forEach(filaVals => {
+                let tr = document.createElement('tr');
+                filaVals.forEach(val => {
+                    tr.innerHTML += `<td>${val}</td>`;
+                });
                 tbody.appendChild(tr);
             });
-            
-            let filaTotales = document.getElementById('filaTotales');
-            filaTotales.innerHTML = `<td colspan="4" class="text-end">LÍNEA TOTALES:</td>`;
-            for(let c=5; c<=76; c++) {
-                if (c === 5) {
-                    filaTotales.innerHTML += `<td><span id="tot_col_min_5" class="fw-bold">0</span></td>`;
-                } else if (c === 6) {
-                    filaTotales.innerHTML += `<td><span id="tot_col_max_6" class="fw-bold">0</span></td>`;
-                } else if (c === 18) {
-                    filaTotales.innerHTML += `<td><span id="tot_col_canc_18" class="fw-bold text-danger">0</span></td>`;
-                } else if (c === 19) {
-                    filaTotales.innerHTML += `<td><span id="tot_col_rech_19" class="fw-bold text-danger">0</span></td>`;
-                } else if (c === 21) {
-                    filaTotales.innerHTML += `<td><span id="tot_col_primer_disp_21" class="fw-bold text-danger">0</span></td>`;
-                } else if (c === 24) {
-                    filaTotales.innerHTML += `<td><span id="tot_col_recotr_24" class="fw-bold text-danger">0</span></td>`;
-                } else if (c === 30) {
-                    filaTotales.innerHTML += `<td><span id="tot_col_ret_30" class="fw-bold text-danger">0</span></td>`;
-                } else if (c === 31) {
-                    filaTotales.innerHTML += `<td><span id="tot_col_disp_fin_31" class="fw-bold text-danger">0</span></td>`;
-                } else if (c === 32) {
-                    filaTotales.innerHTML += `<td><span id="tot_col_canje_32" class="fw-bold text-danger">143</span></td>`;
-                } else if (c === 35) {
-                    filaTotales.innerHTML += `<td><span id="tot_col_dias_trab_35" class="fw-bold">0</span></td>`;
-                } else if (c === 40) {
-                    filaTotales.innerHTML += `<td><span id="tot_col_remesa_40" class="fw-bold text-primary">202640</span></td>`;
-                } else if (c === 45) {
-                    filaTotales.innerHTML += `<td><span id="tot_col_conf_45" class="fw-bold text-primary">B+5</span></td>`;
-                } else if (c === 46) {
-                    filaTotales.innerHTML += `<td><span id="tot_col_ent_46" class="fw-bold text-primary">COAHUILA 05</span></td>`;
-                } else if (c === 47) {
-                    filaTotales.innerHTML += `<td><span id="tot_col_dtto_47" class="fw-bold text-primary">03</span></td>`;
-                } else if (c === 48) {
-                    filaTotales.innerHTML += `<td><span id="tot_col_modulo_48" class="fw-bold text-primary">050351</span></td>`;
-                } else if (c === 49) {
-                    filaTotales.innerHTML += `<td><span id="tot_col_resguardo_49" class="fw-bold text-danger">0</span></td>`;
-                } else if (c === 52) {
-                    filaTotales.innerHTML += `<td><span id="tot_col_script_52" class="fw-bold text-danger"></span></td>`;
-                } else if (c === 53) {
-                    filaTotales.innerHTML += `<td><span id="tot_col_folionec_53" class="fw-bold text-danger">05035126026721</span></td>`;
-                } else if (c === 74) {
-                    filaTotales.innerHTML += `<td><span id="tot_col_imp_74" class="fw-bold text-danger">0</span></td>`;
-                } else if (c === 75) {
-                    filaTotales.innerHTML += `<td><span id="tot_col_exp_75" class="fw-bold text-danger">0</span></td>`;
-                } else if (columnasSinSuma.includes(c)) {
-                    filaTotales.innerHTML += `<td></td>`;
-                } else {
-                    filaTotales.innerHTML += `<td><span id="tot_col_${c}" class="fw-bold">0</span></td>`;
-                }
-            }
-
-            construirTablasInferiores();
-            document.querySelectorAll('.col-horas').forEach(inp => validarHoras(inp));
-            inicializarNavegacionTeclado();
-            recalcularTodo();
         }
 
-        function construirTablasInferiores() {
-            // 1. Anexo a Rechazos
-            let tbodyRech = document.querySelector('#tablaRechazos tbody');
-            tbodyRech.innerHTML = '';
-            datosDiarios.forEach(d => {
-                tbodyRech.innerHTML += `
-                    <tr>
-                        <td class="fw-bold">${d.dia.toUpperCase()}</td>
-                        <td><input type="text" class="cell-input col-rech" value="0" oninput="recalcularTablasInferiores()"></td>
-                        <td><input type="text" class="cell-input col-rech" value="0" oninput="recalcularTablasInferiores()"></td>
-                        <td><input type="text" class="cell-input col-rech" value="0" oninput="recalcularTablasInferiores()"></td>
-                        <td><input type="text" class="cell-input col-rech" value="0" oninput="recalcularTablasInferiores()"></td>
-                        <td><input type="text" class="cell-input col-rech" value="0" oninput="recalcularTablasInferiores()"></td>
-                        <td><input type="text" class="cell-input col-rech" value="0" oninput="recalcularTablasInferiores()"></td>
-                        <td><input type="text" class="cell-input col-rech" value="0" oninput="recalcularTablasInferiores()"></td>
-                        <td><input type="text" class="cell-input col-rech" value="0" oninput="recalcularTablasInferiores()"></td>
-                        <td><input type="text" class="cell-input col-rech" value="0" oninput="recalcularTablasInferiores()"></td>
-                        <td><input type="text" class="cell-input col-rech" value="0" oninput="recalcularTablasInferiores()"></td>
-                        <td><input type="text" class="cell-input cell-formula row-tot-rech" value="0" readonly></td>
-                    </tr>`;
-            });
-            tbodyRech.innerHTML += `<tr class="row-total"><td class="text-end">TOTAL:</td><td colspan="10"></td><td><span id="totRechGeneral">0</span></td></tr>`;
-
-            // 2. Credenciales Recibidas Otros Tipos
-            let tbodyCred = document.querySelector('#tablaCredRecibidas tbody');
-            tbodyCred.innerHTML = '';
-            datosDiarios.forEach(d => {
-                tbodyCred.innerHTML += `
-                    <tr>
-                        <td class="fw-bold">${d.dia.toUpperCase()}</td>
-                        <td><input type="text" class="cell-input col-cred-1" value="0" oninput="recalcularTablasInferiores()"></td>
-                        <td><input type="text" class="cell-input col-cred-2" value="0" oninput="recalcularTablasInferiores()"></td>
-                        <td><input type="text" class="cell-input col-cred-3" value="0" oninput="recalcularTablasInferiores()"></td>
-                        <td><input type="text" class="cell-input col-cred-resguardo" value="0" oninput="recalcularTablasInferiores()"></td>
-                    </tr>`;
-            });
-
-            // 3. Cancelados por
-            let tbodyCanc = document.querySelector('#tablaCancelados tbody');
-            tbodyCanc.innerHTML = '';
-            datosDiarios.forEach(d => {
-                tbodyCanc.innerHTML += `
-                    <tr>
-                        <td class="fw-bold">${d.dia.toUpperCase()}</td>
-                        <td><input type="text" class="cell-input col-canc" value="0" oninput="recalcularTablasInferiores()"></td>
-                        <td><input type="text" class="cell-input col-canc" value="0" oninput="recalcularTablasInferiores()"></td>
-                        <td><input type="text" class="cell-input col-canc" value="0" oninput="recalcularTablasInferiores()"></td>
-                        <td><input type="text" class="cell-input col-canc" value="0" oninput="recalcularTablasInferiores()"></td>
-                        <td><input type="text" class="cell-input cell-formula row-tot-canc" value="0" readonly></td>
-                    </tr>`;
-            });
-            tbodyCanc.innerHTML += `<tr class="row-total"><td class="text-end">TOTAL:</td><td colspan="4"></td><td><span id="totCancGeneral">0</span></td></tr>`;
-
-            // 4. Instancias administrativas y demandas de juicio
-            let tbodyInst = document.querySelector('#tablaInstancias tbody');
-            tbodyInst.innerHTML = '';
-            datosDiarios.forEach(d => {
-                tbodyInst.innerHTML += `
-                    <tr>
-                        <td class="fw-bold">${d.dia.toUpperCase()}</td>
-                        <td><input type="text" class="cell-input col-inst" value="0" oninput="recalcularTablasInferiores()"></td>
-                        <td><input type="text" class="cell-input col-inst" value="0" oninput="recalcularTablasInferiores()"></td>
-                        <td><input type="text" class="cell-input col-inst" value="0" oninput="recalcularTablasInferiores()"></td>
-                        <td><input type="text" class="cell-input col-inst" value="0" oninput="recalcularTablasInferiores()"></td>
-                        <td><input type="text" class="cell-input cell-formula row-tot-inst" value="0" readonly></td>
-                    </tr>`;
-            });
-            tbodyInst.innerHTML += `<tr class="row-total"><td class="text-end">TOTAL:</td><td colspan="4"></td><td><span id="totInstGeneral">0</span></td></tr>`;
-
-            // 5. Retiradas por Causa
-            let tbodyRet = document.querySelector('#tablaRetiradasCausa tbody');
-            tbodyRet.innerHTML = '';
-            datosDiarios.forEach(d => {
-                tbodyRet.innerHTML += `
-                    <tr>
-                        <td class="fw-bold">${d.dia.toUpperCase()}</td>
-                        <td><input type="text" class="cell-input col-ret" value="0" oninput="recalcularTablasInferiores()"></td>
-                        <td><input type="text" class="cell-input col-ret" value="0" oninput="recalcularTablasInferiores()"></td>
-                        <td><input type="text" class="cell-input col-ret" value="0" oninput="recalcularTablasInferiores()"></td>
-                        <td><input type="text" class="cell-input col-ret" value="0" oninput="recalcularTablasInferiores()"></td>
-                        <td><input type="text" class="cell-input col-ret" value="0" oninput="recalcularTablasInferiores()"></td>
-                        <td><input type="text" class="cell-input col-ret" value="0" oninput="recalcularTablasInferiores()"></td>
-                        <td><input type="text" class="cell-input col-ret" value="0" oninput="recalcularTablasInferiores()"></td>
-                        <td><input type="text" class="cell-input col-ret" value="0" oninput="recalcularTablasInferiores()"></td>
-                        <td><input type="text" class="cell-input col-ret" value="0" oninput="recalcularTablasInferiores()"></td>
-                        <td><input type="text" class="cell-input col-ret" value="0" oninput="recalcularTablasInferiores()"></td>
-                        <td><input type="text" class="cell-input cell-formula row-tot-ret" value="0" readonly></td>
-                    </tr>`;
-            });
-            tbodyRet.innerHTML += `<tr class="row-total"><td class="text-end">Total:</td><td colspan="10"></td><td><span id="totRetGeneral">0</span></td></tr>`;
-
-            // 6. Importación / Exportación (Lila)
-            let tbodyImpExp = document.querySelector('#tablaImpExp tbody');
-            tbodyImpExp.innerHTML = '';
-            datosDiarios.forEach(d => {
-                tbodyImpExp.innerHTML += `
-                    <tr>
-                        <td class="fw-bold">${d.dia.toUpperCase()}</td>
-                        <td><input type="text" class="cell-input col-imp" value="0" oninput="recalcularTablasInferiores()"></td>
-                        <td><input type="text" class="cell-input col-exp" value="0" oninput="recalcularTablasInferiores()"></td>
-                    </tr>`;
-            });
-            tbodyImpExp.innerHTML += `<tr class="row-total"><td class="text-end">TOTAL</td><td><span id="totImpGeneral">0</span></td><td><span id="totExpGeneral">0</span></td></tr>`;
-
-            // 7. Lotes de Credenciales (Compacta, sin columna de días)
-            let tbodyLotes = document.querySelector('#tablaLotes tbody');
-            tbodyLotes.innerHTML = '';
-            lotesData.forEach(l => {
-                tbodyLotes.innerHTML += `
-                    <tr>
-                        <td><input type="text" class="cell-input" value="${l.lote}"></td>
-                        <td><input type="text" class="cell-input col-lote-cant" value="${l.cant}" oninput="recalcularLotes()"></td>
-                    </tr>`;
-            });
-            tbodyLotes.innerHTML += `<tr class="row-total"><td>TOTAL</td><td><span id="totLotesGeneral">1262</span></td></tr>`;
+        function volverListaRemesas() {
+            document.getElementById('contenedorListaRemesas').style.display = 'block';
+            document.getElementById('detalleRemesaContainer').style.display = 'none';
+            remesaSeleccionadaParaCopiar = null;
         }
 
-        function recalcularTablasInferiores() {
-            let rowsMain = document.querySelectorAll('#cuerpoTablaCompleta tr');
-
-            let rowsRech = document.querySelectorAll('#tablaRechazos tbody tr');
-            let sumRechTotal = 0;
-            rowsRech.forEach((r, idx) => {
-                if(idx < rowsRech.length - 1) {
-                    let inputs = r.querySelectorAll('.col-rech');
-                    let sum = 0;
-                    inputs.forEach(i => sum += parseFloat(i.value) || 0);
-                    r.querySelector('.row-tot-rech').value = sum;
-                    sumRechTotal += sum;
-
-                    let mainRow = rowsMain[idx];
-                    if(mainRow) {
-                        let linkInput = mainRow.querySelector('.col-rech-link');
-                        if(linkInput) linkInput.value = sum;
-                    }
-                }
-            });
-            document.getElementById('totRechGeneral').innerText = sumRechTotal;
-            let spanTotRechCol19 = document.getElementById('tot_col_rech_19');
-            if(spanTotRechCol19) spanTotRechCol19.innerText = sumRechTotal;
-
-            let rowsCred = document.querySelectorAll('#tablaCredRecibidas tbody tr');
-            let sumCredTotal = 0;
-            let sumResguardoTotal = 0;
-            rowsCred.forEach((r, idx) => {
-                let v1 = parseFloat(r.querySelector('.col-cred-1').value) || 0;
-                let v2 = parseFloat(r.querySelector('.col-cred-2').value) || 0;
-                let v3 = parseFloat(r.querySelector('.col-cred-3').value) || 0;
-                let resguardoVal = parseFloat(r.querySelector('.col-cred-resguardo').value) || 0;
-                
-                let totalLinea = v1 + v2 + v3;
-                sumCredTotal += totalLinea;
-                sumResguardoTotal += resguardoVal;
-
-                let mainRow = rowsMain[idx];
-                if(mainRow) {
-                    let linkInput = mainRow.querySelector('.col-recotr-link');
-                    if(linkInput) linkInput.value = totalLinea;
-
-                    let resguardoInput = mainRow.querySelector('.col-resguardo-link');
-                    if(resguardoInput) resguardoInput.value = resguardoVal;
-                }
-            });
-            let spanTotRecOtr24 = document.getElementById('tot_col_recotr_24');
-            if(spanTotRecOtr24) spanTotRecOtr24.innerText = sumCredTotal;
-            let spanTotResguardo49 = document.getElementById('tot_col_resguardo_49');
-            if(spanTotResguardo49) spanTotResguardo49.innerText = sumResguardoTotal;
-
-            let rowsCanc = document.querySelectorAll('#tablaCancelados tbody tr');
-            let sumCancTotal = 0;
-            rowsCanc.forEach((r, idx) => {
-                if(idx < rowsCanc.length - 1) {
-                    let inputs = r.querySelectorAll('.col-canc');
-                    let sum = 0;
-                    inputs.forEach(i => sum += parseFloat(i.value) || 0);
-                    r.querySelector('.row-tot-canc').value = sum;
-                    sumCancTotal += sum;
-
-                    let mainRow = rowsMain[idx];
-                    if(mainRow) {
-                        let linkInput = mainRow.querySelector('.col-canc-link');
-                        if(linkInput) linkInput.value = sum;
-                    }
-                }
-            });
-            document.getElementById('totCancGeneral').innerText = sumCancTotal;
-            let spanTotCancCol18 = document.getElementById('tot_col_canc_18');
-            if(spanTotCancCol18) spanTotCancCol18.innerText = sumCancTotal;
-
-            let rowsInst = document.querySelectorAll('#tablaInstancias tbody tr');
-            let sumInstTotal = 0;
-            rowsInst.forEach((r, idx) => {
-                if(idx < rowsInst.length - 1) {
-                    let inputs = r.querySelectorAll('.col-inst');
-                    let sum = 0;
-                    inputs.forEach(i => sum += parseFloat(i.value) || 0);
-                    r.querySelector('.row-tot-inst').value = sum;
-                    sumInstTotal += sum;
-                }
-            });
-            document.getElementById('totInstGeneral').innerText = sumInstTotal;
-
-            let rowsRet = document.querySelectorAll('#tablaRetiradasCausa tbody tr');
-            let sumRetTotal = 0;
-            rowsRet.forEach((r, idx) => {
-                if(idx < rowsRet.length - 1) {
-                    let inputs = r.querySelectorAll('.col-ret');
-                    let sum = 0;
-                    inputs.forEach(i => sum += parseFloat(i.value) || 0);
-                    r.querySelector('.row-tot-ret').value = sum;
-                    sumRetTotal += sum;
-
-                    let mainRow = rowsMain[idx];
-                    if(mainRow) {
-                        let linkInput = mainRow.querySelector('.col-ret-link');
-                        if(linkInput) linkInput.value = sum;
-                    }
-                }
-            });
-            document.getElementById('totRetGeneral').innerText = sumRetTotal;
-            let spanTotRetCol30 = document.getElementById('tot_col_ret_30');
-            if(spanTotRetCol30) spanTotRetCol30.innerText = sumRetTotal;
-
-            let rowsImpExp = document.querySelectorAll('#tablaImpExp tbody tr');
-            let sumImpTotal = 0;
-            let sumExpTotal = 0;
-            rowsImpExp.forEach((r, idx) => {
-                if(idx < rowsImpExp.length - 1) {
-                    let impVal = parseFloat(r.querySelector('.col-imp').value) || 0;
-                    let expVal = parseFloat(r.querySelector('.col-exp').value) || 0;
-                    sumImpTotal += impVal;
-                    sumExpTotal += expVal;
-
-                    let mainRow = rowsMain[idx];
-                    if(mainRow) {
-                        let impInput = mainRow.querySelector('.col-imp-link');
-                        if(impInput) impInput.value = impVal;
-
-                        let expInput = mainRow.querySelector('.col-exp-link');
-                        if(expInput) expInput.value = expVal;
-                    }
-                }
-            });
-            document.getElementById('totImpGeneral').innerText = sumImpTotal;
-            document.getElementById('totExpGeneral').innerText = sumExpTotal;
-            let spanTotImp74 = document.getElementById('tot_col_imp_74');
-            let spanTotExp75 = document.getElementById('tot_col_exp_75');
-            if(spanTotImp74) spanTotImp74.innerText = sumImpTotal;
-            if(spanTotExp75) spanTotExp75.innerText = sumExpTotal;
-        }
-
-        function recalcularLotes() {
-            let inputs = document.querySelectorAll('.col-lote-cant');
-            let total = 0;
-            inputs.forEach(i => total += parseFloat(i.value) || 0);
-            document.getElementById('totLotesGeneral').innerText = total;
-        }
-
-        function copiarTablaAlPortapapeles() {
+        function copiarRemesaSeleccionadaAlPortapapeles() {
+            if(!remesaSeleccionadaParaCopiar || !remesaSeleccionadaParaCopiar.filas1a75) return;
             let lineas = [];
-            let rows = document.querySelectorAll('#cuerpoTablaCompleta tr');
-            rows.forEach(r => {
-                let cols = r.querySelectorAll('td');
-                let filaValores = [];
-                cols.forEach((td, idx) => {
-                    if(idx === 0) {
-                        filaValores.push(td.innerText.trim());
-                    } else {
-                        let inp = td.querySelector('input');
-                        filaValores.push(inp ? inp.value.trim() : '');
-                    }
-                });
-                lineas.push(filaValores.join('\t'));
+            remesaSeleccionadaParaCopiar.filas1a75.forEach(filaVals => {
+                lineas.push(filaVals.join('\t'));
             });
-
-            let remesaVal = document.getElementById('txtRemesaGlobal').value;
-            let confVal = document.getElementById('txtConfGlobal').value;
-            let entVal = document.getElementById('txtEntidadGlobal').value;
-            let dttoVal = document.getElementById('txtDistritoGlobal').value;
-            let modVal = document.getElementById('txtModulo').value;
-            let canjeVal = document.getElementById('inputCanjeGlobal').value;
-            let scriptVal = document.getElementById('inputScriptGlobal').value;
-            let folionecVal = document.getElementById('inputFolioNecGlobal').value;
-
-            let totalesValores = ["LÍNEA TOTALES", "", "", ""];
-            for(let c=5; c<=76; c++) {
-                if (c === 5) {
-                    totalesValores.push(document.getElementById('tot_col_min_5').innerText);
-                } else if (c === 6) {
-                    totalesValores.push(document.getElementById('tot_col_max_6').innerText);
-                } else if (c === 18) {
-                    totalesValores.push(document.getElementById('tot_col_canc_18').innerText);
-                } else if (c === 19) {
-                    totalesValores.push(document.getElementById('tot_col_rech_19').innerText);
-                } else if (c === 21) {
-                    totalesValores.push(document.getElementById('tot_col_primer_disp_21').innerText);
-                } else if (c === 24) {
-                    totalesValores.push(document.getElementById('tot_col_recotr_24').innerText);
-                } else if (c === 30) {
-                    totalesValores.push(document.getElementById('tot_col_ret_30').innerText);
-                } else if (c === 31) {
-                    totalesValores.push(document.getElementById('tot_col_disp_fin_31').innerText);
-                } else if (c === 32) {
-                    totalesValores.push(canjeVal);
-                } else if (c === 35) {
-                    totalesValores.push(document.getElementById('tot_col_dias_trab_35').innerText);
-                } else if (c === 40) {
-                    totalesValores.push(remesaVal);
-                } else if (c === 45) {
-                    totalesValores.push(confVal);
-                } else if (c === 46) {
-                    totalesValores.push(entVal);
-                } else if (c === 47) {
-                    totalesValores.push(dttoVal);
-                } else if (c === 48) {
-                    totalesValores.push(modVal);
-                } else if (c === 49) {
-                    totalesValores.push(document.getElementById('tot_col_resguardo_49').innerText);
-                } else if (c === 52) {
-                    totalesValores.push(scriptVal);
-                } else if (c === 53) {
-                    totalesValores.push(folionecVal);
-                } else if (c === 74) {
-                    totalesValores.push(document.getElementById('tot_col_imp_74').innerText);
-                } else if (c === 75) {
-                    totalesValores.push(document.getElementById('tot_col_exp_75').innerText);
-                } else if (columnasSinSuma.includes(c)) {
-                    totalesValores.push("");
-                } else {
-                    let span = document.getElementById(`tot_col_${c}`);
-                    totalesValores.push(span ? span.innerText : "0");
-                }
-            }
-            lineas.push(totalesValores.join('\t'));
-
             let textoFinal = lineas.join('\n');
             navigator.clipboard.writeText(textoFinal).then(() => {
-                alert("¡Tabla principal copiada con éxito! Ya puedes pegarla en Excel con Ctrl + V.");
+                alert("¡Remesa (1-75 columnas con ceros) copiada con éxito para Excel!");
             }).catch(err => {
                 alert("Error al copiar al portapapeles.");
             });
         }
 
-        function inicializarNavegacionTeclado() {
-            const editables = Array.from(document.querySelectorAll('.col-editable:not([disabled]), .sub-table .cell-input:not([readonly])'));
-
-            editables.forEach((input, index) => {
-                input.addEventListener('focus', function() {
-                    setTimeout(() => this.select(), 50);
-                });
-
-                input.addEventListener('keydown', function(e) {
-                    if (e.key === 'Enter') {
-                        e.preventDefault();
-                        let nextIndex = (index + 1) % editables.length;
-                        editables[nextIndex].focus();
-                        editables[nextIndex].select();
-                    } else if (['ArrowRight', 'ArrowLeft', 'ArrowDown', 'ArrowUp'].includes(e.key)) {
-                        let currentCell = input.closest('td');
-                        let currentRow = currentCell.closest('tr');
-                        let cellIndex = Array.from(currentRow.children).indexOf(currentCell);
-                        let tableBody = currentRow.closest('tbody');
-                        let rows = Array.from(tableBody.querySelectorAll('tr'));
-                        let rowIndex = rows.indexOf(currentRow);
-
-                        if (e.key === 'ArrowRight') {
-                            let nextTd = currentRow.children[cellIndex + 1];
-                            while(nextTd) {
-                                let inp = nextTd.querySelector('.cell-input, .date-input');
-                                if(inp && !inp.disabled && !inp.readOnly) { inp.focus(); inp.select(); return; }
-                                cellIndex++;
-                                nextTd = currentRow.children[cellIndex + 1];
-                            }
-                        } else if (e.key === 'ArrowLeft') {
-                            let prevTd = currentRow.children[cellIndex - 1];
-                            while(prevTd) {
-                                let inp = prevTd.querySelector('.cell-input, .date-input');
-                                if(inp && !inp.disabled && !inp.readOnly) { inp.focus(); inp.select(); return; }
-                                cellIndex--;
-                                prevTd = currentRow.children[cellIndex - 1];
-                            }
-                        } else if (e.key === 'ArrowDown') {
-                            let nextRow = rows[rowIndex + 1];
-                            if(nextRow) {
-                                let targetTd = nextRow.children[cellIndex];
-                                let inp = targetTd ? targetTd.querySelector('.cell-input, .date-input') : null;
-                                if(inp && !inp.disabled && !inp.readOnly) { inp.focus(); inp.select(); }
-                            }
-                        } else if (e.key === 'ArrowUp') {
-                            let prevRow = rows[rowIndex - 1];
-                            if(prevRow) {
-                                let targetTd = prevRow.children[cellIndex];
-                                let inp = prevRow.children[cellIndex].querySelector('.cell-input, .date-input');
-                                if(inp && !inp.disabled && !inp.readOnly) { inp.focus(); inp.select(); }
-                            }
-                        }
-                    }
-                });
-            });
+        function reiniciarTemporizadorInactividad() {
+            if(!moduloActual) return;
+            clearTimeout(temporizadorInactividad);
+            temporizadorInactividad = setTimeout(() => {
+                alert("⏳ Sesión cerrada por 5 minutos de inactividad. Datos guardados en la nube.");
+                volverAlMenu();
+            }, TIEMPO_INACTIVIDAD);
         }
 
-        function actualizarFechasConsecutivas(inputLunes) {
-            let valLunes = inputLunes.value;
-            if(!valLunes) return;
-
-            let fechaBase = new Date(valLunes + 'T00:00:00');
-            let inputsFecha = document.querySelectorAll('.col-fecha');
-
-            inputsFecha.forEach((inpFecha, idx) => {
-                let nuevaFecha = new Date(fechaBase);
-                nuevaFecha.setDate(fechaBase.getDate() + idx);
-                
-                let yyyy = nuevaFecha.getFullYear();
-                let mm = String(nuevaFecha.getMonth() + 1).padStart(2, '0');
-                let dd = String(nuevaFecha.getDate()).padStart(2, '0');
-                
-                inpFecha.value = `${yyyy}-${mm}-${dd}`;
-            });
-        }
-
-        function validarHoras(input) {
-            let row = input.closest('tr');
-            let horas = parseFloat(input.value) || 0;
-            let inputsFila = row.querySelectorAll('.col-editable:not(.col-horas):not(.col-fecha)');
+        function cargarModuloDirecto(idModulo) {
+            esAdminMode = false;
+            moduloActual = idModulo;
+            localStorage.setItem('sesion_modulo_activo', idModulo);
+            localStorage.setItem('sesion_admin_mode', 'false');
             
-            inputsFila.forEach(inp => {
-                if (horas === 0) {
-                    inp.disabled = true;
-                    inp.style.backgroundColor = '#e2e8f0';
-                    if(!inp.classList.contains('col-remesa')) inp.value = 0;
-                } else {
-                    inp.disabled = false;
-                    inp.style.backgroundColor = '#fff';
-                }
-            });
-            inicializarNavegacionTeclado();
-            recalcularTodo();
-        }
-
-        function actualizarRemesaGlobal(valor) {
-            let inputsRemesa = document.querySelectorAll('.col-remesa');
-            inputsRemesa.forEach(input => {
-                input.value = valor;
-            });
-            let spanRemesa40 = document.getElementById('tot_col_remesa_40');
-            if(spanRemesa40) spanRemesa40.innerText = valor;
-        }
-
-        function actualizarConfGlobal(valor) {
-            let spanConf45 = document.getElementById('tot_col_conf_45');
-            if(spanConf45) spanConf45.innerText = valor;
-        }
-
-        function actualizarEntidadGlobal(valor) {
-            let spanEnt46 = document.getElementById('tot_col_ent_46');
-            if(spanEnt46) spanEnt46.innerText = valor;
-        }
-
-        function actualizarDistritoGlobal(valor) {
-            let spanDtto47 = document.getElementById('tot_col_dtto_47');
-            if(spanDtto47) spanDtto47.innerText = valor;
-        }
-
-        function actualizarModuloGlobal(valor) {
-            let spanMod48 = document.getElementById('tot_col_modulo_48');
-            if(spanMod48) spanMod48.innerText = valor;
-        }
-
-        function recalcularFila(input) {
-            recalcularTodo();
-        }
-
-        function recalcularTodo() {
-            let rows = document.querySelectorAll('#cuerpoTablaCompleta tr');
-            let sumas = {};
-            for(let c=1; c<=76; c++) sumas[c] = 0;
-
-            let minFolioInicial = null;
-            let maxFolioFinal = null;
-            let primerDispVal = 0;
-            let primerDispEncontrado = false;
-            let ultimoDisp = 0;
-            let totalDiasTrabajados = 0;
-
-            rows.forEach((r, idx) => {
-                let inputs = r.querySelectorAll('input');
-                let rowVals = {};
-                inputs.forEach((inp, i) => {
-                    let colNum = i + 2; 
-                    rowVals[colNum] = parseFloat(inp.value) || 0;
-                });
-
-                let horasVal = rowVals[3] || 0;
-                let diasTrabInput = r.querySelector('.col-dias-trab');
-                let diasVal = 0;
-                if(diasTrabInput) {
-                    diasVal = (horasVal > 0) ? 1 : 0;
-                    diasTrabInput.value = diasVal;
-                }
-                totalDiasTrabajados += diasVal;
-
-                let fiInput = r.querySelector('.col-fi');
-                let ffInput = r.querySelector('.col-ff');
-                let fiVal = parseInt(fiInput.value) || 0;
-                let ffVal = parseInt(ffInput.value) || 0;
-                let totFolios = 0;
-                if(fiVal > 0) {
-                    totFolios = (ffVal >= fiVal) ? (ffVal - fiVal + 1) : 0;
-                    r.querySelector('.col-tot-folios').value = totFolios;
-                    if(minFolioInicial === null || fiVal < minFolioInicial) minFolioInicial = fiVal;
-                    if(maxFolioFinal === null || ffVal > maxFolioFinal) maxFolioFinal = ffVal;
-                } else {
-                    r.querySelector('.col-tot-folios').value = 0;
-                }
-
-                let col54 = r.querySelector('.col-adic-54');
-                let col55 = r.querySelector('.col-adic-55');
-                if(col54) col54.value = totFolios;
-                if(col55) col55.value = totFolios;
-
-                let repVal = parseFloat(r.querySelector('.col-rep').value) || 0;
-                let reimpVal = parseFloat(r.querySelector('.col-reimp').value) || 0;
-                let col66 = r.querySelector('.col-adic-66');
-                if(col66) col66.value = repVal + reimpVal;
-
-                let sumaTramites = 0;
-                for(let c=8; c<=17; c++) {
-                    sumaTramites += (rowVals[c] || 0);
-                }
-                let totTramInput = r.querySelector('.col-tot-tram');
-                totTramInput.value = sumaTramites;
-
-                let dispAntVal = rowVals[21] || 0;
-                if (!primerDispEncontrado && dispAntVal > 0) {
-                    primerDispVal = dispAntVal;
-                    primerDispEncontrado = true;
-                }
-
-                let recVal = rowVals[24] || 0; 
-                let entVal = rowVals[23] || 0;
-                
-                let sumaRetiradas = 0;
-                for(let c=25; c<=29; c++) {
-                    sumaRetiradas += (rowVals[c] || 0);
-                }
-                sumaRetiradas += (rowVals[30] || 0);
-
-                let dispActual = dispAntVal + recVal - entVal - sumaRetiradas;
-                r.querySelector('.col-disp').value = dispActual;
-                
-                if(horasVal > 0) {
-                    ultimoDisp = dispActual;
-                }
-
-                inputs.forEach((inp, i) => {
-                    let colNum = i + 2;
-                    if(colNum <= 76) {
-                        let val = parseFloat(inp.value) || 0;
-                        sumas[colNum] += val;
-                    }
-                });
-                
-                sumas[54] += totFolios;
-                sumas[55] += totFolios;
-                sumas[66] += (repVal + reimpVal);
-            });
-
-            recalcularTablasInferiores();
-
-            let spanMin5 = document.getElementById('tot_col_min_5');
-            let spanMax6 = document.getElementById('tot_col_max_6');
-            let spanPrimerDisp21 = document.getElementById('tot_col_primer_disp_21');
-            let spanRecOtr24 = document.getElementById('tot_col_recotr_24');
-            let spanRet30 = document.getElementById('tot_col_ret_30');
-            let spanDispFin31 = document.getElementById('tot_col_disp_fin_31');
-            let spanCanje32 = document.getElementById('tot_col_canje_32');
-            let spanDiasTrab35 = document.getElementById('tot_col_dias_trab_35');
-            let spanRemesa40 = document.getElementById('tot_col_remesa_40');
-            let spanConf45 = document.getElementById('tot_col_conf_45');
-            let spanEnt46 = document.getElementById('tot_col_ent_46');
-            let spanDtto47 = document.getElementById('tot_col_dtto_47');
-            let spanMod48 = document.getElementById('tot_col_modulo_48');
-            let spanResguardo49 = document.getElementById('tot_col_resguardo_49');
-            let spanScript52 = document.getElementById('tot_col_script_52');
-            let spanFolioNec53 = document.getElementById('tot_col_folionec_53');
-            let spanImp74 = document.getElementById('tot_col_imp_74');
-            let spanExp75 = document.getElementById('tot_col_exp_75');
+            document.getElementById('vistaSeleccion').style.display = 'none';
+            document.getElementById('vistaReporte').style.display = 'block';
+            document.getElementById('panelSelectorAdmin').style.display = 'none';
+            document.getElementById('vistaReporte').classList.add('modulo-normal');
+            document.getElementById('lblEncabezadoReporte').innerText = `REPORTE DIARIO DE SOLICITUDES Y OPERACIÓN - MÓDULO ${idModulo}`;
+            document.getElementById('txtModulo').value = idModulo;
             
-            let remesaVal = document.getElementById('txtRemesaGlobal').value;
-            let confVal = document.getElementById('txtConfGlobal').value;
-            let entVal = document.getElementById('txtEntidadGlobal').value;
-            let dttoVal = document.getElementById('txtDistritoGlobal').value;
-            let modVal = document.getElementById('txtModulo').value;
-            
-            let canjeVal = document.getElementById('inputCanjeGlobal').value;
-            let scriptVal = document.getElementById('inputScriptGlobal').value;
-            let folionecVal = document.getElementById('inputFolioNecGlobal').value;
-
-            if(spanMin5) spanMin5.innerText = minFolioInicial !== null ? minFolioInicial : 0;
-            if(spanMax6) spanMax6.innerText = maxFolioFinal !== null ? maxFolioFinal : 0;
-            if(spanPrimerDisp21) spanPrimerDisp21.innerText = primerDispVal;
-            if(spanCanje32) spanCanje32.innerText = canjeVal;
-            if(spanDiasTrab35) spanDiasTrab35.innerText = totalDiasTrabajados;
-            if(spanRemesa40) spanRemesa40.innerText = remesaVal;
-            if(spanConf45) spanConf45.innerText = confVal;
-            if(spanEnt46) spanEnt46.innerText = entVal;
-            if(spanDtto47) spanDtto47.innerText = dttoVal;
-            if(spanMod48) spanMod48.innerText = modVal;
-            if(spanScript52) spanScript52.innerText = scriptVal;
-            if(spanFolioNec53) spanFolioNec53.innerText = folionecVal;
-
-            for(let c=7; c<=76; c++) {
-                if(!columnasSinSuma.includes(c)) {
-                    let span = document.getElementById(`tot_col_${c}`);
-                    if(span) {
-                        span.innerText = sumas[c];
-                    }
+            db.ref('modulos/' + idModulo).once('value').then((snapshot) => {
+                datosCargadosNube = snapshot.val() || {};
+                construirTabla();
+                cargarDatosLocalesUI();
+                
+                if(!snapshot.exists() && configModulos[idModulo]) {
+                    document.getElementById('txtResponsable').value = configModulos[idModulo].responsable;
+                    document.getElementById('txtConfGlobal').value = configModulos[idModulo].conf;
                 }
+            }).catch((err) => {
+                console.error("Error al conectar con la nube:", err);
+                datosCargadosNube = {};
+                construirTabla();
+                cargarDatosLocalesUI();
+            });
+
+            reiniciarTemporizadorInactividad();
+        }
+
+        function cargarModuloAdminDirecto(idModulo) {
+            esAdminMode = true;
+            moduloActual = idModulo;
+            localStorage.setItem('sesion_modulo_activo', idModulo);
+            localStorage.setItem('sesion_admin_mode', 'true');
+            
+            document.getElementById('vistaSeleccion').style.display = 'none';
+            document.getElementById('vistaReporte').style.display = 'block';
+            document.getElementById('panelSelectorAdmin').style.display = 'block';
+            document.getElementById('vistaReporte').classList.remove('modulo-normal');
+            document.getElementById('lblEncabezadoReporte').innerText = `PANEL ADMINISTRADOR - GESTIÓN MÓDULO ${idModulo}`;
+            document.getElementById('txtModulo').value = idModulo;
+            document.getElementById('comboAdminModulo').value = idModulo;
+            
+            db.ref('modulos/' + idModulo).once('value').then((snapshot) => {
+                datosCargadosNube = snapshot.val() || {};
+                construirTabla();
+                cargarDatosLocalesUI();
+                
+                if(!snapshot.exists() && configModulos[idModulo]) {
+                    document.getElementById('txtResponsable').value = configModulos[idModulo].responsable;
+                    document.getElementById('txtConfGlobal').value = configModulos[idModulo].conf;
+                }
+            }).catch((err) => {
+                console.error("Error al conectar con la nube:", err);
+                datosCargadosNube = {};
+                construirTabla();
+                cargarDatosLocalesUI();
+            });
+
+            reiniciarTemporizadorInactividad();
+        }
+
+        function cambiarModuloAdmin(nuevoModulo) {
+            guardarDatosLocales();
+            cargarModuloAdminDirecto(nuevoModulo);
+        }
+
+        function volverAlMenu() {
+            clearTimeout(temporizadorInactividad);
+            guardarDatosLocales(); 
+            localStorage.removeItem('sesion_modulo_activo'); 
+            localStorage.removeItem('sesion_admin_mode');
+            
+            document.getElementById('vistaReporte').style.display = 'none';
+            document.getElementById('vistaSeleccion').style.display = 'block';
+            moduloActual = null;
+            esAdminMode = false;
+        }
+
+        function cerrarSesionManual() {
+            if(confirm("¿Desea cerrar sesión y volver al menú principal?")) {
+                volverAlMenu();
             }
         }
 
-        window.onload = construirTabla;
-    </script>
-</body>
-</html>
+        function construirTabla() {
+            let filaConsecutivos = document.getElementById('filaConsecutivos');
+            filaConsecutivos.innerHTML = '';
+            for(let i=1; i<=75; i++) {
+                let claseOculta = (i > 30) ? 'col-oculta-modulo' : '';
+                filaConsecutivos.innerHTML += `<th class="${claseOculta}">${i}</th>`;
+            }
+
+            let tbody = document.getElementById('cuerpoTablaCompleta');
+            tbody.innerHTML = '';
+
+            let savedData = datosCargadosNube;
+            let datosDiarios = savedData.datosDiarios || datosBaseDefault;
+            let sedesDisponibles = sedesPorModulo[moduloActual] || [''];
+
+            datosDiarios.forEach((d, idx) => {
+                let tr = document.createElement('tr');
+                let esLunes = (idx === 0);
+                
+                let htmlSedes = '';
+                sedesDisponibles.forEach(s => {
+                    let sel = (d.sede === s) ? 'selected' : '';
+                    htmlSedes += `<option value="${s}" ${sel}>${s}</option>`;
+                });
+                
+                let htmlAdicionales = '';
+                for(let aIdx=0; aIdx<35; aIdx++) {
+                    let colActual = 41 + aIdx;
+                    let valCol = (d.adic && d.adic[aIdx] !== undefined) ? d.adic[aIdx] : "";
+                    if ([44, 45, 46, 47].includes(colActual)) {
+                        htmlAdicionales += `<td class="col-oculta-modulo"><input type="text" class="cell-input" value="" readonly style="background-color: #f1f5f9;"></td>`;
+                    } else if (colActual === 48) {
+                        htmlAdicionales += `<td class="col-oculta-modulo"><input type="text" class="cell-input cell-formula col-resguardo-link" value="" readonly></td>`;
+                    } else if (colActual === 51 || colActual === 52) {
+                        htmlAdicionales += `<td class="col-oculta-modulo"><input type="text" class="cell-input cell-formula ${colActual === 51 ? 'col-script-link' : 'col-folionec-link'}" value="" readonly></td>`;
+                    } else if (colActual === 63 || colActual === 64) {
+                        let impExpSubIdx = colActual - 63;
+                        htmlAdicionales += `<td class="col-oculta-modulo"><input type="text" class="cell-input cell-formula col-impexp-link-${impExpSubIdx}" value="" readonly></td>`;
+                    } else if (colActual === 53 || colActual === 54 || colActual === 65) {
+                        htmlAdicionales += `<td class="col-oculta-modulo"><input type="text" class="cell-input cell-formula col-adic-${colActual}" value="" readonly></td>`;
+                    } else if (colActual >= 66 && colActual <= 75) {
+                        let retSubIdx = colActual - 66;
+                        htmlAdicionales += `<td class="col-oculta-modulo"><input type="text" class="cell-input cell-formula col-ret-link-${retSubIdx}" value="" readonly></td>`;
+                    } else {
+                        htmlAdicionales += `<td class="col-oculta-modulo"><input type="text" class="cell-input col-editable col-num col-adic-val" data-adic-idx="${aIdx}" value="${valCol}" oninput="recalcularTodo(); guardarDatosLocales();"></td>`;
+                    }
+                }
+
+                tr.innerHTML = `
+                    <td class="fw-bold col-dia">${d.dia}</td>
+                    <td><input type="date" class="date-input col-editable col-fecha" value="${d.fecha \vert{}\vert{} ''}" ${esLunes ? 'onchange="actualizarFechasConsecutivas(this); guardarDatosLocales();"' : 'readonly style="background-color: #e9ecef;"'}></td>
+                    <td><input type="text" class="cell-input col-editable col-horas" value="${d.horas !== undefined ? d.horas : ''}" oninput="validarHoras(this);
