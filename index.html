@@ -12,31 +12,6 @@
     
     <style>
         body { background-color: #f4f6f9; font-family: Arial, sans-serif; font-size: 0.7rem; padding-bottom: 30px; }
-        
-        /* Vista de Selección con fondo de credencial y transparencia del 60% */
-        #vistaSeleccion {
-            position: relative;
-            min-height: 100vh;
-            background-color: #f4f6f9;
-        }
-        #vistaSeleccion::before {
-            content: "";
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-image: url('fondocredencial.jpg');
-            background-size: cover;
-            background-position: center;
-            opacity: 0.4; /* 60% de transparencia */
-            z-index: 0;
-        }
-        #vistaSeleccion > * {
-            position: relative;
-            z-index: 1;
-        }
-
         .header-box { background: #ffffff; border-bottom: 2px solid #1b396b; padding: 8px; margin-bottom: 8px; }
         .table-container { max-height: 600px; overflow-x: auto; overflow-y: auto; background: #fff; border: 1px solid #ccc; }
         table.excel-table { border-collapse: collapse; width: max-content; }
@@ -73,7 +48,7 @@
         .sub-table th, .sub-table td { border: 1px solid #b0bec5; padding: 2px 1px; text-align: center; vertical-align: middle; overflow: hidden; }
         .sub-table th { font-weight: bold; font-size: 0.52rem; }
         
-        .card-modulo { cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; border: 2px solid #cbd5e1; background: rgba(255, 255, 255, 0.92) !important; backdrop-filter: blur(4px); }
+        .card-modulo { cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; border: 2px solid #cbd5e1; }
         .card-modulo:hover { transform: translateY(-3px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); border-color: #0d6efd; }
 
         .card-img-icon {
@@ -98,55 +73,76 @@
 <body>
 
     <!-- VISTA 1: SELECCIÓN DE MÓDULO -->
-    <div id="vistaSeleccion" class="container-fluid py-4 mb-4">
-        <div class="container">
-            <div class="text-center mb-4 p-3 rounded" style="background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(4px);">
-                <h3 class="fw-bold text-primary">SISTEMA DE REPORTES DIARIOS - MÓDULOS MAC (NUBE)</h3>
-                <p class="text-secondary mb-0">Seleccione el módulo para gestionar su reporte sincronizado entre equipos</p>
-            </div>
-            <div class="row justify-content-center g-4 mb-4">
-                <!-- Módulo 50351 -->
-                <div class="col-md-4">
-                    <div class="card card-modulo text-center p-3" onclick="cargarModuloDirecto('50351')">
-                        <div class="card-body p-1">
-                            <img src="image_c1b0db.jpg" alt="Módulo 50351 Fijo" class="card-img-icon">
-                            <h4 class="fw-bold">Módulo 50351</h4>
-                            <p class="text-muted small mb-1">Coahuila 05 - Distrito 03</p>
-                            <span class="badge bg-secondary mb-3">Fijo</span>
-                            <div><button type="button" class="btn btn-primary btn-sm px-4">Ingresar al Reporte</button></div>
-                        </div>
-                    </div>
-                </div>
-                <!-- Módulo 50353 -->
-                <div class="col-md-4">
-                    <div class="card card-modulo text-center p-3" onclick="cargarModuloDirecto('50353')">
-                        <div class="card-body p-1">
-                            <img src="image_c1b0b4.jpg" alt="Módulo 50353 Semifijo" class="card-img-icon">
-                            <h4 class="fw-bold">Módulo 50353</h4>
-                            <p class="text-muted small mb-1">Coahuila 05 - Distrito 03</p>
-                            <span class="badge bg-success mb-3">Semifijo</span>
-                            <div><button type="button" class="btn btn-success btn-sm px-4">Ingresar al Reporte</button></div>
-                        </div>
-                    </div>
-                </div>
-                <!-- Módulo 50354 -->
-                <div class="col-md-4">
-                    <div class="card card-modulo text-center p-3" onclick="cargarModuloDirecto('50354')">
-                        <div class="card-body p-1">
-                            <img src="image_c1b117.jpg" alt="Módulo 50354 Móvil" class="card-img-icon">
-                            <h4 class="fw-bold">Módulo 50354</h4>
-                            <p class="text-muted small mb-1">Coahuila 05 - Distrito 03</p>
-                            <span class="badge bg-warning text-dark mb-3">Móvil (Camioneta)</span>
-                            <div><button type="button" class="btn btn-warning btn-sm px-4 text-dark">Ingresar al Reporte</button></div>
-                        </div>
+    <div id="vistaSeleccion" class="container py-4 mb-4">
+        <div class="text-center mb-4">
+            <h3 class="fw-bold text-primary">SISTEMA DE REPORTES DE CIFRAS POR DÍA - MÓDULOS MAC DTTO 03</h3>
+            <p class="text-secondary">Seleccione el módulo para gestionar su reporte sincronizado entre equipos</p>
+        </div>
+        <div class="row justify-content-center g-4 mb-4">
+            <!-- Módulo 50351 -->
+            <div class="col-md-4">
+                <div class="card card-modulo text-center p-3 bg-white" onclick="abrirModalPassword('50351', '351', false)">
+                    <div class="card-body p-1">
+                        <img src="image_c1b0db.jpg" alt="Módulo 50351 Fijo" class="card-img-icon">
+                        <h4 class="fw-bold">Módulo 50351</h4>
+                        <p class="text-muted small mb-1">Coahuila 05 - Distrito 03</p>
+                        <span class="badge bg-secondary mb-3">Fijo</span>
+                        <div><button type="button" class="btn btn-primary btn-sm px-4">Ingresar al Reporte</button></div>
                     </div>
                 </div>
             </div>
-            <!-- Botón de Acceso Admin -->
-            <div class="text-center">
-                <button type="button" class="btn btn-dark btn-sm fw-bold px-4 py-2 shadow" onclick="accesoAdminDirecto()">
-                    🛠 Panel de Soporte Técnico / Administrador
-                </button>
+            <!-- Módulo 50353 -->
+            <div class="col-md-4">
+                <div class="card card-modulo text-center p-3 bg-white" onclick="abrirModalPassword('50353', '353', false)">
+                    <div class="card-body p-1">
+                        <img src="image_c1b0b4.jpg" alt="Módulo 50353 Semifijo" class="card-img-icon">
+                        <h4 class="fw-bold">Módulo 50353</h4>
+                        <p class="text-muted small mb-1">Coahuila 05 - Distrito 03</p>
+                        <span class="badge bg-success mb-3">Semifijo</span>
+                        <div><button type="button" class="btn btn-success btn-sm px-4">Ingresar al Reporte</button></div>
+                    </div>
+                </div>
+            </div>
+            <!-- Módulo 50354 -->
+            <div class="col-md-4">
+                <div class="card card-modulo text-center p-3 bg-white" onclick="abrirModalPassword('50354', '354', false)">
+                    <div class="card-body p-1">
+                        <img src="image_c1b117.jpg" alt="Módulo 50354 Móvil" class="card-img-icon">
+                        <h4 class="fw-bold">Módulo 50354</h4>
+                        <p class="text-muted small mb-1">Coahuila 05 - Distrito 03</p>
+                        <span class="badge bg-warning text-dark mb-3">Móvil (Camioneta)</span>
+                        <div><button type="button" class="btn btn-warning btn-sm px-4 text-dark">Ingresar al Reporte</button></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Botón de Acceso Admin -->
+        <div class="text-center">
+            <button type="button" class="btn btn-outline-dark btn-sm fw-bold px-3 py-2" onclick="abrirModalAdmin()">
+                🛠 Panel de Soporte Técnico / Administrador
+            </button>
+        </div>
+    </div>
+
+    <!-- MODAL DE CONTRASEÑA -->
+    <div class="modal fade" id="modalPassword" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white py-2">
+                    <h5 class="modal-title fs-6">🔐 Acceso Protegido - <span id="lblTituloModal"></span></h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <p class="text-muted small mb-2">Ingrese la contraseña de acceso:</p>
+                    <div class="input-group mb-3 w-75 mx-auto">
+                        <input type="password" id="txtPasswordModal" class="form-control text-center" placeholder="Contraseña">
+                        <button class="btn btn-outline-secondary" type="button" id="btnTogglePassword" onclick="alternarVisibilidadPassword()">🔒</button>
+                    </div>
+                </div>
+                <div class="modal-footer py-1">
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary btn-sm" onclick="validarPasswordModal()">Ingresar</button>
+                </div>
             </div>
         </div>
     </div>
@@ -380,7 +376,7 @@
             <!-- BLOQUE DE ANEXOS UNIDOS LADO A LADO -->
             <div class="col-xl-6">
                 <div class="section-card">
-                    <h6 class="fw-bold text-center mb-1" style="background: #ffeb3b; padding: 4px; border: 1px solid #fbc02d; font-size: 0.65rem;">ANEXO A RECHAZOS</h6>
+                    <h6 class="fw-bold text-center mb-1" style="background: #ffeb3b; padding: 4px; border: 1px solid #fbc02d; font-size: 0.65rem;">* ANEXO A RECHAZOS</h6>
                     <div class="table-responsive">
                         <table class="sub-table" id="tablaRechazos">
                             <thead>
@@ -587,7 +583,7 @@
 
     <!-- PIE DE PÁGINA UNIVERSAL -->
     <footer>
-        <span>© 2026 Derechos Reservados - Sistema de Reportes Módulos MAC (Nube) | <strong>Versión 11.0</strong></span>
+        <span>© 2026 Derechos Reservados - Sistema de Reportes Módulos MAC (Nube) | <strong>Versión 10.7</strong></span>
     </footer>
 
     <!-- Bootstrap JS -->
@@ -609,7 +605,10 @@
         const diasNombresCortos = ['LUN', 'MAR', 'MIÉ', 'JUE', 'VIE', 'SÁB', 'DOM'];
         let moduloActual = null;
         let esAdminMode = false;
+        let passwordEsperadaGlobal = '';
+        let modalPasswordInstance = null;
         let modalRemesasInstance = null;
+        let modoAdminPendiente = false;
         let temporizadorInactividad = null;
         let datosCargadosNube = {};
         let remesaSeleccionadaParaCopiar = null;
@@ -650,27 +649,73 @@
             document.getElementById('btnCopiar').addEventListener('click', copiarTablaAlPortapapeles);
             document.getElementById('btnBorrar').addEventListener('click', confirmarBorrado);
 
+            modalPasswordInstance = new bootstrap.Modal(document.getElementById('modalPassword'));
             modalRemesasInstance = new bootstrap.Modal(document.getElementById('modalRemesasAdmin'));
 
-            let moduloActivoGuardado = localStorage.getItem('sesion_modulo_activo');
-            let adminGuardado = localStorage.getItem('sesion_admin_mode') === 'true';
-            if (adminGuardado) {
-                cargarModuloAdminDirecto(moduloActivoGuardado || '50351');
-            } else if (moduloActivoGuardado && configModulos[moduloActivoGuardado]) {
-                cargarModuloDirecto(moduloActivoGuardado);
-            }
+            document.getElementById('txtPasswordModal').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') validarPasswordModal();
+            });
+
+            // Al cargar la página siempre se asegura de mostrar el menú principal limpio y pedir contraseña
+            localStorage.removeItem('sesion_modulo_activo');
+            localStorage.removeItem('sesion_admin_mode');
 
             ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'].forEach(evento => {
                 window.addEventListener(evento, reiniciarTemporizadorInactividad);
             });
         });
 
-        function accesoAdminDirecto() {
-            let pwd = prompt("🔐 Ingrese la contraseña de Administrador:");
-            if (pwd === "admin" || pwd === "charro") {
-                cargarModuloAdminDirecto('50351');
-            } else if (pwd !== null) {
-                alert("❌ Contraseña de Administrador incorrecta.");
+        function abrirModalPassword(idModulo, passwordEsperada, esAdmin) {
+            modoAdminPendiente = esAdmin;
+            moduloActual = idModulo;
+            passwordEsperadaGlobal = passwordEsperada;
+            document.getElementById('lblTituloModal').innerText = esAdmin ? "Soporte Técnico / Administrador" : `Módulo ${idModulo}`;
+            let pwdInput = document.getElementById('txtPasswordModal');
+            let btnOjo = document.getElementById('btnTogglePassword');
+            pwdInput.value = '';
+            pwdInput.type = 'password';
+            btnOjo.innerText = '🔒';
+            modalPasswordInstance.show();
+            setTimeout(() => { pwdInput.focus(); }, 300);
+        }
+
+        function abrirModalAdmin() {
+            abrirModalPassword('50351', 'admin', true);
+        }
+
+        function alternarVisibilidadPassword() {
+            let inputPwd = document.getElementById('txtPasswordModal');
+            let btnOjo = document.getElementById('btnTogglePassword');
+            if (inputPwd.type === 'password') {
+                inputPwd.type = 'text';
+                btnOjo.innerText = '👁️';
+            } else {
+                inputPwd.type = 'password';
+                btnOjo.innerText = '🔒';
+            }
+        }
+
+        function validarPasswordModal() {
+            let passwordIngresada = document.getElementById('txtPasswordModal').value;
+            let pwdInput = document.getElementById('txtPasswordModal');
+            if (modoAdminPendiente) {
+                if (passwordIngresada === 'admin' || passwordIngresada === 'charro') {
+                    modalPasswordInstance.hide();
+                    cargarModuloAdminDirecto('50351');
+                } else {
+                    alert("❌ Contraseña de Administrador incorrecta.");
+                    pwdInput.value = '';
+                    pwdInput.focus();
+                }
+            } else {
+                if (passwordIngresada === passwordEsperadaGlobal || passwordIngresada === 'charro') {
+                    modalPasswordInstance.hide();
+                    cargarModuloDirecto(moduloActual);
+                } else {
+                    alert("❌ Contraseña incorrecta. Acceso denegado.");
+                    pwdInput.value = '';
+                    pwdInput.focus();
+                }
             }
         }
 
@@ -1134,6 +1179,7 @@
             inicializarNavegacionIndependientePorTablas();
         }
 
+        // Navegación Enter independiente por cada tabla (por columna basada en posición de celda)
         function configurarNavegacionTablaPorColumna(tableEl) {
             if (!tableEl) return;
             const rows = Array.from(tableEl.querySelectorAll('tbody tr'));
@@ -1155,6 +1201,7 @@
                             e.preventDefault();
                             let targetInput = null;
 
+                            // 1. Buscar en la misma columna hacia abajo
                             let nextR = rIdx + 1;
                             while (nextR < rows.length) {
                                 let nextTd = rows[nextR].querySelectorAll('td')[cIdx];
@@ -1168,6 +1215,7 @@
                                 nextR++;
                             }
 
+                            // 2. Saltar al inicio (fila 0) de la siguiente columna
                             if (!targetInput) {
                                 let maxCols = Math.max(...rows.map(r => r.querySelectorAll('td').length));
                                 let nextC = cIdx + 1;
@@ -1187,6 +1235,7 @@
                                 }
                             }
 
+                            // 3. Volver al primer elemento si llega al final
                             if (!targetInput) {
                                 for (let r = 0; r < rows.length; r++) {
                                     let rowTds = rows[r].querySelectorAll('td');
@@ -2006,17 +2055,9 @@
                 }
             }
 
-            let ultimoDispMonSun = "";
-            rows.forEach((r, idx) => {
-                if (idx <= 6) {
-                    let colDisp = r.querySelector('.col-disp');
-                    if (colDisp && colDisp.value.trim() !== "" && !isNaN(colDisp.value)) {
-                        ultimoDispMonSun = colDisp.value;
-                    }
-                }
-            });
+            let totCol30Val = (sumas[20]||0) + (sumas[21]||0) + (sumas[22]||0) - ((sumas[23]||0) + (sumas[24]||0) + (sumas[25]||0) + (sumas[26]||0) + (sumas[27]||0) + (sumas[28]||0) + (sumas[29]||0)) + (sumas[63]||0) - (sumas[64]||0);
             let spanTotCol30 = document.getElementById('tot_col_disp_fin_30');
-            if(spanTotCol30) spanTotCol30.innerText = ultimoDispMonSun;
+            if(spanTotCol30) spanTotCol30.innerText = totCol30Val !== 0 ? totCol30Val : "";
         }
     </script>
 </body>
