@@ -1057,7 +1057,7 @@
                         let retSubIdx = colActual - 66;
                         htmlAdicionales += `<td class="col-oculta-modulo"><input type="text" class="cell-input cell-formula col-ret-link-${retSubIdx}" value="" readonly></td>`;
                     } else {
-                        htmlAdicionales += `<td class="col-oculta-modulo"><input type="text" class="cell-input col-editable col-num col-adic-val" data-adic-idx="${aIdx}" value="${valCol}" oninput="recalcularTodo(); guardarDatosLocales();"></td>`;
+                        htmlAdicionales += `<td class="col-oculta-modulo"><input type="text" class="cell-input col-editable col-num col-adic-val" data-adic-idx="${aIdx}" value="${valCol}" oninput="Todo(); guardarDatosLocales();"></td>`;
                     }
                 }
 
@@ -2111,7 +2111,7 @@
 
                 inputs.forEach((inp, i) => {
                     let colNum = i + 2;
-                    if(colNum <= 75 && colNum !== 16) sumas[colNum] += (parseFloat(inp.value) || 0);
+                   if(colNum <= 75 && colNum !== 16 && colNum !== 30) sumas[colNum] += (parseFloat(inp.value) || 0);
                 });
             });
 
@@ -2144,9 +2144,15 @@
                 }
             }
 
-            let totCol30Val = (sumas[20]||0) + (sumas[21]||0) + (sumas[22]||0) - ((sumas[23]||0) + (sumas[24]||0) + (sumas[25]||0) + (sumas[26]||0) + (sumas[27]||0) + (sumas[28]||0) + (sumas[29]||0)) + (sumas[63]||0) - (sumas[64]||0);
+            let ultimoDisp = "";
+            rows.forEach(r => {
+                let dispVal = r.querySelector('.col-disp').value.trim();
+                if (dispVal !== "") {
+                    ultimoDisp = dispVal;
+                }
+            });
             let spanTotCol30 = document.getElementById('tot_col_disp_fin_30');
-            if(spanTotCol30) spanTotCol30.innerText = totCol30Val !== 0 ? totCol30Val : "";
+            if(spanTotCol30) spanTotCol30.innerText = ultimoDisp;
         }
     </script>
     <!-- Botón Flotante para Regresar al Menú Principal -->
