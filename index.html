@@ -2152,22 +2152,33 @@ rows.forEach((r) => {
             guardarDatosLocales();
         }
 
-        function recalcularTodo() {
-            recalcularTablasInferioresSinCiclo();
+function recalcularTodo() {
+    recalcularTablasInferioresSinCiclo();
 
-            let rows = document.querySelectorAll('#cuerpoTablaCompleta tr');
-            let sumas = {};
-            for(let c=1; c<=75; c++) sumas[c] = 0;
+    let rows = document.querySelectorAll('#cuerpoTablaCompleta tr');
+    let sumas = {};
+    for(let c=1; c<=75; c++) sumas[c] = 0;
 
-            let minFolioInicial = null, maxFolioFinal = null, primerDispVal = 0, primerDispEncontrado = false, totalDiasTrabajados = 0, sumaCol16Total = 0;
+    let minFolioInicial = null, maxFolioFinal = null, primerDispVal = 0, primerDispEncontrado = false, totalDiasTrabajados = 0, sumaCol16Total = 0;
 
-            rows.forEach((r) => {
-                let inputs = r.querySelectorAll('input, select');
-                let rowVals = {};
-                inputs.forEach((inp, i) => {
-                    let colNum = i + 2; 
-                    rowVals[colNum] = parseFloat(inp.value) || 0;
-                });
+    // >>> PEGA EL BLOQUE AQUÍ <<<
+    rows.forEach((r, rIdx) => {
+        let inputs = r.querySelectorAll('input, select');
+        let rowVals = {};
+        inputs.forEach((inp, i) => {
+            let colNum = i + 2; 
+            rowVals[colNum] = parseFloat(inp.value) || 0;
+        });
+
+        // Cálculo de Reposición (Col 11) + Reimpresiones (Col 15) -> Columna 65
+        let valRep = rowVals[11] || 0;
+        let valReimp = rowVals[15] || 0;
+        let sumaRepoReimp = valRep + valReimp;
+        let colRepoReimp = r.querySelector('.col-adic-65');
+        if(colRepoReimp) {
+            colRepoReimp.value = sumaRepoReimp > 0 ? sumaRepoReimp : "";
+        }
+        rowVals[65] = sumaRepoReimp;
 
                 let horasVal = rowVals[3] || 0;
                 let diasTrabInput = r.querySelector('.col-dias-trab');
