@@ -651,7 +651,7 @@
 
     <!-- PIE DE PÁGINA UNIVERSAL -->
     <footer>
-        <span>© 2026 Derechos Reservados - Sistema de Reportes Módulos MAC (Nube) | <strong>Versión 1.8</strong></span>
+        <span>© 2026 Derechos Reservados - Sistema de Reportes Módulos MAC (Nube) | <strong>Versión 1.7</strong></span>
     </footer>
 
     <!-- Bootstrap JS -->
@@ -2300,41 +2300,41 @@ function recalcularTodo() {
                 }
             });
         });
-  
- sumas[16] = sumaCol16Total;
-        
+    }); // <--- AQUÍ CIERRA CORRECTAMENTE EL rows.forEach
 
-            let sumaCol19Total = sumas[19] || 0;
-            let inputCanje = document.getElementById('inputCanjeGlobal');
-            if(inputCanje) {
-                inputCanje.value = sumaCol19Total > 0 ? sumaCol19Total : "";
-            }
+    sumas[16] = sumaCol16Total;
 
-            document.getElementById('tot_col_min_5').innerText = minFolioInicial !== null && minFolioInicial !== "0" ? minFolioInicial : "";
-            document.getElementById('tot_col_max_6').innerText = maxFolioFinal !== null && maxFolioFinal !== "0" ? maxFolioFinal : "";
-            document.getElementById('tot_col_16').innerText = sumas[16] > 0 ? sumas[16] : "";
-            document.getElementById('tot_col_primer_disp_20').innerText = primerDispVal > 0 ? primerDispVal : "";
-            document.getElementById('tot_col_canje_31').innerText = sumaCol19Total > 0 ? sumaCol19Total : "";
-            document.getElementById('tot_col_dias_trab_34').innerText = totalDiasTrabajados > 0 ? totalDiasTrabajados : "";
-            document.getElementById('tot_col_remesa_39').innerText = document.getElementById('txtRemesaGlobal').value;
-            document.getElementById('tot_col_conf_44').innerText = document.getElementById('txtConfGlobal').value;
-            document.getElementById('tot_col_ent_45').innerText = document.getElementById('txtEntidadGlobal').value;
-            document.getElementById('tot_col_dtto_46').innerText = document.getElementById('txtDistritoGlobal').value;
-            document.getElementById('tot_col_modulo_47').innerText = moduloActual;
-            document.getElementById('tot_col_script_51').innerText = document.getElementById('inputScriptGlobal').value;
-            document.getElementById('tot_col_folionec_52').innerText = document.getElementById('inputFolioNecGlobal').value;
+    let sumaCol19Total = sumas[19] || 0;
+    let inputCanje = document.getElementById('inputCanjeGlobal');
+    if(inputCanje) {
+        inputCanje.value = sumaCol19Total > 0 ? sumaCol19Total : "";
+    }
 
-            for(let c=7; c<=75; c++) {
-                if(!columnasSinSuma.includes(c)) {
-                    let span = document.getElementById(`tot_col_${c}`);
-                    if(span) span.innerText = sumas[c] > 0 ? sumas[c] : "";
-                }
-            }
+    document.getElementById('tot_col_min_5').innerText = minFolioInicial !== null && minFolioInicial !== "0" ? minFolioInicial : "";
+    document.getElementById('tot_col_max_6').innerText = maxFolioFinal !== null && maxFolioFinal !== "0" ? maxFolioFinal : "";
+    document.getElementById('tot_col_16').innerText = sumas[16] > 0 ? sumas[16] : "";
+    document.getElementById('tot_col_primer_disp_20').innerText = primerDispVal > 0 ? primerDispVal : "";
+    document.getElementById('tot_col_canje_31').innerText = sumaCol19Total > 0 ? sumaCol19Total : "";
+    document.getElementById('tot_col_dias_trab_34').innerText = totalDiasTrabajados > 0 ? totalDiasTrabajados : "";
+    document.getElementById('tot_col_remesa_39').innerText = document.getElementById('txtRemesaGlobal').value;
+    document.getElementById('tot_col_conf_44').innerText = document.getElementById('txtConfGlobal').value;
+    document.getElementById('tot_col_ent_45').innerText = document.getElementById('txtEntidadGlobal').value;
+    document.getElementById('tot_col_dtto_46').innerText = document.getElementById('txtDistritoGlobal').value;
+    document.getElementById('tot_col_modulo_47').innerText = moduloActual;
+    document.getElementById('tot_col_script_51').innerText = document.getElementById('inputScriptGlobal').value;
+    document.getElementById('tot_col_folionec_52').innerText = document.getElementById('inputFolioNecGlobal').value;
 
-            let totCol30Val = (sumas[20]||0) + (sumas[21]||0) + (sumas[22]||0) - ((sumas[23]||0) + (sumas[24]||0) + (sumas[25]||0) + (sumas[26]||0) + (sumas[27]||0) + (sumas[28]||0) + (sumas[29]||0)) + (sumas[63]||0) - (sumas[64]||0);
-            let spanTotCol30 = document.getElementById('tot_col_disp_fin_30');
-            if(spanTotCol30) spanTotCol30.innerText = totCol30Val !== 0 ? totCol30Val : "";
+    for(let c=7; c<=75; c++) {
+        if(!columnasSinSuma.includes(c)) {
+            let span = document.getElementById(`tot_col_${c}`);
+            if(span) span.innerText = sumas[c] > 0 ? sumas[c] : "";
         }
+    }
+
+    let totCol30Val = (sumas[20]||0) + (sumas[21]||0) + (sumas[22]||0) - ((sumas[23]||0) + (sumas[24]||0) + (sumas[25]||0) + (sumas[26]||0) + (sumas[27]||0) + (sumas[28]||0) + (sumas[29]||0)) + (sumas[63]||0) - (sumas[64]||0);
+    let spanTotCol30 = document.getElementById('tot_col_disp_fin_30');
+    if(spanTotCol30) spanTotCol30.innerText = totCol30Val !== 0 ? totCol30Val : "";
+}
     </script>
 </body>
 </html>
