@@ -314,8 +314,8 @@
                             <th colspan="3">FOLIOS</th>
                             <th colspan="9">FORMATOS ÚNICOS (8-16)</th>
                             <th colspan="14">ESTADÍSTICAS Y MOVIMIENTOS (17-30)</th>
-                            <th colspan="10" class="col-oculta-modulo">INDICADORES Y CREDENCIALES (31-40)</th>
-                            <th colspan="35" class="col-oculta-modulo">REGISTROS Y CONFIGURACIÓN ADICIONAL (41-75)</th>
+                            <th colspan="9" class="col-oculta-modulo">INDICADORES Y CREDENCIALES (31-40)</th>
+                            <th colspan="34" class="col-oculta-modulo">REGISTROS Y CONFIGURACIÓN ADICIONAL (41-75)</th>
                         </tr>
                         <tr>
                             <th>INICIAL</th>
@@ -1094,7 +1094,6 @@
                     <td><input type="text" class="cell-input col-editable col-num col-v28" value="${d.v28 || ''}" oninput="recalcularTodo(); guardarDatosLocales();"></td>
                     <td><input type="text" class="cell-input cell-formula col-retiradas-causa-link" value="" readonly></td>
                     <td><input type="text" class="cell-input cell-formula col-disp" value="" readonly></td>
-                    <td class="col-oculta-modulo"><input type="text" class="cell-input col-editable col-num col-canje" value="${d.canje !== undefined ? d.canje : ''}" oninput="recalcularTodo(); guardarDatosLocales();"></td>
                     <td class="col-oculta-modulo"><input type="text" class="cell-input col-editable col-num col-fichent" value="${d.fichEnt !== undefined ? d.fichEnt : ''}" oninput="recalcularTodo(); guardarDatosLocales();"></td>
                     <td class="col-oculta-modulo"><input type="text" class="cell-input col-editable col-num col-fichatend" value="${d.fichAtend !== undefined ? d.fichAtend : ''}" oninput="recalcularTodo(); guardarDatosLocales();"></td>
                     <td class="col-oculta-modulo"><input type="text" class="cell-input cell-formula col-dias-trab" value="" readonly></td>
@@ -1717,8 +1716,8 @@
             db.ref('modulos/' + moduloActual).set(objetoCompleto).catch(err => console.error("Error al sincronizar con nube:", err));
         }
 
-        function recopilarColumnas1a75() {
-            let filas1a75 = [];
+        function recopilarColumnas1a73() {
+            let filas1a73 = [];
             let rows = document.querySelectorAll('#cuerpoTablaCompleta tr');
             
             rows.forEach((r) => {
@@ -1728,7 +1727,7 @@
                 let col1 = celdasTd[0] ? celdasTd[0].innerText.trim() : "";
                 filaVals.push(col1 !== "" ? col1 : "0");
 
-                for(let i=1; i<75; i++) {
+                for(let i=1; i<73; i++) {
                     let td = celdasTd[i];
                     let val = "";
                     if(td) {
@@ -1745,9 +1744,9 @@
                         filaVals.push(val);
                     }
                 }
-                filas1a75.push(filaVals);
+                filas1a73.push(filaVals);
             });
-            return filas1a75;
+            return filas1a73;
         }
 
         function guardarDatosManual() {
@@ -1762,13 +1761,13 @@
             guardarDatosLocales();
 
             let fechaHoraActual = new Date().toISOString();
-            let filas1a75Datos = recopilarColumnas1a75();
+            let filas1a73Datos = recopilarColumnas1a73();
 
             let registroHistorico = {
                 mac: moduloActual,
                 remesa: numRemesa,
                 fechaHora: fechaHoraActual,
-                filas1a75: filas1a75Datos
+                filas1a73: filas1a73Datos
             };
 
             db.ref('remesas_completas/' + moduloActual + '/' + Date.now()).set(registroHistorico).then(() => {
@@ -1902,7 +1901,7 @@
             let folionecVal = document.getElementById('inputFolioNecGlobal').value;
 
             let totalesValores = ["LÍNEA TOTALES", "", "", ""];
-            for(let c=5; c<=75; c++) {
+            for(let c=5; c<=73; c++) {
                 if (c === 5) {
                     totalesValores.push(document.getElementById('tot_col_min_5').innerText);
                 } else if (c === 6) {
@@ -1944,7 +1943,7 @@
                 } else if (c === 63 || c === 64) {
                     let subIdx = c - 63;
                     totalesValores.push(document.getElementById(`tot_col_impexp_${subIdx}`).innerText);
-                } else if (c >= 66 && c <= 75) {
+                } else if (c >= 66 && c <= 73) {
                     let subIdx = c - 66;
                     totalesValores.push(document.getElementById(`tot_col_ret_${subIdx}`).innerText);
                 } else if (columnasSinSuma.includes(c)) {
@@ -2033,7 +2032,7 @@
 
             let rows = document.querySelectorAll('#cuerpoTablaCompleta tr');
             let sumas = {};
-            for(let c=1; c<=75; c++) sumas[c] = 0;
+            for(let c=1; c<=73; c++) sumas[c] = 0;
 
             let minFolioInicial = null, maxFolioFinal = null, primerDispVal = 0, primerDispEncontrado = false, totalDiasTrabajados = 0, sumaCol16Total = 0;
 
@@ -2109,7 +2108,7 @@
 
                 inputs.forEach((inp, i) => {
                     let colNum = i + 2;
-                   if(colNum <= 75 && colNum !== 16 && colNum !== 30) sumas[colNum] += (parseFloat(inp.value) || 0);
+                   if(colNum <= 73 && colNum !== 16 && colNum !== 30) sumas[colNum] += (parseFloat(inp.value) || 0);
                 });
             });
 
@@ -2135,7 +2134,7 @@
             document.getElementById('tot_col_script_51').innerText = document.getElementById('inputScriptGlobal').value;
             document.getElementById('tot_col_folionec_52').innerText = document.getElementById('inputFolioNecGlobal').value;
 
-            for(let c=7; c<=75; c++) {
+            for(let c=7; c<=73; c++) {
                 if(!columnasSinSuma.includes(c)) {
                     let span = document.getElementById(`tot_col_${c}`);
                     if(span) span.innerText = sumas[c] > 0 ? sumas[c] : "";
