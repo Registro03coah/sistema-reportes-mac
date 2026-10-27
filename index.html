@@ -2648,21 +2648,32 @@
         }
 
         function copiarTablaAlPortapapeles() {
-            let lineas = [];
-            let rows = document.querySelectorAll('#cuerpoTablaCompleta tr');
-            rows.forEach(r => {
-                let cols = r.querySelectorAll('td');
-                let filaValores = [];
-                cols.forEach((td, idx) => {
-                    if(idx === 0) {
-                        filaValores.push(td.innerText.trim());
-                    } else {
-                        let inp = td.querySelector('input, select');
-                        filaValores.push(inp ? inp.value.trim() : '');
-                    }
-                });
-                lineas.push(filaValores.join('\t'));
-            });
+    let lineas = [];
+    let rows = document.querySelectorAll('#cuerpoTablaCompleta tr');
+    
+    rows.forEach(r => {
+        let cols = r.querySelectorAll('td');
+        let filaValores = [];
+        cols.forEach((td) => {
+            // Buscamos si la celda tiene un input o select en cualquier columna
+            let inp = td.querySelector('input, select');
+            if (inp) {
+                filaValores.push(inp.value.trim());
+            } else {
+                filaValores.push(td.innerText.trim());
+            }
+        });
+        lineas.push(filaValores.join('\t'));
+    });
+
+    let textoFinal = lineas.join('\n');
+
+    navigator.clipboard.writeText(textoFinal).then(() => {
+        alert("¡Tabla copiada con éxito! Ya puedes pegarla en Excel con Ctrl + V.");
+    }).catch(err => {
+        alert("Error al copiar al portapapeles: " + err);
+    });
+}
 
             let remesaVal = document.getElementById('txtRemesaGlobal').value;
             let confVal = document.getElementById('txtConfGlobal').value;
