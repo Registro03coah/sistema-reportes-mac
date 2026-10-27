@@ -651,7 +651,7 @@
 
     <!-- PIE DE PÁGINA UNIVERSAL -->
     <footer>
-        <span>© 2026 Derechos Reservados - Sistema de Reportes Módulos MAC (Nube) | <strong>Versión 11.7</strong></span>
+        <span>© 2026 Derechos Reservados - Sistema de Reportes Módulos MAC (Nube) | <strong>Versión 1.8</strong></span>
     </footer>
 
     <!-- Bootstrap JS -->
@@ -2159,9 +2159,13 @@ function recalcularTodo() {
     let sumas = {};
     for(let c=1; c<=75; c++) sumas[c] = 0;
 
-    let minFolioInicial = null, maxFolioFinal = null, primerDispVal = 0, primerDispEncontrado = false, totalDiasTrabajados = 0, sumaCol16Total = 0;
+    let minFolioInicial = null;
+    let maxFolioFinal = null;
+    let primerDispVal = 0;
+    let primerDispEncontrado = false;
+    let totalDiasTrabajados = 0;
+    let sumaCol16Total = 0;
 
-    // >>> PEGA EL BLOQUE AQUÍ <<<
     rows.forEach((r, rIdx) => {
         let inputs = r.querySelectorAll('input, select');
         let rowVals = {};
@@ -2170,7 +2174,7 @@ function recalcularTodo() {
             rowVals[colNum] = parseFloat(inp.value) || 0;
         });
 
-        // Cálculo de Reposición (Col 11) + Reimpresiones (Col 15) -> Columna 65
+        // Cálculo automático: Reposición (Col 11) + Reimpresiones (Col 15) -> Columna 65
         let valRep = rowVals[11] || 0;
         let valReimp = rowVals[15] || 0;
         let sumaRepoReimp = valRep + valReimp;
@@ -2180,75 +2184,125 @@ function recalcularTodo() {
         }
         rowVals[65] = sumaRepoReimp;
 
-                let horasVal = rowVals[3] || 0;
-                let diasTrabInput = r.querySelector('.col-dias-trab');
-                let diasVal = 0;
-                if(diasTrabInput) {
-                    diasVal = (horasVal > 0) ? 1 : 0;
-                    diasTrabInput.value = diasVal > 0 ? diasVal : "";
-                }
-                totalDiasTrabajados += diasVal;
+        let horasVal = rowVals[3] || 0;
+        let diasTrabInput = r.querySelector('.col-dias-trab');
+        let diasVal = 0;
+        if(diasTrabInput) {
+            diasVal = (horasVal > 0) ? 1 : 0;
+            diasTrabInput.value = diasVal > 0 ? diasVal : "";
+        }
+        totalDiasTrabajados += diasVal;
 
-                let fiInput = r.querySelector('.col-fi');
-                let ffInput = r.querySelector('.col-ff');
-                let fiStr = fiInput ? fiInput.value.trim() : "";
-                let ffStr = ffInput ? ffInput.value.trim() : "";
-                let fiVal = (fiStr !== "" && !isNaN(fiStr)) ? BigInt(fiStr) : 0n;
-                let ffVal = (ffStr !== "" && !isNaN(ffStr)) ? BigInt(ffStr) : 0n;
-                
-                let totFolios = 0;
-                let colTotFolios = r.querySelector('.col-tot-folios');
-                if(fiVal > 0n) {
-                    totFolios = (ffVal >= fiVal) ? Number(ffVal - fiVal + 1n) : 0;
-                    if(colTotFolios) colTotFolios.value = totFolios > 0 ? totFolios : "";
-                    if(minFolioInicial === null || fiVal < BigInt(minFolioInicial)) minFolioInicial = fiStr;
-                    if(maxFolioFinal === null || ffVal > BigInt(maxFolioFinal)) maxFolioFinal = ffStr;
-                } else {
-                    if(colTotFolios) colTotFolios.value = "";
-                }
+        let fiInput = r.querySelector('.col-fi');
+        let ffInput = r.querySelector('.col-ff');
+        let fiStr = fiInput ? fiInput.value.trim() : "";
+        let ffStr = ffInput ? ffInput.value.trim() : "";
+        let fiVal = (fiStr !== "" && !isNaN(fiStr)) ? BigInt(fiStr) : 0n;
+        let ffVal = (ffStr !== "" && !isNaN(ffStr)) ? BigInt(ffStr) : 0n;
+        
+        let totFolios = 0;
+        let colTotFolios = r.querySelector('.col-tot-folios');
+        if(fiVal > 0n) {
+            totFolios = (ffVal >= fiVal) ? Number(ffVal - fiVal + 1n) : 0;
+            if(colTotFolios) colTotFolios.value = totFolios > 0 ? totFolios : "";
+            if(minFolioInicial === null || fiVal < BigInt(minFolioInicial)) minFolioInicial = fiStr;
+            if(maxFolioFinal === null || ffVal > BigInt(maxFolioFinal)) maxFolioFinal = ffStr;
+        } else {
+            if(colTotFolios) colTotFolios.value = "";
+        }
 
-                let sumaFormatosUnicos = 0;
-                for(let c=8; c<=15; c++) {
-                    sumaFormatosUnicos += (rowVals[c] || 0);
-                }
-                let valCanc = rowVals[17] || 0;
-                let valRech = rowVals[18] || 0;
+        let sumaFormatosUnicos = 0;
+        for(let c=8; c<=15; c++) {
+            sumaFormatosUnicos += (rowVals[c] || 0);
+        }
+        let valCanc = rowVals[17] || 0;
+        let valRech = rowVals[18] || 0;
 
-                let totalCol16Final = sumaFormatosUnicos + valCanc + valRech;
-                let totTramInput = r.querySelector('.col-tot-tram');
-                if(totTramInput) {
-                    totTramInput.value = totalCol16Final > 0 ? totalCol16Final : "";
-                    if (totFolios > 0 && totalCol16Final !== totFolios) {
-                        totTramInput.style.color = 'red';
-                    } else {
-                        totTramInput.style.color = 'black';
+        let totalCol16Final = sumaFormatosUnicos + valCanc + valRech;
+        let totTramInput = r.querySelector('.col-tot-tram');
+        if(totTramInput) {
+            totTramInput.value = totalCol16Final > 0 ? totalCol16Final : "";
+            if (totFolios > 0 && totalCol16Final !== totFolios) {
+                totTramInput.style.color = 'red';
+            } else {
+                totTramInput.style.color = 'black';
+            }
+        }
+
+        sumaCol16Total += totalCol16Final;
+
+        let dispAntVal = rowVals[20] || 0;
+
+        if (!primerDispEncontrado && dispAntVal > 0) {
+            primerDispVal = dispAntVal;
+            primerDispEncontrado = true;
+        }
+
+        let recVal = rowVals[21] || 0, recOtrVal = rowVals[22] || 0, entVal = rowVals[23] || 0;
+        let v24 = rowVals[24] || 0, v25 = rowVals[25] || 0, v26 = rowVals[26] || 0, v27 = rowVals[27] || 0, v28 = rowVals[28] || 0, v29 = rowVals[29] || 0;
+        let impVal = rowVals[63] || 0, expVal = rowVals[64] || 0;
+
+        let dispActual = dispAntVal + recVal + recOtrVal - (entVal + v24 + v25 + v26 + v27 + v28 + v29) + impVal - expVal;
+        let colDisp = r.querySelector('.col-disp');
+        if(colDisp) colDisp.value = dispActual !== 0 ? dispActual : "";
+
+        inputs.forEach((inp, i) => {
+            let colNum = i + 2; 
+            if (colNum === 65) {
+                sumas[65] += sumaRepoReimp;
+            } else if(colNum <= 75 && colNum !== 16) {
+                sumas[colNum] += (parseFloat(inp.value) || 0);
+            }
+
+            // Evento Enter para navegación fluida
+            inp.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    let targetInput = null;
+                    let cIdx = i;
+
+                    let nextR = rIdx + 1;
+                    while (nextR < rows.length) {
+                        let nextTd = rows[nextR].querySelectorAll('td')[cIdx];
+                        if (nextTd) {
+                            let candidate = nextTd.querySelector('input.cell-input:not([readonly]), input.date-input:not([readonly]), select.cell-input');
+                            if (candidate && !candidate.disabled && candidate.offsetParent !== null && !candidate.readOnly) {
+                                targetInput = candidate;
+                                break;
+                            }
+                        }
+                        nextR++;
+                    }
+
+                    if (!targetInput) {
+                        let maxCols = Math.max(...rows.map(row => row.querySelectorAll('td').length));
+                        let nextC = cIdx + 1;
+                        while (nextC < maxCols) {
+                            for (let r = 0; r < rows.length; r++) {
+                                let candidateTd = rows[r].querySelectorAll('td')[nextC];
+                                if (candidateTd) {
+                                    let candidate = candidateTd.querySelector('input.cell-input:not([readonly]), input.date-input:not([readonly]), select.cell-input');
+                                    if (candidate && !candidate.disabled && candidate.offsetParent !== null && !candidate.readOnly) {
+                                        targetInput = candidate;
+                                        break;
+                                    }
+                                }
+                            }
+                            if (targetInput) break;
+                            nextC++;
+                        }
+                    }
+
+                    if (targetInput) {
+                        targetInput.focus();
+                        targetInput.select();
                     }
                 }
-
-                sumaCol16Total += totalCol16Final;
-
-                let dispAntVal = rowVals[20] || 0;
-
-                if (!primerDispEncontrado && dispAntVal > 0) {
-                    primerDispVal = dispAntVal;
-                    primerDispEncontrado = true;
-                }
-
-                let recVal = rowVals[21] || 0, recOtrVal = rowVals[22] || 0, entVal = rowVals[23] || 0;
-                let v24 = rowVals[24] || 0, v25 = rowVals[25] || 0, v26 = rowVals[26] || 0, v27 = rowVals[27] || 0, v28 = rowVals[28] || 0, v29 = rowVals[29] || 0;
-                let impVal = rowVals[63] || 0, expVal = rowVals[64] || 0;
-
-                let dispActual = dispAntVal + recVal + recOtrVal - (entVal + v24 + v25 + v26 + v27 + v28 + v29) + impVal - expVal;
-                let colDisp = r.querySelector('.col-disp');
-                if(colDisp) colDisp.value = dispActual !== 0 ? dispActual : "";
-
-                inputs.forEach((inp, i) => {
-                    let colNum = i + 2;
-                    if(colNum <= 75 && colNum !== 16) sumas[colNum] += (parseFloat(inp.value) || 0);
-                });
             });
-
-            sumas[16] = sumaCol16Total;
+        });
+  
+ sumas[16] = sumaCol16Total;
+        
 
             let sumaCol19Total = sumas[19] || 0;
             let inputCanje = document.getElementById('inputCanjeGlobal');
