@@ -682,7 +682,7 @@
             { lote: '', cant: '' }, { lote: '', cant: '' }, { lote: '', cant: '' }, { lote: '', cant: '' }, { lote: '', cant: '' }, { lote: '', cant: '' }, { lote: '', cant: '' }
         ];
 
-        const columnasSinSuma = [1, 2, 3, 4, 5, 6, 16, 17, 18, 20, 22, 29, 30, 31, 39, 44, 45, 46, 47, 48, 51, 52];
+        const columnasSinSuma = [1, 2, 3, 4, 5, 6, 16, 17, 18, 20, 22, 29, 30, 39, 44, 45, 46, 47, 48, 51, 52];
 
         document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('btnVolver').addEventListener('click', volverAlMenu);
@@ -1142,8 +1142,6 @@
                 filaTotales.innerHTML += `<td class="${claseOculta}"><span id="tot_col_ret_29" class="fw-bold text-danger"></span></td>`;
             } else if (c === 30) {
                 filaTotales.innerHTML += `<td class="${claseOculta}"><span id="tot_col_disp_fin_30" class="fw-bold text-danger"></span></td>`;
-            } else if (c === 31) {
-                filaTotales.innerHTML += `<td class="${claseOculta}"><span id="tot_col_canje_31" class="fw-bold text-danger"></span></td>`;
             } else if (c === 34) {
                 filaTotales.innerHTML += `<td class="${claseOculta}"><span id="tot_col_dias_trab_34" class="fw-bold"></span></td>`;
             } else if (c === 39) {
@@ -1930,8 +1928,6 @@
                     totalesValores.push(document.getElementById('tot_col_ret_29').innerText);
                 } else if (c === 30) {
                     totalesValores.push(document.getElementById('tot_col_disp_fin_30').innerText);
-                } else if (c === 31) {
-                    totalesValores.push(canjeVal);
                 } else if (c === 34) {
                     totalesValores.push(document.getElementById('tot_col_dias_trab_34').innerText);
                 } else if (c === 39) {
@@ -2134,7 +2130,6 @@
             document.getElementById('tot_col_max_6').innerText = maxFolioFinal !== null && maxFolioFinal !== "0" ? maxFolioFinal : "";
             document.getElementById('tot_col_16').innerText = sumas[16] > 0 ? sumas[16] : "";
             document.getElementById('tot_col_primer_disp_20').innerText = primerDispVal > 0 ? primerDispVal : "";
-            document.getElementById('tot_col_canje_31').innerText = sumaCol19Total > 0 ? sumaCol19Total : "";
             document.getElementById('tot_col_dias_trab_34').innerText = totalDiasTrabajados > 0 ? totalDiasTrabajados : "";
             document.getElementById('tot_col_remesa_39').innerText = document.getElementById('txtRemesaGlobal').value;
             document.getElementById('tot_col_conf_44').innerText = document.getElementById('txtConfGlobal').value;
