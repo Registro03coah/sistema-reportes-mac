@@ -326,8 +326,8 @@
                             <th colspan="3">FOLIOS</th>
                             <th colspan="9">FORMATOS ÚNICOS (8-16)</th>
                             <th colspan="14">ESTADÍSTICAS Y MOVIMIENTOS (17-30)</th>
-                            <th colspan="9" class="col-oculta-modulo">INDICADORES Y CREDENCIALES (31-40)</th>
-                            <th colspan="34" class="col-oculta-modulo">REGISTROS Y CONFIGURACIÓN ADICIONAL (41-75)</th>
+                            <th colspan="10" class="col-oculta-modulo">INDICADORES Y CREDENCIALES (31-40)</th>
+                            <th colspan="33" class="col-oculta-modulo">REGISTROS Y CONFIGURACIÓN ADICIONAL (41-73)</th>
                         </tr>
                         <tr>
                             <th>INICIAL</th>
@@ -389,16 +389,6 @@
                             <th class="col-oculta-modulo" style="background-color: #d7ccc8; color: #3e2723;">IMPORTADAS</th>
                             <th class="col-oculta-modulo" style="background-color: #d7ccc8; color: #3e2723;">EXPORTADAS</th>
                             <th class="col-oculta-modulo">reposiciones + reimpresiones</th>
-                            <th class="col-oculta-modulo" style="background-color: #673ab7; color: white;">MAL IMPRESA</th>
-                            <th class="col-oculta-modulo" style="background-color: #673ab7; color: white;">ERROR EN CARTOGRAFIA</th>
-                            <th class="col-oculta-modulo" style="background-color: #673ab7; color: white;">DEFUNCION</th>
-                            <th class="col-oculta-modulo" style="background-color: #673ab7; color: white;">SUSPENSION</th>
-                            <th class="col-oculta-modulo" style="background-color: #673ab7; color: white;">DUPLICADO</th>
-                            <th class="col-oculta-modulo" style="background-color: #673ab7; color: white;">ERROR EN NUM. DE EMISION</th>
-                            <th class="col-oculta-modulo" style="background-color: #673ab7; color: white;">PERDIDA DE VIGENCIA</th>
-                            <th class="col-oculta-modulo" style="background-color: #673ab7; color: white;">MOV.POST.</th>
-                            <th class="col-oculta-modulo" style="background-color: #673ab7; color: white;">ANEXAS A SOLICITUD</th>
-                            <th class="col-oculta-modulo" style="background-color: #673ab7; color: white;">OTRAS BAJAS</th>
                         </tr>
                         <tr class="row-index" id="filaConsecutivos"></tr>
                     </thead>
@@ -411,7 +401,6 @@
                 </table>
             </div>
         </div>
-
         <!-- SECCIONES ADICIONALES INFERIORES -->
         <div class="row g-2">
             <!-- BLOQUE DE ANEXOS UNIDOS LADO A LADO -->
@@ -624,7 +613,7 @@
 
     <!-- PIE DE PÁGINA UNIVERSAL -->
     <footer>
-        <span>© 2026 Derechos Reservados - Sistema de Reportes Módulos MAC (Nube) | <strong>Versión 10.7</strong></span>
+        <span>© 2026 Derechos Reservados - Sistema de Reportes Módulos MAC (Nube) | <strong>Versión 11.0</strong></span>
     </footer>
 
     <!-- Bootstrap JS -->
@@ -682,7 +671,7 @@
             { lote: '', cant: '' }, { lote: '', cant: '' }, { lote: '', cant: '' }, { lote: '', cant: '' }, { lote: '', cant: '' }, { lote: '', cant: '' }, { lote: '', cant: '' }
         ];
 
-        const columnasSinSuma = [1, 2, 3, 4, 5, 6, 16, 17, 18, 20, 22, 29, 30, 39, 44, 45, 46, 47, 48, 51, 52];
+        const columnasSinSuma = [1, 2, 3, 4, 5, 6, 16, 17, 18, 20, 22, 29, 30, 38, 39, 43, 44, 45, 46, 48, 51, 52];
 
         document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('btnVolver').addEventListener('click', volverAlMenu);
@@ -699,7 +688,6 @@
                 if (e.key === 'Enter') validarPasswordModal();
             });
 
-            // Al cargar la página siempre se asegura de mostrar el menú principal limpio y pedir contraseña
             localStorage.removeItem('sesion_modulo_activo');
             localStorage.removeItem('sesion_admin_mode');
 
@@ -837,7 +825,7 @@
                     let remesasMac = data[macKey];
                     Object.keys(remesasMac).forEach(timestampKey => {
                         let reg = remesasMac[timestampKey];
-                        registros.push({ mac: macKey, timestampKey: timestampKey, remesa: reg.remesa, fechaHora: reg.fechaHora, filas1a75: reg.filas1a75 });
+                        registros.push({ mac: macKey, timestampKey: timestampKey, remesa: reg.remesa, fechaHora: reg.fechaHora, filas1a73: reg.filas1a73 });
                     });
                 });
 
@@ -892,12 +880,12 @@
             tbody.innerHTML = '';
 
             let trHead = document.createElement('tr');
-            for(let i=1; i<=75; i++) {
+            for(let i=1; i<=73; i++) {
                 trHead.innerHTML += `<th>Col ${i}</th>`;
             }
             thead.appendChild(trHead);
 
-            reg.filas1a75.forEach(filaVals => {
+            reg.filas1a73.forEach(filaVals => {
                 let tr = document.createElement('tr');
                 filaVals.forEach(val => {
                     tr.innerHTML += `<td>${val}</td>`;
@@ -913,14 +901,14 @@
         }
 
         function copiarRemesaSeleccionadaAlPortapapeles() {
-            if(!remesaSeleccionadaParaCopiar || !remesaSeleccionadaParaCopiar.filas1a75) return;
+            if(!remesaSeleccionadaParaCopiar || !remesaSeleccionadaParaCopiar.filas1a73) return;
             let lineas = [];
-            remesaSeleccionadaParaCopiar.filas1a75.forEach(filaVals => {
+            remesaSeleccionadaParaCopiar.filas1a73.forEach(filaVals => {
                 lineas.push(filaVals.join('\t'));
             });
             let textoFinal = lineas.join('\n');
             navigator.clipboard.writeText(textoFinal).then(() => {
-                alert("¡Remesa (1-75 columnas con ceros) copiada con éxito para Excel!");
+                alert("¡Remesa (1-73 columnas) copiada con éxito para Excel!");
             }).catch(err => {
                 alert("Error al copiar al portapapeles.");
             });
@@ -1049,7 +1037,7 @@
                 });
                 
                 let htmlAdicionales = '';
-                for(let aIdx=0; aIdx<35; aIdx++) {
+                for(let aIdx=0; aIdx<33; aIdx++) {
                     let colActual = 41 + aIdx;
                     let valCol = (d.adic && d.adic[aIdx] !== undefined) ? d.adic[aIdx] : "";
                     if ([44, 45, 46, 47].includes(colActual)) {
@@ -1063,11 +1051,11 @@
                         htmlAdicionales += `<td class="col-oculta-modulo"><input type="text" class="cell-input cell-formula col-impexp-link-${impExpSubIdx}" value="" readonly></td>`;
                     } else if (colActual === 53 || colActual === 54 || colActual === 65) {
                         htmlAdicionales += `<td class="col-oculta-modulo"><input type="text" class="cell-input cell-formula col-adic-${colActual}" value="" readonly></td>`;
-                    } else if (colActual >= 66 && colActual <= 75) {
+                    } else if (colActual >= 66 && colActual <= 73) {
                         let retSubIdx = colActual - 66;
                         htmlAdicionales += `<td class="col-oculta-modulo"><input type="text" class="cell-input cell-formula col-ret-link-${retSubIdx}" value="" readonly></td>`;
                     } else {
-                        htmlAdicionales += `<td class="col-oculta-modulo"><input type="text" class="cell-input col-editable col-num col-adic-val" data-adic-idx="${aIdx}" value="${valCol}" oninput="Todo(); guardarDatosLocales();"></td>`;
+                        htmlAdicionales += `<td class="col-oculta-modulo"><input type="text" class="cell-input col-editable col-num col-adic-val" data-adic-idx="${aIdx}" value="${valCol}" oninput="recalcularTodo(); guardarDatosLocales();"></td>`;
                     }
                 }
 
@@ -1115,63 +1103,64 @@
                     <td class="col-oculta-modulo"><input type="text" class="cell-input col-editable col-num col-juicio" value="${d.juicio !== undefined ? d.juicio : ''}" oninput="recalcularTodo(); guardarDatosLocales();"></td>
                     <td class="col-oculta-modulo"><input type="text" class="cell-input col-editable col-remesa" value="${d.remesa || 202640}"></td>
                     <td class="col-oculta-modulo"><input type="text" class="cell-input cell-formula col-tot-mov" value="" readonly></td>
+                    <td class="col-oculta-modulo"><input type="text" class="cell-input col-editable col-num col-dev-terceros" value="${d.devTerceros || ''}" oninput="recalcularTodo(); guardarDatosLocales();"></td>
                     ${htmlAdicionales}
                 `;
                 tbody.appendChild(tr);
             });
             
             let filaTotales = document.getElementById('filaTotales');
-        filaTotales.innerHTML = `<td colspan="4" class="text-end">LÍNEA TOTALES:</td>`;
-        for(let c=5; c<=73; c++) {
-            let claseOculta = (c > 30) ? 'col-oculta-modulo' : '';
-            if (c === 5) {
-                filaTotales.innerHTML += `<td class="${claseOculta}"><span id="tot_col_min_5" class="fw-bold"></span></td>`;
-            } else if (c === 6) {
-                filaTotales.innerHTML += `<td class="${claseOculta}"><span id="tot_col_max_6" class="fw-bold"></span></td>`;
-            } else if (c === 16) {
-                filaTotales.innerHTML += `<td class="${claseOculta}"><span id="tot_col_16" class="fw-bold" style="background-color: #22c55e; color: white; padding: 2px 4px; display: inline-block; width: 100%;"></span></td>`;
-            } else if (c === 17) {
-                filaTotales.innerHTML += `<td class="${claseOculta}"><span id="tot_col_canc_17" class="fw-bold text-danger"></span></td>`;
-            } else if (c === 18) {
-                filaTotales.innerHTML += `<td class="${claseOculta}"><span id="tot_col_rech_18" class="fw-bold text-danger"></span></td>`;
-            } else if (c === 20) {
-                filaTotales.innerHTML += `<td class="${claseOculta}"><span id="tot_col_primer_disp_20" class="fw-bold text-danger"></span></td>`;
-            } else if (c === 22) {
-                filaTotales.innerHTML += `<td class="${claseOculta}"><span id="tot_col_recotr_22" class="fw-bold text-danger"></span></td>`;
-            } else if (c === 29) {
-                filaTotales.innerHTML += `<td class="${claseOculta}"><span id="tot_col_ret_29" class="fw-bold text-danger"></span></td>`;
-            } else if (c === 30) {
-                filaTotales.innerHTML += `<td class="${claseOculta}"><span id="tot_col_disp_fin_30" class="fw-bold text-danger"></span></td>`;
-            } else if (c === 34) {
-                filaTotales.innerHTML += `<td class="${claseOculta}"><span id="tot_col_dias_trab_34" class="fw-bold"></span></td>`;
-            } else if (c === 39) {
-                filaTotales.innerHTML += `<td class="${claseOculta}"><span id="tot_col_remesa_39" class="fw-bold text-primary"></span></td>`;
-            } else if (c === 44) {
-                filaTotales.innerHTML += `<td class="${claseOculta}"><span id="tot_col_conf_44" class="fw-bold text-primary"></span></td>`;
-            } else if (c === 45) {
-                filaTotales.innerHTML += `<td class="${claseOculta}"><span id="tot_col_ent_45" class="fw-bold text-primary">COAHUILA 05</span></td>`;
-            } else if (c === 46) {
-                filaTotales.innerHTML += `<td class="${claseOculta}"><span id="tot_col_dtto_46" class="fw-bold text-primary">03</span></td>`;
-            } else if (c === 47) {
-                filaTotales.innerHTML += `<td class="${claseOculta}"><span id="tot_col_modulo_47" class="fw-bold text-primary">${moduloActual}</span></td>`;
-            } else if (c === 48) {
-                filaTotales.innerHTML += `<td class="${claseOculta}"><span id="tot_col_resguardo_48" class="fw-bold text-danger"></span></td>`;
-            } else if (c === 51) {
-                filaTotales.innerHTML += `<td class="${claseOculta}"><span id="tot_col_script_51" class="fw-bold text-danger"></span></td>`;
-            } else if (c === 52) {
-                filaTotales.innerHTML += `<td class="${claseOculta}"><span id="tot_col_folionec_52" class="fw-bold text-danger"></span></td>`;
-            } else if (c === 63 || c === 64) {
-                let subIdx = c - 63;
-                filaTotales.innerHTML += `<td class="${claseOculta}"><span id="tot_col_impexp_${subIdx}" class="fw-bold text-danger"></span></td>`;
-            } else if (c >= 66 && c <= 73) {
-                let subIdx = c - 66;
-                filaTotales.innerHTML += `<td class="${claseOculta}"><span id="tot_col_ret_${subIdx}" class="fw-bold text-danger"></span></td>`;
-            } else if (columnasSinSuma.includes(c)) {
-                filaTotales.innerHTML += `<td class="${claseOculta}"></td>`;
-            } else {
-                filaTotales.innerHTML += `<td class="${claseOculta}"><span id="tot_col_${c}" class="fw-bold"></span></td>`;
+            filaTotales.innerHTML = `<td colspan="4" class="text-end">LÍNEA TOTALES:</td>`;
+            for(let c=5; c<=73; c++) {
+                let claseOculta = (c > 30) ? 'col-oculta-modulo' : '';
+                if (c === 5) {
+                    filaTotales.innerHTML += `<td class="${claseOculta}"><span id="tot_col_min_5" class="fw-bold"></span></td>`;
+                } else if (c === 6) {
+                    filaTotales.innerHTML += `<td class="${claseOculta}"><span id="tot_col_max_6" class="fw-bold"></span></td>`;
+                } else if (c === 16) {
+                    filaTotales.innerHTML += `<td class="${claseOculta}"><span id="tot_col_16" class="fw-bold" style="background-color: #22c55e; color: white; padding: 2px 4px; display: inline-block; width: 100%;"></span></td>`;
+                } else if (c === 17) {
+                    filaTotales.innerHTML += `<td class="${claseOculta}"><span id="tot_col_canc_17" class="fw-bold text-danger"></span></td>`;
+                } else if (c === 18) {
+                    filaTotales.innerHTML += `<td class="${claseOculta}"><span id="tot_col_rech_18" class="fw-bold text-danger"></span></td>`;
+                } else if (c === 20) {
+                    filaTotales.innerHTML += `<td class="${claseOculta}"><span id="tot_col_primer_disp_20" class="fw-bold text-danger"></span></td>`;
+                } else if (c === 22) {
+                    filaTotales.innerHTML += `<td class="${claseOculta}"><span id="tot_col_recotr_22" class="fw-bold text-danger"></span></td>`;
+                } else if (c === 29) {
+                    filaTotales.innerHTML += `<td class="${claseOculta}"><span id="tot_col_ret_29" class="fw-bold text-danger"></span></td>`;
+                } else if (c === 30) {
+                    filaTotales.innerHTML += `<td class="${claseOculta}"><span id="tot_col_disp_fin_30" class="fw-bold text-danger"></span></td>`;
+                } else if (c === 33) {
+                    filaTotales.innerHTML += `<td class="${claseOculta}"><span id="tot_col_dias_trab_33" class="fw-bold"></span></td>`;
+                } else if (c === 38) {
+                    filaTotales.innerHTML += `<td class="${claseOculta}"><span id="tot_col_remesa_38" class="fw-bold text-primary"></span></td>`;
+                } else if (c === 43) {
+                    filaTotales.innerHTML += `<td class="${claseOculta}"><span id="tot_col_conf_43" class="fw-bold text-primary"></span></td>`;
+                } else if (c === 44) {
+                    filaTotales.innerHTML += `<td class="${claseOculta}"><span id="tot_col_ent_44" class="fw-bold text-primary">COAHUILA 05</span></td>`;
+                } else if (c === 45) {
+                    filaTotales.innerHTML += `<td class="${claseOculta}"><span id="tot_col_dtto_45" class="fw-bold text-primary">03</span></td>`;
+                } else if (c === 46) {
+                    filaTotales.innerHTML += `<td class="${claseOculta}"><span id="tot_col_modulo_46" class="fw-bold text-primary">${moduloActual}</span></td>`;
+                } else if (c === 47) {
+                    filaTotales.innerHTML += `<td class="${claseOculta}"><span id="tot_col_resguardo_47" class="fw-bold text-danger"></span></td>`;
+                } else if (c === 50) {
+                    filaTotales.innerHTML += `<td class="${claseOculta}"><span id="tot_col_script_50" class="fw-bold text-danger"></span></td>`;
+                } else if (c === 51) {
+                    filaTotales.innerHTML += `<td class="${claseOculta}"><span id="tot_col_folionec_51" class="fw-bold text-danger"></span></td>`;
+                } else if (c === 62 || c === 63) {
+                    let subIdx = c - 62;
+                    filaTotales.innerHTML += `<td class="${claseOculta}"><span id="tot_col_impexp_${subIdx}" class="fw-bold text-danger"></span></td>`;
+                } else if (c >= 65 && c <= 72) {
+                    let subIdx = c - 65;
+                    filaTotales.innerHTML += `<td class="${claseOculta}"><span id="tot_col_ret_${subIdx}" class="fw-bold text-danger"></span></td>`;
+                } else if (columnasSinSuma.includes(c)) {
+                    filaTotales.innerHTML += `<td class="${claseOculta}"></td>`;
+                } else {
+                    filaTotales.innerHTML += `<td class="${claseOculta}"><span id="tot_col_${c}" class="fw-bold"></span></td>`;
+                }
             }
-        }
             construirTablasInferiores();
             cargarValoresSubTablas(savedData);
             document.querySelectorAll('.col-horas').forEach(inp => validarHoras(inp));
@@ -1274,7 +1263,6 @@
             inicializarNavegacionIndependientePorTablas();
         }
 
-        // Navegación Enter independiente por cada tabla (por columna basada en posición de celda)
         function configurarNavegacionTablaPorColumna(tableEl) {
             if (!tableEl) return;
             const rows = Array.from(tableEl.querySelectorAll('tbody tr'));
@@ -1282,7 +1270,6 @@
 
             rows.forEach((row, rIdx) => {
                 const tds = Array.from(row.querySelectorAll('td'));
-                
                 tds.forEach((td, cIdx) => {
                     const input = td.querySelector('input.cell-input, input.date-input, select.cell-input');
                     if (!input) return;
@@ -1296,7 +1283,6 @@
                             e.preventDefault();
                             let targetInput = null;
 
-                            // 1. Buscar en la misma columna hacia abajo
                             let nextR = rIdx + 1;
                             while (nextR < rows.length) {
                                 let nextTd = rows[nextR].querySelectorAll('td')[cIdx];
@@ -1310,7 +1296,6 @@
                                 nextR++;
                             }
 
-                            // 2. Saltar al inicio (fila 0) de la siguiente columna
                             if (!targetInput) {
                                 let maxCols = Math.max(...rows.map(r => r.querySelectorAll('td').length));
                                 let nextC = cIdx + 1;
@@ -1330,7 +1315,6 @@
                                 }
                             }
 
-                            // 3. Volver al primer elemento si llega al final
                             if (!targetInput) {
                                 for (let r = 0; r < rows.length; r++) {
                                     let rowTds = rows[r].querySelectorAll('td');
@@ -1452,8 +1436,8 @@
 
             let spanTotRecOtr22 = document.getElementById('tot_col_recotr_22');
             if(spanTotRecOtr22) spanTotRecOtr22.innerText = sumCredTotal > 0 ? sumCredTotal : "";
-            let spanTotResguardo48 = document.getElementById('tot_col_resguardo_48');
-            if(spanTotResguardo48) spanTotResguardo48.innerText = sumResguardoTotal > 0 ? sumResguardoTotal : "";
+            let spanTotResguardo47 = document.getElementById('tot_col_resguardo_47');
+            if(spanTotResguardo47) spanTotResguardo47.innerText = sumResguardoTotal > 0 ? sumResguardoTotal : "";
 
             let rowsCanc = document.querySelectorAll('#tablaCancelados tbody tr');
             let sumCancTotal = 0;
@@ -1597,7 +1581,7 @@
             }
         }
 
-       function guardarDatosLocales() {
+        function guardarDatosLocales() {
             if(!moduloActual) return;
 
             let datosDiarios = [];
@@ -1625,19 +1609,14 @@
                 let v26 = r.querySelector('.col-v26').value;
                 let v27 = r.querySelector('.col-v27').value;
                 let v28 = r.querySelector('.col-v28').value;
-                let fichEnt = r.querySelector('.col-fichent').value;
-                let fichAtend = r.querySelector('.col-fichatend').value;
-                let exp = r.querySelector('.col-exp').value;
-                let ord = r.querySelector('.col-ord').value;
-                let rect = r.querySelector('.col-rect').value;
-                let juicio = r.querySelector('.col-juicio').value;
                 let remesa = r.querySelector('.col-remesa').value;
+                let devTerceros = r.querySelector('.col-dev-terceros').value;
 
                 let adic = [];
                 r.querySelectorAll('.col-adic-val').forEach(inp => adic.push(inp.value));
 
                 datosDiarios.push({
-                    dia: r.querySelector('.col-dia').innerText, fecha, horas, sede, fi, ff, ins, corr, cam, rep, cdir, reinc, reempl, reimp, cpvDev, dispAnt, rec, ent, v24, v25, v26, v27, v28, fichEnt, fichAtend, exp, ord, rect, juicio, remesa, adic
+                    dia: r.querySelector('.col-dia').innerText, fecha, horas, sede, fi, ff, ins, corr, cam, rep, cdir, reinc, reempl, reimp, cpvDev, dispAnt, rec, ent, v24, v25, v26, v27, v28, remesa, devTerceros, adic
                 });
             });
 
@@ -1709,7 +1688,6 @@
                 remesa: document.getElementById('txtRemesaGlobal').value,
                 conf: document.getElementById('txtConfGlobal').value,
                 responsable: document.getElementById('txtResponsable').value,
-                canje: document.getElementById('inputCanjeGlobal').value,
                 script: document.getElementById('inputScriptGlobal').value,
                 folioNec: document.getElementById('inputFolioNecGlobal').value,
                 instPadron: document.getElementById('inputInstPadron').value,
@@ -1720,7 +1698,6 @@
             };
 
             let objetoCompleto = { datosDiarios, rechazos, credRecibidas, cancelados, instancias, impExp, retCausa, lotes, configGlobal };
-            
             db.ref('modulos/' + moduloActual).set(objetoCompleto).catch(err => console.error("Error al sincronizar con nube:", err));
         }
 
@@ -1904,7 +1881,6 @@
             let entVal = document.getElementById('txtEntidadGlobal').value;
             let dttoVal = document.getElementById('txtDistritoGlobal').value;
             let modVal = moduloActual;
-            let canjeVal = document.getElementById('inputCanjeGlobal').value;
             let scriptVal = document.getElementById('inputScriptGlobal').value;
             let folionecVal = document.getElementById('inputFolioNecGlobal').value;
 
@@ -1928,29 +1904,29 @@
                     totalesValores.push(document.getElementById('tot_col_ret_29').innerText);
                 } else if (c === 30) {
                     totalesValores.push(document.getElementById('tot_col_disp_fin_30').innerText);
-                } else if (c === 34) {
-                    totalesValores.push(document.getElementById('tot_col_dias_trab_34').innerText);
-                } else if (c === 39) {
+                } else if (c === 33) {
+                    totalesValores.push(document.getElementById('tot_col_dias_trab_33').innerText);
+                } else if (c === 38) {
                     totalesValores.push(remesaVal);
-                } else if (c === 44) {
+                } else if (c === 43) {
                     totalesValores.push(confVal);
-                } else if (c === 45) {
+                } else if (c === 44) {
                     totalesValores.push(entVal);
-                } else if (c === 46) {
+                } else if (c === 45) {
                     totalesValores.push(dttoVal);
-                } else if (c === 47) {
+                } else if (c === 46) {
                     totalesValores.push(modVal);
-                } else if (c === 48) {
-                    totalesValores.push(document.getElementById('tot_col_resguardo_48').innerText);
-                } else if (c === 51) {
+                } else if (c === 47) {
+                    totalesValores.push(document.getElementById('tot_col_resguardo_47').innerText);
+                } else if (c === 50) {
                     totalesValores.push(scriptVal);
-                } else if (c === 52) {
+                } else if (c === 51) {
                     totalesValores.push(folionecVal);
-                } else if (c === 63 || c === 64) {
-                    let subIdx = c - 63;
+                } else if (c === 62 || c === 63) {
+                    let subIdx = c - 62;
                     totalesValores.push(document.getElementById(`tot_col_impexp_${subIdx}`).innerText);
-                } else if (c >= 66 && c <= 73) {
-                    let subIdx = c - 66;
+                } else if (c >= 65 && c <= 72) {
+                    let subIdx = c - 65;
                     totalesValores.push(document.getElementById(`tot_col_ret_${subIdx}`).innerText);
                 } else if (columnasSinSuma.includes(c)) {
                     totalesValores.push("");
@@ -2009,23 +1985,23 @@
         function actualizarRemesaGlobal(valor) {
             let inputsRemesa = document.querySelectorAll('.col-remesa');
             inputsRemesa.forEach(input => input.value = valor);
-            let spanRemesa39 = document.getElementById('tot_col_remesa_39');
-            if(spanRemesa39) spanRemesa39.innerText = valor;
+            let spanRemesa38 = document.getElementById('tot_col_remesa_38');
+            if(spanRemesa38) spanRemesa38.innerText = valor;
         }
 
         function actualizarConfGlobal(valor) {
-            let spanConf44 = document.getElementById('tot_col_conf_44');
-            if(spanConf44) spanConf44.innerText = valor;
+            let spanConf43 = document.getElementById('tot_col_conf_43');
+            if(spanConf43) spanConf43.innerText = valor;
         }
 
         function actualizarEntidadGlobal(valor) {
-            let spanEnt45 = document.getElementById('tot_col_ent_45');
-            if(spanEnt45) spanEnt45.innerText = valor;
+            let spanEnt44 = document.getElementById('tot_col_ent_44');
+            if(spanEnt44) spanEnt44.innerText = valor;
         }
 
         function actualizarDistritoGlobal(valor) {
-            let spanDtto46 = document.getElementById('tot_col_dtto_46');
-            if(spanDtto46) spanDtto46.innerText = valor;
+            let spanDtto45 = document.getElementById('tot_col_dtto_45');
+            if(spanDtto45) spanDtto45.innerText = valor;
         }
 
         function recalcularFila(input) {
@@ -2106,7 +2082,7 @@
 
                 let recVal = rowVals[21] || 0, recOtrVal = rowVals[22] || 0, entVal = rowVals[23] || 0;
                 let v24 = rowVals[24] || 0, v25 = rowVals[25] || 0, v26 = rowVals[26] || 0, v27 = rowVals[27] || 0, v28 = rowVals[28] || 0, v29 = rowVals[29] || 0;
-                let impVal = rowVals[63] || 0, expVal = rowVals[64] || 0;
+                let impVal = rowVals[62] || 0, expVal = rowVals[63] || 0;
 
                 let dispActual = dispAntVal + recVal + recOtrVal - (entVal + v24 + v25 + v26 + v27 + v28 + v29) + impVal - expVal;
                 let colDisp = r.querySelector('.col-disp');
@@ -2130,14 +2106,14 @@
             document.getElementById('tot_col_max_6').innerText = maxFolioFinal !== null && maxFolioFinal !== "0" ? maxFolioFinal : "";
             document.getElementById('tot_col_16').innerText = sumas[16] > 0 ? sumas[16] : "";
             document.getElementById('tot_col_primer_disp_20').innerText = primerDispVal > 0 ? primerDispVal : "";
-            document.getElementById('tot_col_dias_trab_34').innerText = totalDiasTrabajados > 0 ? totalDiasTrabajados : "";
-            document.getElementById('tot_col_remesa_39').innerText = document.getElementById('txtRemesaGlobal').value;
-            document.getElementById('tot_col_conf_44').innerText = document.getElementById('txtConfGlobal').value;
-            document.getElementById('tot_col_ent_45').innerText = document.getElementById('txtEntidadGlobal').value;
-            document.getElementById('tot_col_dtto_46').innerText = document.getElementById('txtDistritoGlobal').value;
-            document.getElementById('tot_col_modulo_47').innerText = moduloActual;
-            document.getElementById('tot_col_script_51').innerText = document.getElementById('inputScriptGlobal').value;
-            document.getElementById('tot_col_folionec_52').innerText = document.getElementById('inputFolioNecGlobal').value;
+            document.getElementById('tot_col_dias_trab_33').innerText = totalDiasTrabajados > 0 ? totalDiasTrabajados : "";
+            document.getElementById('tot_col_remesa_38').innerText = document.getElementById('txtRemesaGlobal').value;
+            document.getElementById('tot_col_conf_43').innerText = document.getElementById('txtConfGlobal').value;
+            document.getElementById('tot_col_ent_44').innerText = document.getElementById('txtEntidadGlobal').value;
+            document.getElementById('tot_col_dtto_45').innerText = document.getElementById('txtDistritoGlobal').value;
+            document.getElementById('tot_col_modulo_46').innerText = moduloActual;
+            document.getElementById('tot_col_script_50').innerText = document.getElementById('inputScriptGlobal').value;
+            document.getElementById('tot_col_folionec_51').innerText = document.getElementById('inputFolioNecGlobal').value;
 
             for(let c=7; c<=73; c++) {
                 if(!columnasSinSuma.includes(c)) {
@@ -2158,39 +2134,39 @@
         }
     </script>
     <!-- Botón Flotante para Regresar al Menú Principal -->
-<a href="https://registro03coah.github.io/mimenu/index.html" class="btn-regresar-menu" title="Regresar al Centro de Mando">
-    <i class="fas fa-home"></i> <span>Menú Principal</span>
-</a>
+    <a href="https://registro03coah.github.io/mimenu/index.html" class="btn-regresar-menu" title="Regresar al Centro de Mando">
+        <i class="fas fa-home"></i> <span>Menú Principal</span>
+    </a>
 
-<style>
-    .btn-regresar-menu {
-        position: fixed !important;
-        bottom: 25px !important;
-        left: 25px !important;
-        background: rgba(13, 27, 42, 0.95) !important;
-        color: #fff !important;
-        padding: 10px 18px !important;
-        border-radius: 30px !important;
-        display: flex !important;
-        align-items: center !important;
-        gap: 8px !important;
-        text-decoration: none !important;
-        font-family: system-ui, -apple-system, sans-serif !important;
-        font-size: 0.85rem !important;
-        font-weight: 600 !important;
-        border: 2px solid #4ea8de !important;
-        box-shadow: 0 5px 25px rgba(0, 0, 0, 0.7) !important;
-        backdrop-filter: blur(5px) !important;
-        z-index: 2147483647 !important;
-        transition: all 0.3s ease !important;
-    }
+    <style>
+        .btn-regresar-menu {
+            position: fixed !important;
+            bottom: 25px !important;
+            left: 25px !important;
+            background: rgba(13, 27, 42, 0.95) !important;
+            color: #fff !important;
+            padding: 10px 18px !important;
+            border-radius: 30px !important;
+            display: flex !important;
+            align-items: center !important;
+            gap: 8px !important;
+            text-decoration: none !important;
+            font-family: system-ui, -apple-system, sans-serif !important;
+            font-size: 0.85rem !important;
+            font-weight: 600 !important;
+            border: 2px solid #4ea8de !important;
+            box-shadow: 0 5px 25px rgba(0, 0, 0, 0.7) !important;
+            backdrop-filter: blur(5px) !important;
+            z-index: 2147483647 !important;
+            transition: all 0.3s ease !important;
+        }
 
-    .btn-regresar-menu:hover {
-        background: #4ea8de !important;
-        color: #0d1b2a !important;
-        transform: translateY(-3px) !important;
-        box-shadow: 0 8px 25px rgba(78, 168, 222, 0.7) !important;
-    }
-</style>
+        .btn-regresar-menu:hover {
+            background: #4ea8de !important;
+            color: #0d1b2a !important;
+            transform: translateY(-3px) !important;
+            box-shadow: 0 8px 25px rgba(78, 168, 222, 0.7) !important;
+        }
+    </style>
 </body>
 </html>
