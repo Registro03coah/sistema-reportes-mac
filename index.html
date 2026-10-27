@@ -651,7 +651,7 @@
 
     <!-- PIE DE PÁGINA UNIVERSAL -->
     <footer>
-        <span>© 2026 Derechos Reservados - Sistema de Reportes Módulos MAC (Nube) | <strong>Versión 1.6</strong></span>
+        <span>© 2026 Derechos Reservados - Sistema de Reportes Módulos MAC (Nube) | <strong>Versión 1.5</strong></span>
     </footer>
 
     <!-- Bootstrap JS -->
@@ -673,6 +673,7 @@
         const diasNombresCortos = ['LUN', 'MAR', 'MIÉ', 'JUE', 'VIE', 'SÁB', 'DOM'];
         let moduloActual = null;
         let totalDiasTrabajados = 0;
+        let sumaCol16Total = 0;
         let esAdminMode = false;
         let passwordEsperadaGlobal = '';
         let modalPasswordInstance = null;
@@ -2164,8 +2165,8 @@ function recalcularTodo() {
     let maxFolioFinal = null;
     let primerDispVal = 0;
     let primerDispEncontrado = false;
-    let totalDiasTrabajados = 0;
-    let sumaCol16Total = 0;
+     totalDiasTrabajados = 0;
+     sumaCol16Total = 0;
 
     rows.forEach((r, rIdx) => {
         let inputs = r.querySelectorAll('input, select');
