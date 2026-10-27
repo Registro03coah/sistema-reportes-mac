@@ -1588,7 +1588,7 @@
             }
         }
 
-        function guardarDatosLocales() {
+       function guardarDatosLocales() {
             if(!moduloActual) return;
 
             let datosDiarios = [];
@@ -1616,7 +1616,6 @@
                 let v26 = r.querySelector('.col-v26').value;
                 let v27 = r.querySelector('.col-v27').value;
                 let v28 = r.querySelector('.col-v28').value;
-                let canje = r.querySelector('.col-canje').value;
                 let fichEnt = r.querySelector('.col-fichent').value;
                 let fichAtend = r.querySelector('.col-fichatend').value;
                 let exp = r.querySelector('.col-exp').value;
@@ -1629,7 +1628,7 @@
                 r.querySelectorAll('.col-adic-val').forEach(inp => adic.push(inp.value));
 
                 datosDiarios.push({
-                    dia: r.querySelector('.col-dia').innerText, fecha, horas, sede, fi, ff, ins, corr, cam, rep, cdir, reinc, reempl, reimp, cpvDev, dispAnt, rec, ent, v24, v25, v26, v27, v28, canje, fichEnt, fichAtend, exp, ord, rect, juicio, remesa, adic
+                    dia: r.querySelector('.col-dia').innerText, fecha, horas, sede, fi, ff, ins, corr, cam, rep, cdir, reinc, reempl, reimp, cpvDev, dispAnt, rec, ent, v24, v25, v26, v27, v28, fichEnt, fichAtend, exp, ord, rect, juicio, remesa, adic
                 });
             });
 
