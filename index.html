@@ -651,7 +651,7 @@
 
     <!-- PIE DE PÁGINA UNIVERSAL -->
     <footer>
-        <span>© 2026 Derechos Reservados - Sistema de Reportes Módulos MAC (Nube) | <strong>Versión 1.7</strong></span>
+        <span>© 2026 Derechos Reservados - Sistema de Reportes Módulos MAC (Nube) | <strong>Versión 1.6</strong></span>
     </footer>
 
     <!-- Bootstrap JS -->
@@ -672,6 +672,7 @@
 
         const diasNombresCortos = ['LUN', 'MAR', 'MIÉ', 'JUE', 'VIE', 'SÁB', 'DOM'];
         let moduloActual = null;
+        let totalDiasTrabajados = 0;
         let esAdminMode = false;
         let passwordEsperadaGlobal = '';
         let modalPasswordInstance = null;
@@ -1075,28 +1076,28 @@
                     htmlSedes += `<option value="${s}" ${sel}>${s}</option>`;
                 });
                 
-                let htmlAdicionales = '';
-                for(let aIdx=0; aIdx<35; aIdx++) {
-                    let colActual = 41 + aIdx;
-                    let valCol = (d.adic && d.adic[aIdx] !== undefined) ? d.adic[aIdx] : "";
-                    if ([44, 45, 46, 47].includes(colActual)) {
-                        htmlAdicionales += `<td class="col-oculta-modulo"><input type="text" class="cell-input" value="" readonly style="background-color: #f1f5f9;"></td>`;
-                    } else if (colActual === 48) {
-                        htmlAdicionales += `<td class="col-oculta-modulo"><input type="text" class="cell-input cell-formula col-resguardo-link" value="" readonly></td>`;
-                    } else if (colActual === 51 || colActual === 52) {
-                        htmlAdicionales += `<td class="col-oculta-modulo"><input type="text" class="cell-input cell-formula ${colActual === 51 ? 'col-script-link' : 'col-folionec-link'}" value="" readonly></td>`;
-                    } else if (colActual === 63 || colActual === 64) {
-                        let impExpSubIdx = colActual - 63;
-                        htmlAdicionales += `<td class="col-oculta-modulo"><input type="text" class="cell-input cell-formula col-impexp-link-${impExpSubIdx}" value="" readonly></td>`;
-                    } else if (colActual === 53 || colActual === 54 || colActual === 65) {
-                        htmlAdicionales += `<td class="col-oculta-modulo"><input type="text" class="cell-input cell-formula col-adic-${colActual}" value="" readonly></td>`;
-                    } else if (colActual >= 66 && colActual <= 75) {
-                        let retSubIdx = colActual - 66;
-                        htmlAdicionales += `<td class="col-oculta-modulo"><input type="text" class="cell-input cell-formula col-ret-link-${retSubIdx}" value="" readonly></td>`;
-                    } else {
-                        htmlAdicionales += `<td class="col-oculta-modulo"><input type="text" class="cell-input col-editable col-num col-adic-val" data-adic-idx="${aIdx}" value="${valCol}" oninput="recalcularTodo(); guardarDatosLocales();"></td>`;
-                    }
-                }
+let htmlAdicionales = '';
+    for(let aIdx=0; aIdx<35; aIdx++) {
+        let colActual = 41 + aIdx;
+        let valCol = (d.adic && d.adic[aIdx] !== undefined) ? d.adic[aIdx] : "";
+        if ([44, 45, 46, 47].includes(colActual)) {
+            htmlAdicionales += `<td class="col-oculta-modulo"><input type="text" class="cell-input" value="" readonly style="background-color: #f1f5f9;"></td>`;
+        } else if (colActual === 48) {
+            htmlAdicionales += `<td class="col-oculta-modulo"><input type="text" class="cell-input cell-formula col-resguardo-link" value="" readonly></td>`;
+        } else if (colActual === 51 || colActual === 52) {
+            htmlAdicionales += `<td class="col-oculta-modulo"><input type="text" class="cell-input cell-formula ${colActual === 51 ? 'col-script-link' : 'col-folionec-link'}" value="" readonly></td>`;
+        } else if (colActual === 63 || colActual === 64) {
+            let impExpSubIdx = colActual - 63;
+            htmlAdicionales += `<td class="col-oculta-modulo"><input type="text" class="cell-input cell-formula col-impexp-link-${impExpSubIdx}" value="" readonly></td>`;
+        } else if (colActual === 53 || colActual === 54 || colActual === 65) {
+            htmlAdicionales += `<td class="col-oculta-modulo"><input type="text" class="cell-input cell-formula col-adic-${colActual}" value="" readonly></td>`;
+        } else if (colActual >= 66 && colActual <= 75) {
+            let retSubIdx = colActual - 66;
+            htmlAdicionales += `<td class="col-oculta-modulo"><input type="text" class="cell-input cell-formula col-ret-link-${retSubIdx}" value="" readonly></td>`;
+        } else {
+            htmlAdicionales += `<td class="col-oculta-modulo"><input type="text" class="cell-input col-editable col-num col-adic-val" data-adic-idx="${aIdx}" value="${valCol}" oninput="recalcularTodo(); guardarDatosLocales();"></td>`;
+        }
+    }
 
                 tr.innerHTML = `
                     <td class="fw-bold col-dia">${d.dia}</td>
