@@ -69,6 +69,18 @@
         
         footer { position: fixed; bottom: 0; left: 0; width: 100%; background-color: #ffffff; border-top: 1px solid #dee2e6; padding: 5px; text-align: center; font-size: 0.65rem; color: #6c757d; z-index: 9999; }
     </style>
+    <!-- PWA Manifest & Service Worker (Versión 11.0) -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#1b396b">
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('./sw.js')
+            .then((reg) => console.log('Service Worker registrado con éxito', reg))
+            .catch((err) => console.log('Error al registrar Service Worker', err));
+        });
+      }
+    </script>
 </head>
 <body>
 
@@ -182,7 +194,7 @@
         <div class="modal-dialog modal-xl modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header bg-dark text-white py-2">
-                    <h5 class="modal-title fs-6">📂 Historial de Remesas Archivadas (1 a 75 Columnas)</h5>
+                    <h5 class="modal-title fs-6">📂 Historial de Remesas Archivadas (1 a 73 Columnas)</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
@@ -210,7 +222,7 @@
                         <div class="d-flex justify-content-between align-items-center mb-2">
                             <h6 class="fw-bold text-primary m-0" id="lblDetalleRemesaTitulo">Detalle de Remesa</h6>
                             <div>
-                                <button class="btn btn-success btn-sm fw-bold py-1 px-2" onclick="copiarRemesaSeleccionadaAlPortapapeles()">📋 Copiar Tabla para Excel (1-75)</button>
+                                <button class="btn btn-success btn-sm fw-bold py-1 px-2" onclick="copiarRemesaSeleccionadaAlPortapapeles()">📋 Copiar Tabla para Excel (1-73)</button>
                                 <button class="btn btn-outline-secondary btn-sm py-1 px-2" onclick="volverListaRemesas()">⬅ Volver a Lista</button>
                             </div>
                         </div>
