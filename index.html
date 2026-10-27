@@ -651,7 +651,7 @@
 
     <!-- PIE DE PÁGINA UNIVERSAL -->
     <footer>
-        <span>© 2026 Derechos Reservados - Sistema de Reportes Módulos MAC (Nube) | <strong>Versión 1.4</strong></span>
+        <span>© 2026 Derechos Reservados - Sistema de Reportes Módulos MAC (Nube) | <strong>Versión 1.3</strong></span>
     </footer>
 
     <!-- Bootstrap JS -->
@@ -676,6 +676,7 @@
         let sumaCol16Total = 0;
         let primerDispEncontrado = false;
         let primerDispVal = 0;
+        let sumas = {};
         let esAdminMode = false;
         let passwordEsperadaGlobal = '';
         let modalPasswordInstance = null;
@@ -2160,7 +2161,7 @@ function recalcularTodo() {
     recalcularTablasInferioresSinCiclo();
 
     let rows = document.querySelectorAll('#cuerpoTablaCompleta tr');
-    let sumas = {};
+    sumas = {};
     for(let c=1; c<=75; c++) sumas[c] = 0;
 
     let minFolioInicial = null;
