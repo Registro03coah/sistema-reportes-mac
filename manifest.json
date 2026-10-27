@@ -1,0 +1,20 @@
+{
+  "name": "Sistema de Reportes MAC",
+  "short_name": "MACs APP",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#f4f6f9",
+  "theme_color": "#1b396b",
+  "icons": [
+    {
+      "src": "image_c1b0db.jpg",
+      "sizes": "192x192",
+      "type": "image/jpeg"
+    },
+    {
+      "src": "image_c1b0db.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg"
+    }
+  ]
+}
