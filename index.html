@@ -651,7 +651,7 @@
 
     <!-- PIE DE PÁGINA UNIVERSAL -->
     <footer>
-        <span>© 2026 Derechos Reservados - Sistema de Reportes Módulos MAC (Nube) | <strong>Versión 1.3</strong></span>
+        <span>© 2026 Derechos Reservados - Sistema de Reportes Módulos MAC (Nube) | <strong>Versión 1.4</strong></span>
     </footer>
 
     <!-- Bootstrap JS -->
@@ -731,9 +731,17 @@
                 if (e.key === 'Enter') validarPasswordModal();
             });
 
-            // Al cargar la página siempre se asegura de mostrar el menú principal limpio y pedir contraseña
-            localStorage.removeItem('sesion_modulo_activo');
-            localStorage.removeItem('sesion_admin_mode');
+            // RESTAURACIÓN AUTOMÁTICA DE SESIÓN (Evita que al refrescar se borre la vista)
+            let moduloGuardado = localStorage.getItem('sesion_modulo_activo');
+            let adminGuardado = localStorage.getItem('sesion_admin_mode') === 'true';
+
+            if (moduloGuardado) {
+                if (adminGuardado) {
+                    cargarModuloAdminDirecto(moduloGuardado);
+                } else {
+                    cargarModuloDirecto(moduloGuardado);
+                }
+            }
 
             ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'].forEach(evento => {
                 window.addEventListener(evento, reiniciarTemporizadorInactividad);
@@ -981,17 +989,17 @@
             document.getElementById('txtModulo').value = idModulo;
             
             db.ref('modulos/' + idModulo).once('value').then((snapshot) => {
-                datosCargadosNube = snapshot.val() || {};
+                datosCargadosNube = snapshot.val() || JSON.parse(localStorage.getItem('mac_datos_' + idModulo) || '{}');
                 construirTabla();
                 cargarDatosLocalesUI();
                 
-                if(!snapshot.exists() && configModulos[idModulo]) {
+                if(!snapshot.exists() && !localStorage.getItem('mac_datos_' + idModulo) && configModulos[idModulo]) {
                     document.getElementById('txtResponsable').value = configModulos[idModulo].responsable;
                     document.getElementById('txtConfGlobal').value = configModulos[idModulo].conf;
                 }
             }).catch((err) => {
                 console.error("Error al conectar con la nube:", err);
-                datosCargadosNube = {};
+                datosCargadosNube = JSON.parse(localStorage.getItem('mac_datos_' + idModulo) || '{}');
                 construirTabla();
                 cargarDatosLocalesUI();
             });
@@ -1014,17 +1022,17 @@
             document.getElementById('comboAdminModulo').value = idModulo;
             
             db.ref('modulos/' + idModulo).once('value').then((snapshot) => {
-                datosCargadosNube = snapshot.val() || {};
+                datosCargadosNube = snapshot.val() || JSON.parse(localStorage.getItem('mac_datos_' + idModulo) || '{}');
                 construirTabla();
                 cargarDatosLocalesUI();
                 
-                if(!snapshot.exists() && configModulos[idModulo]) {
+                if(!snapshot.exists() && !localStorage.getItem('mac_datos_' + idModulo) && configModulos[idModulo]) {
                     document.getElementById('txtResponsable').value = configModulos[idModulo].responsable;
                     document.getElementById('txtConfGlobal').value = configModulos[idModulo].conf;
                 }
             }).catch((err) => {
                 console.error("Error al conectar con la nube:", err);
-                datosCargadosNube = {};
+                datosCargadosNube = JSON.parse(localStorage.getItem('mac_datos_' + idModulo) || '{}');
                 construirTabla();
                 cargarDatosLocalesUI();
             });
@@ -1080,28 +1088,28 @@
                     htmlSedes += `<option value="${s}" ${sel}>${s}</option>`;
                 });
                 
-let htmlAdicionales = '';
-    for(let aIdx=0; aIdx<35; aIdx++) {
-        let colActual = 41 + aIdx;
-        let valCol = (d.adic && d.adic[aIdx] !== undefined) ? d.adic[aIdx] : "";
-        if ([44, 45, 46, 47].includes(colActual)) {
-            htmlAdicionales += `<td class="col-oculta-modulo"><input type="text" class="cell-input" value="" readonly style="background-color: #f1f5f9;"></td>`;
-        } else if (colActual === 48) {
-            htmlAdicionales += `<td class="col-oculta-modulo"><input type="text" class="cell-input cell-formula col-resguardo-link" value="" readonly></td>`;
-        } else if (colActual === 51 || colActual === 52) {
-            htmlAdicionales += `<td class="col-oculta-modulo"><input type="text" class="cell-input cell-formula ${colActual === 51 ? 'col-script-link' : 'col-folionec-link'}" value="" readonly></td>`;
-        } else if (colActual === 63 || colActual === 64) {
-            let impExpSubIdx = colActual - 63;
-            htmlAdicionales += `<td class="col-oculta-modulo"><input type="text" class="cell-input cell-formula col-impexp-link-${impExpSubIdx}" value="" readonly></td>`;
-        } else if (colActual === 53 || colActual === 54 || colActual === 65) {
-            htmlAdicionales += `<td class="col-oculta-modulo"><input type="text" class="cell-input cell-formula col-adic-${colActual}" value="" readonly></td>`;
-        } else if (colActual >= 66 && colActual <= 75) {
-            let retSubIdx = colActual - 66;
-            htmlAdicionales += `<td class="col-oculta-modulo"><input type="text" class="cell-input cell-formula col-ret-link-${retSubIdx}" value="" readonly></td>`;
-        } else {
-            htmlAdicionales += `<td class="col-oculta-modulo"><input type="text" class="cell-input col-editable col-num col-adic-val" data-adic-idx="${aIdx}" value="${valCol}" oninput="recalcularTodo(); guardarDatosLocales();"></td>`;
-        }
-    }
+                let htmlAdicionales = '';
+                for(let aIdx=0; aIdx<35; aIdx++) {
+                    let colActual = 41 + aIdx;
+                    let valCol = (d.adic && d.adic[aIdx] !== undefined) ? d.adic[aIdx] : "";
+                    if ([44, 45, 46, 47].includes(colActual)) {
+                        htmlAdicionales += `<td class="col-oculta-modulo"><input type="text" class="cell-input" value="" readonly style="background-color: #f1f5f9;"></td>`;
+                    } else if (colActual === 48) {
+                        htmlAdicionales += `<td class="col-oculta-modulo"><input type="text" class="cell-input cell-formula col-resguardo-link" value="" readonly></td>`;
+                    } else if (colActual === 51 || colActual === 52) {
+                        htmlAdicionales += `<td class="col-oculta-modulo"><input type="text" class="cell-input cell-formula ${colActual === 51 ? 'col-script-link' : 'col-folionec-link'}" value="" readonly></td>`;
+                    } else if (colActual === 63 || colActual === 64) {
+                        let impExpSubIdx = colActual - 63;
+                        htmlAdicionales += `<td class="col-oculta-modulo"><input type="text" class="cell-input cell-formula col-impexp-link-${impExpSubIdx}" value="" readonly></td>`;
+                    } else if (colActual === 53 || colActual === 54 || colActual === 65) {
+                        htmlAdicionales += `<td class="col-oculta-modulo"><input type="text" class="cell-input cell-formula col-adic-${colActual}" value="" readonly></td>`;
+                    } else if (colActual >= 66 && colActual <= 75) {
+                        let retSubIdx = colActual - 66;
+                        htmlAdicionales += `<td class="col-oculta-modulo"><input type="text" class="cell-input cell-formula col-ret-link-${retSubIdx}" value="" readonly></td>`;
+                    } else {
+                        htmlAdicionales += `<td class="col-oculta-modulo"><input type="text" class="cell-input col-editable col-num col-adic-val" data-adic-idx="${aIdx}" value="${valCol}" oninput="recalcularTodo(); guardarDatosLocales();"></td>`;
+                    }
+                }
 
                 tr.innerHTML = `
                     <td class="fw-bold col-dia">${d.dia}</td>
@@ -1310,7 +1318,6 @@ let htmlAdicionales = '';
             inicializarNavegacionIndependientePorTablas();
         }
 
-        // Navegación Enter independiente por cada tabla (por columna basada en posición de celda)
         function configurarNavegacionTablaPorColumna(tableEl) {
             if (!tableEl) return;
             const rows = Array.from(tableEl.querySelectorAll('tbody tr'));
@@ -1326,98 +1333,12 @@ let htmlAdicionales = '';
                     input.addEventListener('focus', function() {
                         setTimeout(() => { if(this.select) this.select(); }, 50);
                     });
-rows.forEach((r) => {
-        let inputs = r.querySelectorAll('input, select');
-        let rowVals = {};
-        inputs.forEach((inp, i) => {
-            let colNum = i + 2; 
-            rowVals[colNum] = parseFloat(inp.value) || 0;
-        });
 
-        // >>> NUEVO: Calcular Reposición (Col 11) + Reimpresiones (Col 15) para la columna 65 (reposiciones + reimpresiones)
-        let valRep = rowVals[11] || 0;
-        let valReimp = rowVals[15] || 0;
-        let sumaRepoReimp = valRep + valReimp;
-        let colRepoReimp = r.querySelector('.col-adic-65');
-        if(colRepoReimp) {
-            colRepoReimp.value = sumaRepoReimp > 0 ? sumaRepoReimp : "";
-        }
-        // Actualizamos el valor en rowVals[65] para que la sumatoria general lo tome en cuenta
-        rowVals[65] = sumaRepoReimp;
-
-        let horasVal = rowVals[3] || 0;
-        let diasTrabInput = r.querySelector('.col-dias-trab');
-        let diasVal = 0;
-        if(diasTrabInput) {
-            diasVal = (horasVal > 0) ? 1 : 0;
-            diasTrabInput.value = diasVal > 0 ? diasVal : "";
-        }
-        totalDiasTrabajados += diasVal;
-
-        let fiInput = r.querySelector('.col-fi');
-        let ffInput = r.querySelector('.col-ff');
-        let fiStr = fiInput ? fiInput.value.trim() : "";
-        let ffStr = ffInput ? ffInput.value.trim() : "";
-        let fiVal = (fiStr !== "" && !isNaN(fiStr)) ? BigInt(fiStr) : 0n;
-        let ffVal = (ffStr !== "" && !isNaN(ffStr)) ? BigInt(ffStr) : 0n;
-        
-        let totFolios = 0;
-        let colTotFolios = r.querySelector('.col-tot-folios');
-        if(fiVal > 0n) {
-            totFolios = (ffVal >= fiVal) ? Number(ffVal - fiVal + 1n) : 0;
-            if(colTotFolios) colTotFolios.value = totFolios > 0 ? totFolios : "";
-            if(minFolioInicial === null || fiVal < BigInt(minFolioInicial)) minFolioInicial = fiStr;
-            if(maxFolioFinal === null || ffVal > BigInt(maxFolioFinal)) maxFolioFinal = ffStr;
-        } else {
-            if(colTotFolios) colTotFolios.value = "";
-        }
-
-        let sumaFormatosUnicos = 0;
-        for(let c=8; c<=15; c++) {
-            sumaFormatosUnicos += (rowVals[c] || 0);
-        }
-        let valCanc = rowVals[17] || 0;
-        let valRech = rowVals[18] || 0;
-
-        let totalCol16Final = sumaFormatosUnicos + valCanc + valRech;
-        let totTramInput = r.querySelector('.col-tot-tram');
-        if(totTramInput) {
-            totTramInput.value = totalCol16Final > 0 ? totalCol16Final : "";
-            if (totFolios > 0 && totalCol16Final !== totFolios) {
-                totTramInput.style.color = 'red';
-            } else {
-                totTramInput.style.color = 'black';
-            }
-        }
-
-        sumaCol16Total += totalCol16Final;
-
-        let dispAntVal = rowVals[20] || 0;
-
-        if (!primerDispEncontrado && dispAntVal > 0) {
-            primerDispVal = dispAntVal;
-            primerDispEncontrado = true;
-        }
-
-        let recVal = rowVals[21] || 0, recOtrVal = rowVals[22] || 0, entVal = rowVals[23] || 0;
-        let v24 = rowVals[24] || 0, v25 = rowVals[25] || 0, v26 = rowVals[26] || 0, v27 = rowVals[27] || 0, v28 = rowVals[28] || 0, v29 = rowVals[29] || 0;
-        let impVal = rowVals[63] || 0, expVal = rowVals[64] || 0;
-
-        let dispActual = dispAntVal + recVal + recOtrVal - (entVal + v24 + v25 + v26 + v27 + v28 + v29) + impVal - expVal;
-        let colDisp = r.querySelector('.col-disp');
-        if(colDisp) colDisp.value = dispActual !== 0 ? dispActual : "";
-
-        inputs.forEach((inp, i) => {
-            let colNum = i + 2; 
-            if(colNum <= 75 && colNum !== 16) sumas[colNum] += (parseFloat(inp.value) || 0);
-        });
-    });
                     input.addEventListener('keydown', function(e) {
                         if (e.key === 'Enter') {
                             e.preventDefault();
                             let targetInput = null;
 
-                            // 1. Buscar en la misma columna hacia abajo
                             let nextR = rIdx + 1;
                             while (nextR < rows.length) {
                                 let nextTd = rows[nextR].querySelectorAll('td')[cIdx];
@@ -1431,7 +1352,6 @@ rows.forEach((r) => {
                                 nextR++;
                             }
 
-                            // 2. Saltar al inicio (fila 0) de la siguiente columna
                             if (!targetInput) {
                                 let maxCols = Math.max(...rows.map(r => r.querySelectorAll('td').length));
                                 let nextC = cIdx + 1;
@@ -1451,7 +1371,6 @@ rows.forEach((r) => {
                                 }
                             }
 
-                            // 3. Volver al primer elemento si llega al final
                             if (!targetInput) {
                                 for (let r = 0; r < rows.length; r++) {
                                     let rowTds = rows[r].querySelectorAll('td');
@@ -1698,6 +1617,7 @@ rows.forEach((r) => {
         function confirmarBorrado() {
             if (confirm("¿Estás seguro de que deseas limpiar este módulo en la nube?")) {
                 db.ref('modulos/' + moduloActual).remove().then(() => {
+                    localStorage.removeItem('mac_datos_' + moduloActual);
                     datosCargadosNube = {};
                     if(configModulos[moduloActual]) {
                         document.getElementById('txtResponsable').value = configModulos[moduloActual].responsable;
@@ -1843,6 +1763,9 @@ rows.forEach((r) => {
 
             let objetoCompleto = { datosDiarios, rechazos, credRecibidas, cancelados, instancias, impExp, retCausa, lotes, configGlobal };
             
+            // Respaldo local inmediato para evitar pérdida de datos al refrescar
+            localStorage.setItem('mac_datos_' + moduloActual, JSON.stringify(objetoCompleto));
+
             db.ref('modulos/' + moduloActual).set(objetoCompleto).catch(err => console.error("Error al sincronizar con nube:", err));
         }
 
@@ -2120,7 +2043,7 @@ rows.forEach((r) => {
                 if (horasStr === "" || (horas === 0 && horasStr !== "")) {
                     inp.disabled = true;
                     inp.style.backgroundColor = '#e2e8f0';
-                    if(!inp.classList.contains('col-remesa') && inp.tagName !== 'SELECT') inp.value = "";
+                    // NOTA: Se removió el vaciado automático de .value para proteger la información escrita
                 } else {
                     inp.disabled = false;
                     inp.style.backgroundColor = '#fff';
@@ -2157,189 +2080,142 @@ rows.forEach((r) => {
             guardarDatosLocales();
         }
 
-function recalcularTodo() {
-    recalcularTablasInferioresSinCiclo();
+        function recalcularTodo() {
+            recalcularTablasInferioresSinCiclo();
 
-    let rows = document.querySelectorAll('#cuerpoTablaCompleta tr');
-    sumas = {};
-    for(let c=1; c<=75; c++) sumas[c] = 0;
+            let rows = document.querySelectorAll('#cuerpoTablaCompleta tr');
+            sumas = {};
+            for(let c=1; c<=75; c++) sumas[c] = 0;
 
-    let minFolioInicial = null;
-    let maxFolioFinal = null;
-    primerDispVal = 0;
-    primerDispEncontrado = false;
-     totalDiasTrabajados = 0;
-     sumaCol16Total = 0;
+            let minFolioInicial = null;
+            let maxFolioFinal = null;
+            primerDispVal = 0;
+            primerDispEncontrado = false;
+            totalDiasTrabajados = 0;
+            sumaCol16Total = 0;
 
-    rows.forEach((r, rIdx) => {
-        let inputs = r.querySelectorAll('input, select');
-        let rowVals = {};
-        inputs.forEach((inp, i) => {
-            let colNum = i + 2; 
-            rowVals[colNum] = parseFloat(inp.value) || 0;
-        });
+            rows.forEach((r, rIdx) => {
+                let inputs = r.querySelectorAll('input, select');
+                let rowVals = {};
+                inputs.forEach((inp, i) => {
+                    let colNum = i + 2; 
+                    rowVals[colNum] = parseFloat(inp.value) || 0;
+                });
 
-        // Cálculo automático: Reposición (Col 11) + Reimpresiones (Col 15) -> Columna 65
-        let valRep = rowVals[11] || 0;
-        let valReimp = rowVals[15] || 0;
-        let sumaRepoReimp = valRep + valReimp;
-        let colRepoReimp = r.querySelector('.col-adic-65');
-        if(colRepoReimp) {
-            colRepoReimp.value = sumaRepoReimp > 0 ? sumaRepoReimp : "";
-        }
-        rowVals[65] = sumaRepoReimp;
+                let valRep = rowVals[11] || 0;
+                let valReimp = rowVals[15] || 0;
+                let sumaRepoReimp = valRep + valReimp;
+                let colRepoReimp = r.querySelector('.col-adic-65');
+                if(colRepoReimp) {
+                    colRepoReimp.value = sumaRepoReimp > 0 ? sumaRepoReimp : "";
+                }
+                rowVals[65] = sumaRepoReimp;
 
-        let horasVal = rowVals[3] || 0;
-        let diasTrabInput = r.querySelector('.col-dias-trab');
-        let diasVal = 0;
-        if(diasTrabInput) {
-            diasVal = (horasVal > 0) ? 1 : 0;
-            diasTrabInput.value = diasVal > 0 ? diasVal : "";
-        }
-        totalDiasTrabajados += diasVal;
+                let horasVal = rowVals[3] || 0;
+                let diasTrabInput = r.querySelector('.col-dias-trab');
+                let diasVal = 0;
+                if(diasTrabInput) {
+                    diasVal = (horasVal > 0) ? 1 : 0;
+                    diasTrabInput.value = diasVal > 0 ? diasVal : "";
+                }
+                totalDiasTrabajados += diasVal;
 
-        let fiInput = r.querySelector('.col-fi');
-        let ffInput = r.querySelector('.col-ff');
-        let fiStr = fiInput ? fiInput.value.trim() : "";
-        let ffStr = ffInput ? ffInput.value.trim() : "";
-        let fiVal = (fiStr !== "" && !isNaN(fiStr)) ? BigInt(fiStr) : 0n;
-        let ffVal = (ffStr !== "" && !isNaN(ffStr)) ? BigInt(ffStr) : 0n;
-        
-        let totFolios = 0;
-        let colTotFolios = r.querySelector('.col-tot-folios');
-        if(fiVal > 0n) {
-            totFolios = (ffVal >= fiVal) ? Number(ffVal - fiVal + 1n) : 0;
-            if(colTotFolios) colTotFolios.value = totFolios > 0 ? totFolios : "";
-            if(minFolioInicial === null || fiVal < BigInt(minFolioInicial)) minFolioInicial = fiStr;
-            if(maxFolioFinal === null || ffVal > BigInt(maxFolioFinal)) maxFolioFinal = ffStr;
-        } else {
-            if(colTotFolios) colTotFolios.value = "";
-        }
+                let fiInput = r.querySelector('.col-fi');
+                let ffInput = r.querySelector('.col-ff');
+                let fiStr = fiInput ? fiInput.value.trim() : "";
+                let ffStr = ffInput ? ffInput.value.trim() : "";
+                let fiVal = (fiStr !== "" && !isNaN(fiStr)) ? BigInt(fiStr) : 0n;
+                let ffVal = (ffStr !== "" && !isNaN(ffStr)) ? BigInt(ffStr) : 0n;
+                
+                let totFolios = 0;
+                let colTotFolios = r.querySelector('.col-tot-folios');
+                if(fiVal > 0n) {
+                    totFolios = (ffVal >= fiVal) ? Number(ffVal - fiVal + 1n) : 0;
+                    if(colTotFolios) colTotFolios.value = totFolios > 0 ? totFolios : "";
+                    if(minFolioInicial === null || fiVal < BigInt(minFolioInicial)) minFolioInicial = fiStr;
+                    if(maxFolioFinal === null || ffVal > BigInt(maxFolioFinal)) maxFolioFinal = ffStr;
+                } else {
+                    if(colTotFolios) colTotFolios.value = "";
+                }
 
-        let sumaFormatosUnicos = 0;
-        for(let c=8; c<=15; c++) {
-            sumaFormatosUnicos += (rowVals[c] || 0);
-        }
-        let valCanc = rowVals[17] || 0;
-        let valRech = rowVals[18] || 0;
+                let sumaFormatosUnicos = 0;
+                for(let c=8; c<=15; c++) {
+                    sumaFormatosUnicos += (rowVals[c] || 0);
+                }
+                let valCanc = rowVals[17] || 0;
+                let valRech = rowVals[18] || 0;
 
-        let totalCol16Final = sumaFormatosUnicos + valCanc + valRech;
-        let totTramInput = r.querySelector('.col-tot-tram');
-        if(totTramInput) {
-            totTramInput.value = totalCol16Final > 0 ? totalCol16Final : "";
-            if (totFolios > 0 && totalCol16Final !== totFolios) {
-                totTramInput.style.color = 'red';
-            } else {
-                totTramInput.style.color = 'black';
-            }
-        }
-
-        sumaCol16Total += totalCol16Final;
-
-        let dispAntVal = rowVals[20] || 0;
-
-        if (!primerDispEncontrado && dispAntVal > 0) {
-            primerDispVal = dispAntVal;
-            primerDispEncontrado = true;
-        }
-
-        let recVal = rowVals[21] || 0, recOtrVal = rowVals[22] || 0, entVal = rowVals[23] || 0;
-        let v24 = rowVals[24] || 0, v25 = rowVals[25] || 0, v26 = rowVals[26] || 0, v27 = rowVals[27] || 0, v28 = rowVals[28] || 0, v29 = rowVals[29] || 0;
-        let impVal = rowVals[63] || 0, expVal = rowVals[64] || 0;
-
-        let dispActual = dispAntVal + recVal + recOtrVal - (entVal + v24 + v25 + v26 + v27 + v28 + v29) + impVal - expVal;
-        let colDisp = r.querySelector('.col-disp');
-        if(colDisp) colDisp.value = dispActual !== 0 ? dispActual : "";
-
-        inputs.forEach((inp, i) => {
-            let colNum = i + 2; 
-            if (colNum === 65) {
-                sumas[65] += sumaRepoReimp;
-            } else if(colNum <= 75 && colNum !== 16) {
-                sumas[colNum] += (parseFloat(inp.value) || 0);
-            }
-
-            // Evento Enter para navegación fluida
-            inp.addEventListener('keydown', function(e) {
-                if (e.key === 'Enter') {
-                    e.preventDefault();
-                    let targetInput = null;
-                    let cIdx = i;
-
-                    let nextR = rIdx + 1;
-                    while (nextR < rows.length) {
-                        let nextTd = rows[nextR].querySelectorAll('td')[cIdx];
-                        if (nextTd) {
-                            let candidate = nextTd.querySelector('input.cell-input:not([readonly]), input.date-input:not([readonly]), select.cell-input');
-                            if (candidate && !candidate.disabled && candidate.offsetParent !== null && !candidate.readOnly) {
-                                targetInput = candidate;
-                                break;
-                            }
-                        }
-                        nextR++;
-                    }
-
-                    if (!targetInput) {
-                        let maxCols = Math.max(...rows.map(row => row.querySelectorAll('td').length));
-                        let nextC = cIdx + 1;
-                        while (nextC < maxCols) {
-                            for (let r = 0; r < rows.length; r++) {
-                                let candidateTd = rows[r].querySelectorAll('td')[nextC];
-                                if (candidateTd) {
-                                    let candidate = candidateTd.querySelector('input.cell-input:not([readonly]), input.date-input:not([readonly]), select.cell-input');
-                                    if (candidate && !candidate.disabled && candidate.offsetParent !== null && !candidate.readOnly) {
-                                        targetInput = candidate;
-                                        break;
-                                    }
-                                }
-                            }
-                            if (targetInput) break;
-                            nextC++;
-                        }
-                    }
-
-                    if (targetInput) {
-                        targetInput.focus();
-                        targetInput.select();
+                let totalCol16Final = sumaFormatosUnicos + valCanc + valRech;
+                let totTramInput = r.querySelector('.col-tot-tram');
+                if(totTramInput) {
+                    totTramInput.value = totalCol16Final > 0 ? totalCol16Final : "";
+                    if (totFolios > 0 && totalCol16Final !== totFolios) {
+                        totTramInput.style.color = 'red';
+                    } else {
+                        totTramInput.style.color = 'black';
                     }
                 }
+
+                sumaCol16Total += totalCol16Final;
+
+                let dispAntVal = rowVals[20] || 0;
+
+                if (!primerDispEncontrado && dispAntVal > 0) {
+                    primerDispVal = dispAntVal;
+                    primerDispEncontrado = true;
+                }
+
+                let recVal = rowVals[21] || 0, recOtrVal = rowVals[22] || 0, entVal = rowVals[23] || 0;
+                let v24 = rowVals[24] || 0, v25 = rowVals[25] || 0, v26 = rowVals[26] || 0, v27 = rowVals[27] || 0, v28 = rowVals[28] || 0, v29 = rowVals[29] || 0;
+                let impVal = rowVals[63] || 0, expVal = rowVals[64] || 0;
+
+                let dispActual = dispAntVal + recVal + recOtrVal - (entVal + v24 + v25 + v26 + v27 + v28 + v29) + impVal - expVal;
+                let colDisp = r.querySelector('.col-disp');
+                if(colDisp) colDisp.value = dispActual !== 0 ? dispActual : "";
+
+                inputs.forEach((inp, i) => {
+                    let colNum = i + 2; 
+                    if (colNum === 65) {
+                        sumas[65] += sumaRepoReimp;
+                    } else if(colNum <= 75 && colNum !== 16) {
+                        sumas[colNum] += (parseFloat(inp.value) || 0);
+                    }
+                });
             });
-        });
-    }); // <--- AQUÍ CIERRA CORRECTAMENTE EL rows.forEach
 
-    sumas[16] = sumaCol16Total;
+            sumas[16] = sumaCol16Total;
 
-    let sumaCol19Total = sumas[19] || 0;
-    let inputCanje = document.getElementById('inputCanjeGlobal');
-    if(inputCanje) {
-        inputCanje.value = sumaCol19Total > 0 ? sumaCol19Total : "";
-    }
+            let sumaCol19Total = sumas[19] || 0;
+            let inputCanje = document.getElementById('inputCanjeGlobal');
+            if(inputCanje) {
+                inputCanje.value = sumaCol19Total > 0 ? sumaCol19Total : "";
+            }
 
-    document.getElementById('tot_col_min_5').innerText = minFolioInicial !== null && minFolioInicial !== "0" ? minFolioInicial : "";
-    document.getElementById('tot_col_max_6').innerText = maxFolioFinal !== null && maxFolioFinal !== "0" ? maxFolioFinal : "";
-    document.getElementById('tot_col_16').innerText = sumas[16] > 0 ? sumas[16] : "";
-    document.getElementById('tot_col_primer_disp_20').innerText = primerDispVal > 0 ? primerDispVal : "";
-    document.getElementById('tot_col_canje_31').innerText = sumaCol19Total > 0 ? sumaCol19Total : "";
-    document.getElementById('tot_col_dias_trab_34').innerText = totalDiasTrabajados > 0 ? totalDiasTrabajados : "";
-    document.getElementById('tot_col_remesa_39').innerText = document.getElementById('txtRemesaGlobal').value;
-    document.getElementById('tot_col_conf_44').innerText = document.getElementById('txtConfGlobal').value;
-    document.getElementById('tot_col_ent_45').innerText = document.getElementById('txtEntidadGlobal').value;
-    document.getElementById('tot_col_dtto_46').innerText = document.getElementById('txtDistritoGlobal').value;
-    document.getElementById('tot_col_modulo_47').innerText = moduloActual;
-    document.getElementById('tot_col_script_51').innerText = document.getElementById('inputScriptGlobal').value;
-    document.getElementById('tot_col_folionec_52').innerText = document.getElementById('inputFolioNecGlobal').value;
+            document.getElementById('tot_col_min_5').innerText = minFolioInicial !== null && minFolioInicial !== "0" ? minFolioInicial : "";
+            document.getElementById('tot_col_max_6').innerText = maxFolioFinal !== null && maxFolioFinal !== "0" ? maxFolioFinal : "";
+            document.getElementById('tot_col_16').innerText = sumas[16] > 0 ? sumas[16] : "";
+            document.getElementById('tot_col_primer_disp_20').innerText = primerDispVal > 0 ? primerDispVal : "";
+            document.getElementById('tot_col_canje_31').innerText = sumaCol19Total > 0 ? sumaCol19Total : "";
+            document.getElementById('tot_col_dias_trab_34').innerText = totalDiasTrabajados > 0 ? totalDiasTrabajados : "";
+            document.getElementById('tot_col_remesa_39').innerText = document.getElementById('txtRemesaGlobal').value;
+            document.getElementById('tot_col_conf_44').innerText = document.getElementById('txtConfGlobal').value;
+            document.getElementById('tot_col_ent_45').innerText = document.getElementById('txtEntidadGlobal').value;
+            document.getElementById('tot_col_dtto_46').innerText = document.getElementById('txtDistritoGlobal').value;
+            document.getElementById('tot_col_modulo_47').innerText = moduloActual;
+            document.getElementById('tot_col_script_51').innerText = document.getElementById('inputScriptGlobal').value;
+            document.getElementById('tot_col_folionec_52').innerText = document.getElementById('inputFolioNecGlobal').value;
 
-    for(let c=7; c<=75; c++) {
-        if(!columnasSinSuma.includes(c)) {
-            let span = document.getElementById(`tot_col_${c}`);
-            if(span) span.innerText = sumas[c] > 0 ? sumas[c] : "";
+            for(let c=7; c<=75; c++) {
+                if(!columnasSinSuma.includes(c)) {
+                    let span = document.getElementById(`tot_col_${c}`);
+                    if(span) span.innerText = sumas[c] > 0 ? sumas[c] : "";
+                }
+            }
+
+            let totCol30Val = (sumas[20]||0) + (sumas[21]||0) + (sumas[22]||0) - ((sumas[23]||0) + (sumas[24]||0) + (sumas[25]||0) + (sumas[26]||0) + (sumas[27]||0) + (sumas[28]||0) + (sumas[29]||0)) + (sumas[63]||0) - (sumas[64]||0);
+            let spanTotCol30 = document.getElementById('tot_col_disp_fin_30');
+            if(spanTotCol30) spanTotCol30.innerText = totCol30Val !== 0 ? totCol30Val : "";
         }
-    }
-
-    let totCol30Val = (sumas[20]||0) + (sumas[21]||0) + (sumas[22]||0) - ((sumas[23]||0) + (sumas[24]||0) + (sumas[25]||0) + (sumas[26]||0) + (sumas[27]||0) + (sumas[28]||0) + (sumas[29]||0)) + (sumas[63]||0) - (sumas[64]||0);
-    let spanTotCol30 = document.getElementById('tot_col_disp_fin_30');
-    if(spanTotCol30) spanTotCol30.innerText = totCol30Val !== 0 ? totCol30Val : "";
-}
     </script>
 </body>
 </html>
